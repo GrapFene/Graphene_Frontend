@@ -1,0 +1,73 @@
+import { Post, Community } from '../types';
+
+export const communities: Community[] = [
+  { name: 'tech', members: 1234567, color: '#00ff00' },
+  { name: 'design', members: 987654, color: '#ff00ff' },
+  { name: 'music', members: 765432, color: '#ffff00' },
+  { name: 'gaming', members: 2345678, color: '#00ffff' },
+  { name: 'art', members: 456789, color: '#ff6b6b' },
+];
+
+export const posts: Post[] = [
+  {
+    id: '1',
+    title: 'The future of web design is brutalist and I love it',
+    content: 'Hot take: Neobrutalism is the best thing to happen to web design in years. No more subtle gradients, no more soft shadows. Just pure, bold, in-your-face design.',
+    author: 'designking',
+    community: 'design',
+    votes: 1247,
+    commentCount: 89,
+    timestamp: '2h ago',
+  },
+  {
+    id: '2',
+    title: 'Just built my first mechanical keyboard',
+    content: 'After months of research and waiting for parts, I finally completed my custom build. Gateron yellows, PBT keycaps, and a custom acrylic case. The sound is *chef\'s kiss*',
+    author: 'keeb_enthusiast',
+    community: 'tech',
+    votes: 892,
+    commentCount: 45,
+    timestamp: '4h ago',
+    imageUrl: 'https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg?auto=compress&cs=tinysrgb&w=800',
+  },
+  {
+    id: '3',
+    title: 'Why does every website look the same now?',
+    content: 'Seriously, everything is rounded corners, pastel colors, and the same sans-serif fonts. Where did all the creativity go? Bring back the weird internet!',
+    author: 'retro_webmaster',
+    community: 'design',
+    votes: 2134,
+    commentCount: 234,
+    timestamp: '6h ago',
+  },
+  {
+    id: '4',
+    title: 'My indie game just hit 10k wishlists on Steam!',
+    content: 'I\'ve been working on this solo for 2 years and never thought I\'d get here. Thank you all for the support. Launch date coming soon!',
+    author: 'solo_gamedev',
+    community: 'gaming',
+    votes: 3421,
+    commentCount: 167,
+    timestamp: '8h ago',
+  },
+  {
+    id: '5',
+    title: 'Unpopular opinion: AI art is just a tool',
+    content: 'The same way Photoshop was controversial when it came out. Artists will adapt and use it to create amazing things. Stop gatekeeping creativity.',
+    author: 'digital_artist',
+    community: 'art',
+    votes: 567,
+    commentCount: 892,
+    timestamp: '12h ago',
+  },
+  {
+    id: '6',
+    title: 'Found this vintage synth at a garage sale for $20',
+    content: 'It\'s a Roland Juno-106 and it still works! The person had no idea what they had. I feel like I won the lottery.',
+    author: 'synth_hunter',
+    community: 'music',
+    votes: 4521,
+    commentCount: 123,
+    timestamp: '1d ago',
+  },
+];

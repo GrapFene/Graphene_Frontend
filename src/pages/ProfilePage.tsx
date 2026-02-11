@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, Save, AlertTriangle, ArrowLeft } from 'lucide-react';
-import { getProfile, updateProfile, loginInit } from '../services/api';
+import { getProfile, updateProfile, loginInit, getGuardians, setGuardians, Guardian } from '../services/api';
 import { hashData, hashMnemonicWord } from '../utils/crypto';
 import { ethers } from 'ethers';
 import Header from '../components/Header';
+import { User, Lock, Save, AlertTriangle, ArrowLeft, Shield, Plus, X } from 'lucide-react';
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -21,6 +21,11 @@ export default function ProfilePage() {
     const [salt, setSalt] = useState('');
     const [password, setPassword] = useState('');
 
+    // Guardian State
+    const [guardians, setGuardiansList] = useState<Guardian[]>([]);
+    const [newGuardianId, setNewGuardianId] = useState('');
+    const [showGuardians, setShowGuardians] = useState(false);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
@@ -31,9 +36,75 @@ export default function ProfilePage() {
             const user = JSON.parse(userStr);
             setDid(user.did);
             setUsername(user.username);
+            setDid(user.did);
+            setUsername(user.username);
             loadProfile(user.did);
+            loadGuardians();
         }
     }, []);
+
+    const loadGuardians = async () => {
+        try {
+            const data = await getGuardians();
+            setGuardiansList(data.my_guardians);
+        } catch (err) {
+            console.error('Failed to load guardians', err);
+        }
+    };
+
+    const handleAddGuardian = async () => {
+        if (!newGuardianId) return;
+        setLoading(true);
+        try {
+            // Logic to add guardian. Current API replaces the list.
+            // So we take existing DIDs + new one.
+            // But API expects DIDs.
+            // If user typed username, we might need to resolve it first?
+            // The API `setGuardians` implementation in `recovery.ts` expects DIDs.
+            // But the `register` flow generates DID from username: `did:graphene:username`.
+            // So we can try to guess the DID or use the input as DID.
+            // Let's assume input is DID for now or try to format it.
+
+            let targetDid = newGuardianId;
+            if (!targetDid.startsWith('did:')) {
+                // Assume it's a username and format it
+                targetDid = `did:graphene:${newGuardianId.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+            }
+
+            const currentDids = guardians.map(g => g.did);
+            if (currentDids.includes(targetDid)) {
+                throw new Error('User is already a guardian');
+            }
+
+            const newDids = [...currentDids, targetDid];
+            await setGuardians(newDids);
+
+            setNewGuardianId('');
+            await loadGuardians();
+            setMessage('Guardian added successfully');
+        } catch (err: any) {
+            console.error(err);
+            const msg = err.response?.data?.error?.message || err.message || 'Failed to add guardian';
+            setError(msg);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRemoveGuardian = async (guardianDid: string) => {
+        if (!confirm('Are you sure you want to remove this guardian?')) return;
+        setLoading(true);
+        try {
+            const newDids = guardians.filter(g => g.did !== guardianDid).map(g => g.did);
+            await setGuardians(newDids);
+            await loadGuardians();
+            setMessage('Guardian removed');
+        } catch (err: any) {
+            setError(err.message || 'Failed to remove guardian');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const loadProfile = async (userDid: string) => {
         try {
@@ -169,6 +240,67 @@ export default function ProfilePage() {
                         <div className="bg-gray-100 border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                             <label className="text-xs font-black uppercase text-gray-600 block mb-2">Username</label>
                             <p className="text-lg font-black">{username}</p>
+                        </div>
+
+                        {/* Guardians Section */}
+                        <div className="bg-blue-100 border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xl font-black flex items-center gap-2">
+                                    <Shield className="w-6 h-6" />
+                                    Account Guardians
+                                </h3>
+                                <button
+                                    onClick={() => setShowGuardians(!showGuardians)}
+                                    className="text-sm font-bold underline"
+                                >
+                                    {showGuardians ? 'Hide' : 'Manage'}
+                                </button>
+                            </div>
+
+                            {showGuardians && (
+                                <div className="space-y-4">
+                                    <p className="text-sm font-bold">
+                                        Guardians can help you recover your account if you lose access.
+                                        Add trusted friends.
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            className="flex-1 px-3 py-2 border-4 border-black font-bold focus:shadow-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                            placeholder="Enter Username or DID"
+                                            value={newGuardianId}
+                                            onChange={e => setNewGuardianId(e.target.value)}
+                                        />
+                                        <button
+                                            onClick={handleAddGuardian}
+                                            disabled={loading}
+                                            className="bg-black text-white px-4 py-2 font-black border-4 border-black hover:bg-gray-800"
+                                        >
+                                            <Plus className="w-5 h-5" />
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-2 mt-4">
+                                        {guardians.map(g => (
+                                            <div key={g.did} className="flex items-center justify-between bg-white border-2 border-black p-2">
+                                                <div>
+                                                    <p className="font-bold text-sm">{g.username || 'Unknown'}</p>
+                                                    <p className="text-xs text-gray-500 font-mono">{g.did.substring(0, 20)}...</p>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleRemoveGuardian(g.did)}
+                                                    className="text-red-500 hover:bg-red-100 p-1 rounded"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {guardians.length === 0 && (
+                                            <p className="text-sm text-gray-500 italic">No guardians set.</p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {phase === 'edit' ? (

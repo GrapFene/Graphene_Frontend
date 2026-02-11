@@ -114,6 +114,17 @@ export default function LoginPage() {
                         >
                             {loading ? 'Verifying...' : 'Continue'}
                         </button>
+
+                        <div className="text-center">
+                            <button
+                                type="button"
+                                onClick={() => navigate('/recovery')}
+                                className="text-sm font-bold underline hover:text-blue-600"
+                            >
+                                Forgot Password? / Recover Account
+                            </button>
+                        </div>
+
                         <button
                             type="button"
                             onClick={() => navigate('/register')}

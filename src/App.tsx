@@ -72,6 +72,38 @@ function App() {
         element={<RecoveryPage />}
       />
 
+      {/* Protected Routes */}
+      <Route
+        path="/"
+        element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/submit"
+        element={isAuthenticated ? <CreatePostPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/profile"
+        element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/search"
+        element={isAuthenticated ? <SearchPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/r/:name"
+        element={isAuthenticated ? <CommunityPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/r/:name/:postId/:slug"
+        element={isAuthenticated ? <PostDetailsPage /> : <Navigate to="/login" replace />}
+      />
+
+      {/* Catch all - redirect to home or login */}
+      <Route
+        path="*"
+        element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />}
+      />
+
       <footer className="bg-black text-white border-t-4 border-black mt-16">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">

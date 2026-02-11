@@ -220,3 +220,63 @@ export const getProfile = async (did: string) => {
     const response = await api.get(`/profile/${did}`);
     return response.data;
 };
+
+// Recovery / Guardians
+export interface Guardian {
+    did: string;
+    username: string;
+    nickname?: string;
+}
+
+export interface RecoveryRequestInfo {
+    id: string;
+    target_did: string;
+    target_username: string;
+    created_at: string;
+    expires_at: string;
+    approvals: number;
+    required_approvals: number;
+    has_approved: boolean;
+}
+
+export const getGuardians = async () => {
+    const response = await api.get('/recovery/guardians');
+    return response.data;
+};
+
+export const setGuardians = async (guardianDids: string[]) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+
+    const response = await api.post('/recovery/guardians', {
+        guardian_dids: guardianDids
+    });
+    return response.data;
+};
+
+export const initiateRecovery = async (data: {
+    target_did: string;
+    new_password_hash: string;
+    new_salt: string;
+    new_mnemonic_hashes: string[];
+}) => {
+    const response = await api.post('/recovery/request', data);
+    return response.data;
+};
+
+export const getPendingRecoveryRequests = async () => {
+    const response = await api.get('/recovery/requests');
+    return response.data; // Returns RecoveryRequestInfo[]
+};
+
+export const approveRecovery = async (requestId: string) => {
+    const response = await api.post('/recovery/approve', { request_id: requestId });
+    return response.data;
+};
+
+export const finalizeRecovery = async (requestId: string) => {
+    const response = await api.post('/recovery/finalize', { request_id: requestId });
+    return response.data;
+};
+
+

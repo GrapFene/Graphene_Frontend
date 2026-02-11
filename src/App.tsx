@@ -8,6 +8,7 @@ import CreatePostPage from './pages/CreatePostPage';
 import CommunityPage from './pages/CommunityPage';
 import PostDetailsPage from './pages/PostDetailsPage';
 import SearchPage from './pages/SearchPage';
+import RecoveryPage from './pages/RecoveryPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -52,6 +53,10 @@ function App() {
       <Route
         path="/register"
         element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+      />
+      <Route
+        path="/recovery"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <RecoveryPage />}
       />
 
       {/* Protected Routes */}

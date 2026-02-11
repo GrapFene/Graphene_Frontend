@@ -1,11 +1,18 @@
-import { ArrowUp, ArrowDown, MessageSquare, Share2, Bookmark } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageSquare, Share2, Bookmark, AlertCircle } from 'lucide-react';
 import { Post } from '../types';
+import { useVote } from '../hooks/useVote';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface PostCardProps {
   post: Post;
 }
 
 export default function PostCard({ post }: PostCardProps) {
+  const { votes, userVote, status, error, handleVote } = useVote({
+    initialVotes: post.votes,
+    postId: post.id
+  });
+
   const communityColors: Record<string, string> = {
     tech: 'bg-green-400',
     design: 'bg-pink-400',
@@ -20,16 +27,46 @@ export default function PostCard({ post }: PostCardProps) {
     <article className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
       <div className="flex">
         <div className="flex flex-col items-center gap-2 bg-gray-100 border-r-4 border-black p-4">
-          <button className="bg-white border-3 border-black p-2 hover:bg-green-300 transition-colors">
+          <button
+            onClick={() => handleVote('up')}
+            disabled={status === 'voting'}
+            className={`bg-white border-3 border-black p-2 transition-colors ${userVote === 'up' ? 'bg-green-400' : 'hover:bg-green-300'
+              }`}
+          >
             <ArrowUp className="w-5 h-5" strokeWidth={3} />
           </button>
-          <span className="font-black text-lg">{post.votes}</span>
-          <button className="bg-white border-3 border-black p-2 hover:bg-red-300 transition-colors">
+
+          <span className={`font-black text-lg ${userVote === 'up' ? 'text-green-600' :
+              userVote === 'down' ? 'text-red-600' : ''
+            }`}>
+            {votes}
+          </span>
+
+          <button
+            onClick={() => handleVote('down')}
+            disabled={status === 'voting'}
+            className={`bg-white border-3 border-black p-2 transition-colors ${userVote === 'down' ? 'bg-red-400' : 'hover:bg-red-300'
+              }`}
+          >
             <ArrowDown className="w-5 h-5" strokeWidth={3} />
           </button>
         </div>
 
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 relative">
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="absolute top-2 right-2 bg-red-100 border-2 border-red-500 text-red-700 px-3 py-1 text-sm font-bold flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4" />
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="flex items-center gap-3 mb-3">
             <span className={`${bgColor} border-3 border-black px-3 py-1 font-black text-sm`}>
               g/{post.community}

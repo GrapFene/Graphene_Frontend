@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+import CreatePostPage from './pages/CreatePostPage';
+import CommunityPage from './pages/CommunityPage';
+import PostDetailsPage from './pages/PostDetailsPage';
+import SearchPage from './pages/SearchPage';
+import RecoveryPage from './pages/RecoveryPage';
 import Header from './components/Header';
-import PostCard from './components/PostCard';
-import Sidebar from './components/Sidebar';
-import FilterBar from './components/FilterBar';
-import AuthPage from './components/AuthPage'; // Import AuthPage
-import ProfilePage from './components/ProfilePage'; // Import ProfilePage
-import { posts } from './data/mockData';
+import AuthPage from './components/AuthPage';
 import backgroundImage from './assets/background.png'; // Import background image
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [currentView, setCurrentView] = useState<'feed' | 'profile'>('feed');
 
   useEffect(() => {
     // Check if user is logged in
@@ -53,31 +57,20 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100">
-      <Header />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            {currentView === 'feed' ? (
-              <>
-                <FilterBar />
-                {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </>
-            ) : (
-              <ProfilePage onBack={() => setCurrentView('feed')} />
-            )}
-          </div>
-
-          <div className="hidden lg:block">
-            <div className="sticky top-24">
-              <Sidebar onLogout={handleLogout} onProfileClick={() => setCurrentView('profile')} />
-            </div>
-          </div>
-        </div>
-      </main>
+    <Routes>
+      {/* Public Routes */}
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/register"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+      />
+      <Route
+        path="/recover"
+        element={<RecoveryPage />}
+      />
 
       <footer className="bg-black text-white border-t-4 border-black mt-16">
         <div className="max-w-7xl mx-auto px-4 py-8">

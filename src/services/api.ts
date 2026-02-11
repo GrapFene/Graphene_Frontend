@@ -124,4 +124,99 @@ export const getProfile = async (did: string) => {
     return response.json();
 };
 
-export default { register, loginInit, loginVerify, updateProfile, getProfile };
+// =============================================================================
+// Social Recovery API
+// =============================================================================
+
+export interface Guardian {
+    did: string;
+    username: string;
+    nickname?: string;
+}
+
+export interface RecoveryRequestInfo {
+    id: string;
+    target_did: string;
+    target_username: string;
+    created_at: string;
+    expires_at: string;
+    approvals: number;
+    required_approvals: number;
+    has_approved: boolean;
+}
+
+export const setGuardians = async (guardian_dids: string[], nicknames?: Record<string, string>) => {
+    const response = await fetch(`${API_BASE_URL}/recovery/guardians`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('graphene_token')}`
+        },
+        body: JSON.stringify({ guardian_dids, nicknames }),
+    });
+    if (!response.ok) throw new Error('Failed to set guardians');
+    return response.json();
+};
+
+export const getGuardians = async () => {
+    const response = await fetch(`${API_BASE_URL}/recovery/guardians`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('graphene_token')}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to fetch guardians');
+    const data = await response.json();
+    return data as { my_guardians: Guardian[], guarding_for: Guardian[] };
+};
+
+export const initiateRecovery = async (params: {
+    target_did: string;
+    new_password_hash: string;
+    new_salt: string;
+    new_mnemonic_hashes: string[];
+}) => {
+    const response = await fetch(`${API_BASE_URL}/recovery/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+    });
+    if (!response.ok) throw new Error('Failed to initiate recovery');
+    return response.json();
+};
+
+export const getPendingRecoveryRequests = async () => {
+    const response = await fetch(`${API_BASE_URL}/recovery/requests`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('graphene_token')}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to fetch recovery requests');
+    const data = await response.json();
+    return data as RecoveryRequestInfo[];
+};
+
+export const approveRecovery = async (request_id: string) => {
+    const response = await fetch(`${API_BASE_URL}/recovery/approve`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('graphene_token')}`
+        },
+        body: JSON.stringify({ request_id }),
+    });
+    if (!response.ok) throw new Error('Failed to approve recovery');
+    return response.json();
+};
+
+export const finalizeRecovery = async (request_id: string) => {
+    const response = await fetch(`${API_BASE_URL}/recovery/finalize`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('graphene_token')}`
+        },
+        body: JSON.stringify({ request_id }),
+    });
+    if (!response.ok) throw new Error('Failed to finalize recovery');
+    return response.json();
+};

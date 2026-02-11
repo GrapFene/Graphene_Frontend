@@ -5,6 +5,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import CreatePostPage from './pages/CreatePostPage';
+import CommunityPage from './pages/CommunityPage';
+import PostDetailsPage from './pages/PostDetailsPage';
+import SearchPage from './pages/SearchPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -63,6 +66,18 @@ function App() {
       <Route
         path="/profile"
         element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/search"
+        element={isAuthenticated ? <SearchPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/r/:name"
+        element={isAuthenticated ? <CommunityPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/r/:name/:postId/:slug"
+        element={isAuthenticated ? <PostDetailsPage /> : <Navigate to="/login" replace />}
       />
 
       {/* Catch all - redirect to home or login */}

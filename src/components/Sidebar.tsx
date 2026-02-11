@@ -3,9 +3,10 @@ import { communities } from '../data/mockData';
 
 interface SidebarProps {
   onLogout: () => void;
+  onProfileClick: () => void;
 }
 
-export default function Sidebar({ onLogout }: SidebarProps) {
+export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
   return (
     <aside className="space-y-6">
       <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
@@ -47,7 +48,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           </h3>
         </div>
         <div className="p-4 space-y-3">
-          {communities.map((community, index) => (
+          {communities.map((community) => (
             <div
               key={community.name}
               className="flex items-center justify-between hover:bg-gray-50 p-2 -mx-2 cursor-pointer"
@@ -81,6 +82,12 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           The brutally honest social platform. No algorithms, no BS. Just pure,
           unfiltered discussions.
         </p>
+        <button
+          onClick={onProfileClick}
+          className="w-full bg-white text-black border-4 border-black px-4 py-3 font-black mb-3 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+        >
+          My Profile
+        </button>
         <button
           onClick={onLogout}
           className="w-full bg-black text-white border-4 border-black px-4 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]"

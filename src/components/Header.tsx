@@ -1,6 +1,10 @@
 import { Search, Plus, Bell, User } from 'lucide-react';
 
-export default function Header() {
+interface HeaderProps {
+  onCreatePost?: () => void;
+}
+
+export default function Header({ onCreatePost }: HeaderProps) {
   return (
     <header className="bg-white border-b-4 border-black sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -23,7 +27,10 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="hidden sm:flex items-center gap-2 bg-yellow-300 border-4 border-black px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <button
+              onClick={onCreatePost}
+              className="hidden sm:flex items-center gap-2 bg-yellow-300 border-4 border-black px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+            >
               <Plus className="w-5 h-5" />
               <span>Create</span>
             </button>

@@ -1,127 +1,152 @@
-const API_BASE_URL = 'http://localhost:3000';
+import axios from 'axios';
 
-interface RegisterParams {
-    username: string;
-    password_hash: string;
-    salt: string;
-    public_key: string;
-    mnemonic_hashes: string[];
+const API_URL = 'http://localhost:3000';
+
+const api = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// Add a request interceptor to include the token if available
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('graphene_token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+export interface Post {
+    id: string;
+    author_did: string;
+    content: string;
+    subreddit: string;
+    created_at: string;
+    score?: number;
+    trendingScore?: number;
 }
 
-/**
- * Register a new user
- */
-export const register = async ({ username, password_hash, salt, public_key, mnemonic_hashes }: RegisterParams) => {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password_hash, salt, public_key, mnemonic_hashes }),
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'Registration failed');
-    }
-
-    return response.json();
-};
-
-interface LoginInitParams {
-    username: string;
-    password_hash: string;
+export interface Community {
+    name: string;
+    description: string;
+    members: number;
+    created_at: string;
 }
 
-/**
- * Initiate login - verify password and get mnemonic challenge
- */
-export const loginInit = async ({ username, password_hash }: LoginInitParams) => {
-    const response = await fetch(`${API_BASE_URL}/auth/login-init`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password_hash }),
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'Login failed');
-    }
-
-    return response.json();
+// Auth (Existing)
+export const register = async (data: any) => {
+    const response = await api.post('/auth/register', data);
+    return response.data;
 };
 
-interface LoginVerifyParams {
-    did: string;
-    word_hashes: string[];
-    indices: number[];
-}
-
-/**
- * Verify mnemonic words and complete login
- */
-export const loginVerify = async ({ did, word_hashes, indices }: LoginVerifyParams) => {
-    const response = await fetch(`${API_BASE_URL}/auth/login-verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ did, word_hashes, indices }),
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'Verification failed');
-    }
-
-    return response.json();
+export const loginInit = async (data: any) => {
+    const response = await api.post('/auth/login-init', data);
+    return response.data;
 };
 
-// =============================================================================
-// Profile API
-// =============================================================================
+export const loginVerify = async (data: any) => {
+    const response = await api.post('/auth/login-verify', data);
+    return response.data;
+};
 
+// Posts
+export const getFeed = async (sort: 'recent' | 'trending' = 'recent') => {
+    const userStr = localStorage.getItem('graphene_user');
+    let viewerDid = '';
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            // The identity object from loginVerify might have different structure. 
+            // loginVerify returns { token, identity: { did, username, ... } }
+            // Let's assume it has 'did' or 'address'. 
+            // Wait, AuthPage saves 'result.identity'. 
+            // Let's check AuthPage.tsx again to be sure what 'identity' contains.
+            // It seems 'identity' from generateIdentity has 'address', 'mnemonic', etc.
+            // But the backend 'loginVerify' returns the identity row from DB?
+            // Let's assume it has 'did'.
+            viewerDid = user.did;
+        } catch (e) {
+            console.error("Error parsing user from localstorage", e);
+        }
+    }
+
+    // Pass viewerDid for blocking logic
+    const response = await api.get(`/posts?sort=${sort}&viewerDid=${viewerDid}`);
+    return response.data as Post[];
+};
+
+export const createPost = async (content: string, subreddit: string) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+    const user = JSON.parse(userStr);
+
+    const response = await api.post('/posts', {
+        did: user.did,
+        content,
+        subreddit
+    });
+    return response.data;
+};
+
+// Communities
+export const getCommunities = async (search: string = '') => {
+    const response = await api.get(`/communities?search=${search}`);
+    return response.data; // Returns { name, description, subscriber_count }
+};
+
+export const createCommunity = async (name: string, description: string) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+    const user = JSON.parse(userStr);
+
+    const response = await api.post('/communities', {
+        did: user.did,
+        name,
+        description
+    });
+    return response.data;
+};
+
+// Subscriptions
+export const subscribe = async (communityName: string) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+    const user = JSON.parse(userStr);
+
+    const response = await api.post('/subscriptions', {
+        subscriber_did: user.did,
+        community_name: communityName
+    });
+    return response.data;
+};
+
+// Profile
 export interface ProfileContent {
     displayName?: string;
     bio?: string;
     avatarUrl?: string;
 }
 
-interface UpdateProfileParams {
+export const updateProfile = async (params: {
     did: string;
     content: ProfileContent;
     nonce: string;
     signed_hash: string;
-}
-
-/**
- * Update user profile
- */
-export const updateProfile = async (params: UpdateProfileParams) => {
-    const response = await fetch(`${API_BASE_URL}/profile`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params),
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'Profile update failed');
-    }
-
-    return response.json();
+    word_hashes?: string[];
+    indices?: number[];
+}) => {
+    const response = await api.post('/profile', params);
+    return response.data;
 };
 
-/**
- * Get user profile
- */
 export const getProfile = async (did: string) => {
-    const response = await fetch(`${API_BASE_URL}/profile/${did}`);
-
-    if (response.status === 404) return null;
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'Failed to fetch profile');
-    }
-
-    return response.json();
+    const response = await api.get(`/profile/${did}`);
+    return response.data;
 };
-
-export default { register, loginInit, loginVerify, updateProfile, getProfile };

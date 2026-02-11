@@ -73,4 +73,55 @@ export const loginVerify = async ({ did, word_hashes, indices }: LoginVerifyPara
     return response.json();
 };
 
-export default { register, loginInit, loginVerify };
+// =============================================================================
+// Profile API
+// =============================================================================
+
+export interface ProfileContent {
+    displayName?: string;
+    bio?: string;
+    avatarUrl?: string;
+}
+
+interface UpdateProfileParams {
+    did: string;
+    content: ProfileContent;
+    nonce: string;
+    signed_hash: string;
+}
+
+/**
+ * Update user profile
+ */
+export const updateProfile = async (params: UpdateProfileParams) => {
+    const response = await fetch(`${API_BASE_URL}/profile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || 'Profile update failed');
+    }
+
+    return response.json();
+};
+
+/**
+ * Get user profile
+ */
+export const getProfile = async (did: string) => {
+    const response = await fetch(`${API_BASE_URL}/profile/${did}`);
+
+    if (response.status === 404) return null;
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || 'Failed to fetch profile');
+    }
+
+    return response.json();
+};
+
+export default { register, loginInit, loginVerify, updateProfile, getProfile };

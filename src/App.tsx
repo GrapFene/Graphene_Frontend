@@ -4,11 +4,13 @@ import PostCard from './components/PostCard';
 import Sidebar from './components/Sidebar';
 import FilterBar from './components/FilterBar';
 import AuthPage from './components/AuthPage'; // Import AuthPage
+import ProfilePage from './components/ProfilePage'; // Import ProfilePage
 import { posts } from './data/mockData';
 import backgroundImage from './assets/background.png'; // Import background image
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentView, setCurrentView] = useState<'feed' | 'profile'>('feed');
 
   useEffect(() => {
     // Check if user is logged in
@@ -57,16 +59,21 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <FilterBar />
-
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
+            {currentView === 'feed' ? (
+              <>
+                <FilterBar />
+                {posts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </>
+            ) : (
+              <ProfilePage onBack={() => setCurrentView('feed')} />
+            )}
           </div>
 
           <div className="hidden lg:block">
             <div className="sticky top-24">
-              <Sidebar onLogout={handleLogout} />
+              <Sidebar onLogout={handleLogout} onProfileClick={() => setCurrentView('profile')} />
             </div>
           </div>
         </div>

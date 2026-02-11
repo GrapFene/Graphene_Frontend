@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import PostCard from '../components/PostCard';
 import Sidebar from '../components/Sidebar';
 import FilterBar from '../components/FilterBar';
+import CreateCommunityModal from '../components/CreateCommunityModal';
 import { useNavigate } from 'react-router-dom';
 import { getFeed, Post as ApiPost } from '../services/api';
 
@@ -10,6 +11,7 @@ export default function HomePage() {
     const navigate = useNavigate();
     const [posts, setPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [showCommunityModal, setShowCommunityModal] = useState(false);
 
     useEffect(() => {
         fetchPosts();
@@ -24,7 +26,7 @@ export default function HomePage() {
                 community: p.subreddit || 'general',
                 author: p.author_did.substring(0, 15) + '...',
                 timestamp: new Date(p.created_at).toLocaleString(),
-                title: 'Post',
+                title: p.title || 'Untitled Post',
                 content: p.content,
                 votes: p.score || 0,
                 commentCount: 0,
@@ -50,7 +52,19 @@ export default function HomePage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100">
-            <Header onCreatePost={() => navigate('/submit')} />
+            <Header
+                onCreatePost={() => navigate('/submit')}
+                onCreateCommunity={() => setShowCommunityModal(true)}
+            />
+
+            <CreateCommunityModal
+                isOpen={showCommunityModal}
+                onClose={() => setShowCommunityModal(false)}
+                onSuccess={() => {
+                    setShowCommunityModal(false);
+                    fetchPosts(); // Refresh feed after creating community
+                }}
+            />
 
             <main className="max-w-7xl mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -48,7 +48,7 @@ export default function CreatePostPage() {
                 postContent = `${content}\n\nLink: ${linkUrl}`;
             }
 
-            await createPost(postContent, subreddit);
+            await createPost(title, postContent, subreddit);
             navigate('/'); // Navigate back to home feed
         } catch (err: any) {
             setError(err.message || 'Failed to create post');

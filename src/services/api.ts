@@ -26,17 +26,32 @@ api.interceptors.request.use(
 export interface Post {
     id: string;
     author_did: string;
+    title: string;
     content: string;
     subreddit: string;
     created_at: string;
     score?: number;
     trendingScore?: number;
+    comments?: Comment[];
+}
+
+export interface Comment {
+    id: string;
+    post_id: string;
+    author_did: string;
+    content: string;
+    parent_id?: string;
+    created_at: string;
+    vote_score?: number;
+    user_vote?: number;
+    replies?: Comment[];
 }
 
 export interface Community {
     name: string;
     description: string;
-    members: number;
+    members: number; // mapped from subscriber_count or manually set
+    subscriber_count?: number;
     created_at: string;
 }
 
@@ -57,6 +72,11 @@ export const loginVerify = async (data: any) => {
 };
 
 // Posts
+export const getPostDetails = async (id: string, viewerDid?: string) => {
+    const response = await api.get(`/posts/${id}?viewerDid=${viewerDid || ''}`);
+    return response.data as Post;
+};
+
 export const getFeed = async (sort: 'recent' | 'trending' = 'recent') => {
     const userStr = localStorage.getItem('graphene_user');
     let viewerDid = '';
@@ -82,13 +102,29 @@ export const getFeed = async (sort: 'recent' | 'trending' = 'recent') => {
     return response.data as Post[];
 };
 
-export const createPost = async (content: string, subreddit: string) => {
+export const getPostsByCommunity = async (subreddit: string) => {
+    const userStr = localStorage.getItem('graphene_user');
+    let viewerDid = '';
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            viewerDid = user.did;
+        } catch (e) { }
+    }
+    const response = await api.get(`/posts?subreddit=${subreddit}&viewerDid=${viewerDid}`);
+    return response.data as Post[];
+};
+
+
+
+export const createPost = async (title: string, content: string, subreddit: string) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
     const user = JSON.parse(userStr);
 
     const response = await api.post('/posts', {
         did: user.did,
+        title,
         content,
         subreddit
     });
@@ -101,7 +137,12 @@ export const getCommunities = async (search: string = '') => {
     return response.data; // Returns { name, description, subscriber_count }
 };
 
-export const createCommunity = async (name: string, description: string) => {
+export const getTopCommunities = async (limit: number = 5) => {
+    const response = await api.get(`/communities/top?limit=${limit}`);
+    return response.data;
+};
+
+export const createCommunity = async (name: string, description: string, topic?: string, isPrivate?: boolean) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
     const user = JSON.parse(userStr);
@@ -109,7 +150,9 @@ export const createCommunity = async (name: string, description: string) => {
     const response = await api.post('/communities', {
         did: user.did,
         name,
-        description
+        description,
+        topic,
+        is_private: isPrivate
     });
     return response.data;
 };
@@ -123,6 +166,33 @@ export const subscribe = async (communityName: string) => {
     const response = await api.post('/subscriptions', {
         subscriber_did: user.did,
         community_name: communityName
+    });
+    return response.data;
+};
+
+// Comments
+export const createComment = async (postId: string, content: string, parentId?: string) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+    const user = JSON.parse(userStr);
+
+    const response = await api.post('/comments', {
+        did: user.did,
+        postId,
+        content,
+        parentId
+    });
+    return response.data;
+};
+
+export const voteComment = async (commentId: string, voteType: 1 | -1) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+    const user = JSON.parse(userStr);
+
+    const response = await api.post(`/comments/${commentId}/vote`, {
+        did: user.did,
+        voteType
     });
     return response.data;
 };

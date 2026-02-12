@@ -69,23 +69,23 @@ export default function CreatePostPage() {
     const bgColor = selectedCommunity ? (communityColors[selectedCommunity.name] || 'bg-purple-400') : 'bg-purple-400';
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 p-4">
+        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black p-4 transition-colors duration-200">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-4xl font-black">Create post</h1>
+                    <h1 className="text-4xl font-black text-black dark:text-white">Create post</h1>
                     <button
                         onClick={() => navigate('/')}
-                        className="bg-white border-4 border-black px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                        className="bg-white dark:bg-gray-800 text-black dark:text-white border-4 border-black dark:border-gray-600 px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
                     >
                         Cancel
                     </button>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)]">
                     {/* Community Selector */}
-                    <div className="border-b-4 border-black p-4">
+                    <div className="border-b-4 border-black dark:border-gray-600 p-4">
                         <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 ${bgColor} border-3 border-black flex items-center justify-center font-black`}>
                                 g/
@@ -93,7 +93,7 @@ export default function CreatePostPage() {
                             <select
                                 value={subreddit}
                                 onChange={(e) => setSubreddit(e.target.value)}
-                                className="flex-1 px-4 py-2 border-4 border-black font-bold text-lg focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                className="flex-1 px-4 py-2 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold text-lg focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
                             >
                                 {communities.map((community) => (
                                     <option key={community.name} value={community.name}>
@@ -105,11 +105,10 @@ export default function CreatePostPage() {
                     </div>
 
                     {/* Post Type Tabs */}
-                    <div className="border-b-4 border-black flex">
+                    <div className="border-b-4 border-black dark:border-gray-600 flex overflow-x-auto">
                         <button
                             onClick={() => setPostType('text')}
-                            className={`flex-1 px-6 py-3 font-black border-r-4 border-black transition-colors ${postType === 'text' ? 'bg-blue-300' : 'bg-gray-100 hover:bg-gray-200'
-                                }`}
+                            className={`flex-1 px-6 py-3 font-black border-r-4 border-black dark:border-gray-600 transition-colors whitespace-nowrap ${postType === 'text' ? 'bg-blue-300 dark:bg-blue-600 text-black dark:text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                         >
                             <span className="flex items-center justify-center gap-2">
                                 <MessageCircle className="w-5 h-5" strokeWidth={3} />
@@ -118,8 +117,7 @@ export default function CreatePostPage() {
                         </button>
                         <button
                             onClick={() => setPostType('image')}
-                            className={`flex-1 px-6 py-3 font-black border-r-4 border-black transition-colors ${postType === 'image' ? 'bg-blue-300' : 'bg-gray-100 hover:bg-gray-200'
-                                }`}
+                            className={`flex-1 px-6 py-3 font-black border-r-4 border-black dark:border-gray-600 transition-colors whitespace-nowrap ${postType === 'image' ? 'bg-blue-300 dark:bg-blue-600 text-black dark:text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                         >
                             <span className="flex items-center justify-center gap-2">
                                 <Image className="w-5 h-5" strokeWidth={3} />
@@ -128,8 +126,7 @@ export default function CreatePostPage() {
                         </button>
                         <button
                             onClick={() => setPostType('link')}
-                            className={`flex-1 px-6 py-3 font-black border-r-4 border-black transition-colors ${postType === 'link' ? 'bg-blue-300' : 'bg-gray-100 hover:bg-gray-200'
-                                }`}
+                            className={`flex-1 px-6 py-3 font-black border-r-4 border-black dark:border-gray-600 transition-colors whitespace-nowrap ${postType === 'link' ? 'bg-blue-300 dark:bg-blue-600 text-black dark:text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                         >
                             <span className="flex items-center justify-center gap-2">
                                 <LinkIcon className="w-5 h-5" strokeWidth={3} />
@@ -138,8 +135,7 @@ export default function CreatePostPage() {
                         </button>
                         <button
                             onClick={() => setPostType('poll')}
-                            className={`flex-1 px-6 py-3 font-black transition-colors ${postType === 'poll' ? 'bg-blue-300' : 'bg-gray-100 hover:bg-gray-200'
-                                }`}
+                            className={`flex-1 px-6 py-3 font-black transition-colors whitespace-nowrap ${postType === 'poll' ? 'bg-blue-300 dark:bg-blue-600 text-black dark:text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                         >
                             <span className="flex items-center justify-center gap-2">
                                 <BarChart3 className="w-5 h-5" strokeWidth={3} />
@@ -164,7 +160,7 @@ export default function CreatePostPage() {
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder="Title*"
                                 maxLength={300}
-                                className="w-full px-4 py-3 border-4 border-black font-bold text-lg focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold text-lg focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] placeholder-gray-500 dark:placeholder-gray-400"
                             />
                             <div className="text-right text-sm font-bold text-gray-500 mt-1">
                                 {title.length}/300
@@ -175,7 +171,7 @@ export default function CreatePostPage() {
                         {postType === 'text' && (
                             <div>
                                 {/* Formatting Toolbar */}
-                                <div className="bg-gray-100 border-4 border-black p-2 flex gap-2 flex-wrap mb-2">
+                                <div className="bg-gray-100 dark:bg-gray-700 border-4 border-black dark:border-gray-500 p-2 flex gap-2 flex-wrap mb-2">
                                     <button className="bg-white border-3 border-black p-2 hover:bg-gray-200 transition-colors">
                                         <Bold className="w-4 h-4" strokeWidth={3} />
                                     </button>
@@ -204,7 +200,7 @@ export default function CreatePostPage() {
                                     onChange={(e) => setContent(e.target.value)}
                                     placeholder="Body text (optional)"
                                     rows={12}
-                                    className="w-full px-4 py-3 border-4 border-black font-medium focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] resize-none"
+                                    className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-medium focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] resize-none placeholder-gray-500 dark:placeholder-gray-400"
                                 />
                             </div>
                         )}
@@ -267,14 +263,14 @@ export default function CreatePostPage() {
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="border-t-4 border-black p-4 bg-gray-50 flex justify-between items-center">
-                        <button className="bg-white border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="border-t-4 border-black dark:border-gray-600 p-4 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+                        <button className="bg-white dark:bg-gray-700 text-black dark:text-white border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
                             Save Draft
                         </button>
                         <button
                             onClick={handleSubmit}
                             disabled={loading || !title.trim()}
-                            className="bg-black text-white border-4 border-black px-8 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-500 px-8 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Posting...' : 'Post'}
                         </button>

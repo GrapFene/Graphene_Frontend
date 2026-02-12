@@ -28,7 +28,8 @@ export default function HomePage() {
                 timestamp: new Date(p.created_at).toLocaleString(),
                 title: p.title || 'Untitled Post',
                 content: p.content,
-                votes: p.score || 0,
+                votes: p.votes || 0,
+                user_vote: p.user_vote,
                 commentCount: 0,
                 imageUrl: null
             }));
@@ -51,7 +52,7 @@ export default function HomePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100">
+        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black transition-colors duration-200">
             <Header
                 onCreatePost={() => navigate('/submit')}
                 onCreateCommunity={() => setShowCommunityModal(true)}
@@ -71,13 +72,13 @@ export default function HomePage() {
                     <div className="lg:col-span-2 space-y-6">
                         <FilterBar />
                         {loading ? (
-                            <div className="text-center font-bold">Loading feed...</div>
+                            <div className="text-center font-bold text-black dark:text-white">Loading feed...</div>
                         ) : posts.length === 0 ? (
-                            <div className="bg-white border-4 border-black p-8 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                                <p className="font-black text-2xl mb-4">No posts yet!</p>
+                            <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 p-8 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)]">
+                                <p className="font-black text-2xl mb-4 text-black dark:text-white">No posts yet!</p>
                                 <button
                                     onClick={() => navigate('/submit')}
-                                    className="bg-yellow-300 border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                    className="bg-yellow-300 dark:bg-yellow-600 border-4 border-black dark:border-gray-900 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black dark:text-white"
                                 >
                                     Create First Post
                                 </button>

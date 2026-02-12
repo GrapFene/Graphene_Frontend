@@ -63,7 +63,7 @@ function App() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4 }}
-          className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100"
+          className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-200"
         >
           <Header />
 
@@ -85,7 +85,7 @@ function App() {
             </div>
           </main>
 
-          <footer className="bg-black text-white border-t-4 border-black mt-16">
+          <footer className="bg-black dark:bg-gray-900 text-white border-t-4 border-black dark:border-gray-700 mt-16 transition-colors duration-200">
             <div className="max-w-7xl mx-auto px-4 py-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div>

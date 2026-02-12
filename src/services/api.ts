@@ -31,6 +31,8 @@ export interface Post {
     subreddit: string;
     created_at: string;
     score?: number;
+    votes?: number; // Mapped from score
+    user_vote?: number | null; // User's vote: 1, -1, or null
     trendingScore?: number;
     comments?: Comment[];
 }
@@ -73,8 +75,25 @@ export const loginVerify = async (data: any) => {
 
 // Posts
 export const getPostDetails = async (id: string, viewerDid?: string) => {
+    if (!viewerDid) {
+        const userStr = localStorage.getItem('graphene_user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                viewerDid = user.did;
+            } catch (e) { }
+        }
+    }
+
     const response = await api.get(`/posts/${id}?viewerDid=${viewerDid || ''}`);
-    return response.data as Post;
+    const post = response.data;
+
+    // Map backend format (score) to frontend format (votes)
+    return {
+        ...post,
+        votes: post.score || 0,
+        user_vote: post.user_vote
+    } as Post;
 };
 
 export const getFeed = async (sort: 'recent' | 'trending' = 'recent') => {
@@ -83,23 +102,22 @@ export const getFeed = async (sort: 'recent' | 'trending' = 'recent') => {
     if (userStr) {
         try {
             const user = JSON.parse(userStr);
-            // The identity object from loginVerify might have different structure. 
-            // loginVerify returns { token, identity: { did, username, ... } }
-            // Let's assume it has 'did' or 'address'. 
-            // Wait, AuthPage saves 'result.identity'. 
-            // Let's check AuthPage.tsx again to be sure what 'identity' contains.
-            // It seems 'identity' from generateIdentity has 'address', 'mnemonic', etc.
-            // But the backend 'loginVerify' returns the identity row from DB?
-            // Let's assume it has 'did'.
             viewerDid = user.did;
         } catch (e) {
             console.error("Error parsing user from localstorage", e);
         }
     }
 
-    // Pass viewerDid for blocking logic
+    // Pass viewerDid for blocking logic and vote info
     const response = await api.get(`/posts?sort=${sort}&viewerDid=${viewerDid}`);
-    return response.data as Post[];
+    const posts = response.data as any[];
+
+    // Map backend format (score) to frontend format (votes)
+    return posts.map(post => ({
+        ...post,
+        votes: post.score || 0,
+        user_vote: post.user_vote
+    })) as Post[];
 };
 
 export const getPostsByCommunity = async (subreddit: string) => {
@@ -112,7 +130,14 @@ export const getPostsByCommunity = async (subreddit: string) => {
         } catch (e) { }
     }
     const response = await api.get(`/posts?subreddit=${subreddit}&viewerDid=${viewerDid}`);
-    return response.data as Post[];
+    const posts = response.data as any[];
+
+    // Map backend format (score) to frontend format (votes)
+    return posts.map(post => ({
+        ...post,
+        votes: post.score || 0,
+        user_vote: post.user_vote
+    })) as Post[];
 };
 
 

@@ -234,21 +234,21 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 pb-12">
+        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black pb-12 transition-colors duration-200">
             <Header onCreatePost={() => navigate('/submit')} />
 
             <main className="max-w-4xl mx-auto px-4 py-8">
                 <button
                     onClick={() => navigate('/')}
-                    className="mb-6 flex items-center gap-2 bg-white border-4 border-black px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="mb-6 flex items-center gap-2 bg-white dark:bg-gray-800 text-black dark:text-white border-4 border-black dark:border-gray-600 px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
                 >
                     <ArrowLeft className="w-5 h-5" strokeWidth={3} />
                     Back to Feed
                 </button>
 
-                <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                    <div className="bg-purple-400 border-b-4 border-black p-6">
-                        <h2 className="text-3xl font-black flex items-center gap-3">
+                <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] transition-colors">
+                    <div className="bg-purple-400 dark:bg-purple-700 border-b-4 border-black dark:border-gray-600 p-6">
+                        <h2 className="text-3xl font-black flex items-center gap-3 text-black dark:text-white">
                             <User className="w-8 h-8" strokeWidth={3} />
                             Profile Settings
                         </h2>
@@ -256,27 +256,27 @@ export default function ProfilePage() {
 
                     <div className="p-8 space-y-6">
                         {/* DID Display */}
-                        <div className="bg-gray-100 border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                            <label className="text-xs font-black uppercase text-gray-600 block mb-2">Your DID</label>
-                            <code className="text-sm font-mono font-bold break-all">{did}</code>
+                        <div className="bg-gray-100 dark:bg-gray-700 border-4 border-black dark:border-gray-500 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
+                            <label className="text-xs font-black uppercase text-gray-600 dark:text-gray-300 block mb-2">Your DID</label>
+                            <code className="text-sm font-mono font-bold break-all text-black dark:text-white">{did}</code>
                         </div>
 
-                        <div className="bg-gray-100 border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                            <label className="text-xs font-black uppercase text-gray-600 block mb-2">Username</label>
-                            <p className="text-lg font-black">{username}</p>
+                        <div className="bg-gray-100 dark:bg-gray-700 border-4 border-black dark:border-gray-500 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
+                            <label className="text-xs font-black uppercase text-gray-600 dark:text-gray-300 block mb-2">Username</label>
+                            <p className="text-lg font-black text-black dark:text-white">{username}</p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Guardians Section */}
-                            <div className="bg-blue-100 border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="bg-blue-100 dark:bg-blue-900/50 border-4 border-black dark:border-gray-500 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-xl font-black flex items-center gap-2">
+                                    <h3 className="text-xl font-black flex items-center gap-2 text-black dark:text-white">
                                         <Shield className="w-6 h-6" />
                                         Account Guardians
                                     </h3>
                                     <button
                                         onClick={() => setShowGuardians(!showGuardians)}
-                                        className="text-sm font-bold underline"
+                                        className="text-sm font-bold underline text-black dark:text-white"
                                     >
                                         {showGuardians ? 'Hide' : 'Manage'}
                                     </button>
@@ -284,14 +284,14 @@ export default function ProfilePage() {
 
                                 {showGuardians && (
                                     <div className="space-y-4">
-                                        <p className="text-sm font-bold">
+                                        <p className="text-sm font-bold text-black dark:text-gray-200">
                                             Guardians can help you recover your account if you lose access.
                                             Add trusted friends.
                                         </p>
                                         <div className="flex gap-2">
                                             <input
                                                 type="text"
-                                                className="flex-1 px-3 py-2 border-4 border-black font-bold focus:shadow-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                                className="flex-1 px-3 py-2 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:shadow-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] placeholder-gray-500 dark:placeholder-gray-400"
                                                 placeholder="Enter Username or DID"
                                                 value={newGuardianId}
                                                 onChange={e => setNewGuardianId(e.target.value)}
@@ -299,7 +299,7 @@ export default function ProfilePage() {
                                             <button
                                                 onClick={handleAddGuardian}
                                                 disabled={loading}
-                                                className="bg-black text-white px-4 py-2 font-black border-4 border-black hover:bg-gray-800"
+                                                className="bg-black dark:bg-white text-white dark:text-black px-4 py-2 font-black border-4 border-black dark:border-gray-500 hover:bg-gray-800 dark:hover:bg-gray-200"
                                             >
                                                 <Plus className="w-5 h-5" />
                                             </button>
@@ -329,15 +329,15 @@ export default function ProfilePage() {
                             </div>
 
                             {/* Guardian Duties Section */}
-                            <div className="bg-red-100 border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="bg-red-100 dark:bg-red-900/50 border-4 border-black dark:border-gray-500 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-xl font-black flex items-center gap-2">
+                                    <h3 className="text-xl font-black flex items-center gap-2 text-black dark:text-white">
                                         <HandHeart className="w-6 h-6" />
                                         Guardian Duties
                                     </h3>
                                     <button
                                         onClick={() => setShowDuties(!showDuties)}
-                                        className="text-sm font-bold underline"
+                                        className="text-sm font-bold underline text-black dark:text-white"
                                     >
                                         {showDuties ? 'Hide' : 'Check'}
                                     </button>
@@ -385,10 +385,10 @@ export default function ProfilePage() {
                             <form onSubmit={handleRequestChallenge} className="space-y-6">
                                 {/* Display Name */}
                                 <div>
-                                    <label className="block text-sm font-black mb-2 uppercase">Display Name</label>
+                                    <label className="block text-sm font-black mb-2 uppercase text-black dark:text-white">Display Name</label>
                                     <input
                                         type="text"
-                                        className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] placeholder-gray-500 dark:placeholder-gray-400"
                                         value={displayName}
                                         onChange={(e) => setDisplayName(e.target.value)}
                                         placeholder="How should we call you?"
@@ -397,9 +397,9 @@ export default function ProfilePage() {
 
                                 {/* Bio */}
                                 <div>
-                                    <label className="block text-sm font-black mb-2 uppercase">Bio</label>
+                                    <label className="block text-sm font-black mb-2 uppercase text-black dark:text-white">Bio</label>
                                     <textarea
-                                        className="w-full px-4 py-3 border-4 border-black font-medium focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] resize-none"
+                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-medium focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] resize-none placeholder-gray-500 dark:placeholder-gray-400"
                                         value={bio}
                                         onChange={(e) => setBio(e.target.value)}
                                         placeholder="Tell us about yourself..."
@@ -409,10 +409,10 @@ export default function ProfilePage() {
 
                                 {/* Avatar URL */}
                                 <div>
-                                    <label className="block text-sm font-black mb-2 uppercase">Avatar URL</label>
+                                    <label className="block text-sm font-black mb-2 uppercase text-black dark:text-white">Avatar URL</label>
                                     <input
                                         type="text"
-                                        className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] placeholder-gray-500 dark:placeholder-gray-400"
                                         value={avatarUrl}
                                         onChange={(e) => setAvatarUrl(e.target.value)}
                                         placeholder="https://..."
@@ -420,24 +420,24 @@ export default function ProfilePage() {
                                 </div>
 
                                 {/* Verification Section */}
-                                <div className="border-t-4 border-black pt-6 mt-6">
-                                    <div className="bg-yellow-100 border-4 border-black p-4 mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                <div className="border-t-4 border-black dark:border-gray-600 pt-6 mt-6">
+                                    <div className="bg-yellow-100 dark:bg-yellow-900/50 border-4 border-black dark:border-gray-500 p-4 mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
                                         <div className="flex items-start gap-3">
-                                            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" strokeWidth={3} />
-                                            <div className="text-sm font-bold">
+                                            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-black dark:text-white" strokeWidth={3} />
+                                            <div className="text-sm font-bold text-black dark:text-white">
                                                 <p className="font-black mb-1">Verification Required</p>
                                                 To update your profile, you'll need to verify your identity with your password and a few mnemonic words.
                                             </div>
                                         </div>
                                     </div>
 
-                                    <label className="block text-sm font-black mb-2 flex items-center gap-2 uppercase">
+                                    <label className="block text-sm font-black mb-2 flex items-center gap-2 uppercase text-black dark:text-white">
                                         <Lock className="w-4 h-4" strokeWidth={3} />
                                         Password
                                     </label>
                                     <input
                                         type="password"
-                                        className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="Enter your password"
@@ -462,14 +462,14 @@ export default function ProfilePage() {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="flex-1 bg-black text-white border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] disabled:opacity-50"
+                                        className="flex-1 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] disabled:opacity-50"
                                     >
                                         {loading ? 'Verifying...' : 'Continue to Verification'}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={handleLogout}
-                                        className="bg-red-400 border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                        className="bg-red-400 dark:bg-red-700 text-black dark:text-white border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
                                     >
                                         Logout
                                     </button>
@@ -477,21 +477,21 @@ export default function ProfilePage() {
                             </form>
                         ) : (
                             <form onSubmit={handleSaveProfile} className="space-y-6">
-                                <p className="bg-purple-400 border-2 border-black p-2 font-black text-lg mb-4 uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                <p className="bg-purple-400 dark:bg-purple-700 border-2 border-black dark:border-gray-500 p-2 font-black text-lg mb-4 uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white">
                                     Security Check
                                 </p>
-                                <p className="text-black font-bold text-sm mb-6 border-l-4 border-black pl-4">
+                                <p className="text-black dark:text-white font-bold text-sm mb-6 border-l-4 border-black dark:border-white pl-4">
                                     Enter the requested mnemonic words to verify your identity.
                                 </p>
 
                                 {challengeIndices.map((idx, i) => (
                                     <div key={idx}>
-                                        <label className="text-xs font-black uppercase text-black block mb-1 bg-yellow-300 inline-block px-2 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        <label className="text-xs font-black uppercase text-black dark:text-white block mb-1 bg-yellow-300 dark:bg-yellow-600 inline-block px-2 border border-black dark:border-gray-500 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
                                             Word #{idx + 1}
                                         </label>
                                         <input
                                             type="text"
-                                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                            className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] placeholder-gray-500 dark:placeholder-gray-400"
                                             placeholder={`Type word ${idx + 1}`}
                                             value={challengeWords[i]}
                                             onChange={(e) => updateChallengeWord(i, e.target.value)}
@@ -510,7 +510,7 @@ export default function ProfilePage() {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="flex-1 bg-black text-white border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] disabled:opacity-50 flex items-center justify-center gap-2"
+                                        className="flex-1 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] disabled:opacity-50 flex items-center justify-center gap-2"
                                     >
                                         {loading ? 'Saving...' : (
                                             <>
@@ -526,7 +526,7 @@ export default function ProfilePage() {
                                             setChallengeWords(['', '', '']);
                                             setError('');
                                         }}
-                                        className="bg-white border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                        className="bg-white dark:bg-gray-700 text-black dark:text-white border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
                                     >
                                         Back
                                     </button>

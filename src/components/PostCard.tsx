@@ -10,7 +10,8 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
   const { votes, userVote, status, error, handleVote } = useVote({
     initialVotes: post.votes,
-    postId: post.id
+    postId: post.id,
+    initialUserVote: post.user_vote
   });
 
   const communityColors: Record<string, string> = {
@@ -76,7 +77,10 @@ export default function PostCard({ post }: PostCardProps) {
             <span className="text-gray-500 dark:text-gray-500 font-bold">{post.timestamp}</span>
           </div>
 
-          <h2 className="text-2xl font-black mb-3 leading-tight hover:underline cursor-pointer text-black dark:text-white">
+          <h2
+            className="text-2xl font-black mb-3 leading-tight hover:underline cursor-pointer text-black dark:text-white"
+            onClick={() => window.location.href = `/r/${post.community}/${post.id}/${post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+          >
             {post.title}
           </h2>
 

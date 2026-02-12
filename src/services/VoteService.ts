@@ -1,26 +1,67 @@
 export type VoteDirection = 'up' | 'down';
 
 interface VoteResponse {
-    success: boolean;
-    newCount: number;
+    score: number;
+    userVote: number | null;
 }
 
-export const VoteService = {
-    vote: async (postId: string, direction: VoteDirection, currentCount: number): Promise<VoteResponse> => {
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 800));
+const API_URL = 'http://localhost:3000';
 
-        // Simulate random failure (20% chance)
-        if (Math.random() < 0.2) {
-            throw new Error('Failed to submit vote. Please try again.');
+export const VoteService = {
+    vote: async (postId: string, direction: VoteDirection): Promise<VoteResponse> => {
+        const userStr = localStorage.getItem('graphene_user');
+        if (!userStr) {
+            throw new Error('User not logged in');
         }
 
-        // Calculate new count based on direction
-        const newCount = direction === 'up' ? currentCount + 1 : currentCount - 1;
+        const user = JSON.parse(userStr);
+        const voteType = direction === 'up' ? 1 : -1;
 
-        return {
-            success: true,
-            newCount,
-        };
+        const token = localStorage.getItem('graphene_token');
+        const response = await fetch(`${API_URL}/posts/${postId}/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                did: user.did,
+                voteType
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to submit vote');
+        }
+
+        return await response.json();
     },
+
+    removeVote: async (postId: string): Promise<VoteResponse> => {
+        const userStr = localStorage.getItem('graphene_user');
+        if (!userStr) {
+            throw new Error('User not logged in');
+        }
+
+        const user = JSON.parse(userStr);
+        const token = localStorage.getItem('graphene_token');
+
+        const response = await fetch(`${API_URL}/posts/${postId}/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                did: user.did,
+                voteType: 0
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to remove vote');
+        }
+
+        return await response.json();
+    }
 };

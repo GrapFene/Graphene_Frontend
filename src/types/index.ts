@@ -8,6 +8,7 @@ export interface Post {
   commentCount: number;
   timestamp: string;
   imageUrl?: string;
+  user_vote?: number | null; // 1 for upvote, -1 for downvote, null for no vote
 }
 
 export interface Comment {

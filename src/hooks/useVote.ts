@@ -4,16 +4,21 @@ import { VoteService, VoteDirection } from '../services/VoteService';
 interface UseVoteProps {
     initialVotes: number;
     postId: string;
+    initialUserVote?: number | null;
 }
 
-export const useVote = ({ initialVotes, postId }: UseVoteProps) => {
+export const useVote = ({ initialVotes, postId, initialUserVote = null }: UseVoteProps) => {
     const [votes, setVotes] = useState(initialVotes);
-    const [userVote, setUserVote] = useState<VoteDirection | null>(null);
+    const [userVote, setUserVote] = useState<VoteDirection | null>(() => {
+        if (initialUserVote === 1) return 'up';
+        if (initialUserVote === -1) return 'down';
+        return null;
+    });
     const [status, setStatus] = useState<'idle' | 'voting' | 'error'>('idle');
     const [error, setError] = useState<string | null>(null);
 
     const handleVote = useCallback(async (direction: VoteDirection) => {
-        // store previous state for rollback
+        // Store previous state for rollback
         const previousVotes = votes;
         const previousUserVote = userVote;
 
@@ -21,41 +26,27 @@ export const useVote = ({ initialVotes, postId }: UseVoteProps) => {
         setStatus('voting');
         setError(null);
 
-        // Determine the new vote count
-        let newVotes = votes;
-        if (userVote === direction) {
-            // Toggle off if clicking same direction
-            // Logic: if already upvoted and click up, remove upvote (decrease by 1)
-            // Implementation choice: For simplicity in this demo, let's just allow toggling or switching
-            // But standard reddit style: 
-            // specific logic:
-            // if passing 'up':
-            //   if current 'up' -> remove vote (count - 1), set null
-            //   if current 'down' -> switch to up (count + 2), set 'up'
-            //   if current null -> add vote (count + 1), set 'up'
-
-            if (direction === 'up') {
-                newVotes = votes - 1;
-                setUserVote(null);
-            } else { // direction === 'down'
-                newVotes = votes + 1;
-                setUserVote(null);
-            }
-        } else {
-            // Switching or new vote
-            if (direction === 'up') {
-                newVotes = userVote === 'down' ? votes + 2 : votes + 1;
-                setUserVote('up');
-            } else { // direction === 'down'
-                newVotes = userVote === 'up' ? votes - 2 : votes - 1;
-                setUserVote('down');
-            }
-        }
-
-        setVotes(newVotes);
-
         try {
-            await VoteService.vote(postId, direction, newVotes);
+            let result;
+
+            // If clicking the same direction, remove the vote
+            if (userVote === direction) {
+                result = await VoteService.removeVote(postId);
+                setUserVote(null);
+            } else {
+                // Otherwise cast a new vote (or switch vote direction)
+                result = await VoteService.vote(postId, direction);
+                setUserVote(direction);
+            }
+
+            // Update with server response
+            setVotes(result.score);
+
+            // Sync user vote from server (in case of race conditions)
+            if (result.userVote === 1) setUserVote('up');
+            else if (result.userVote === -1) setUserVote('down');
+            else setUserVote(null);
+
             setStatus('idle');
         } catch (err) {
             // Rollback on error
@@ -64,6 +55,12 @@ export const useVote = ({ initialVotes, postId }: UseVoteProps) => {
             setUserVote(previousUserVote);
             setStatus('error');
             setError('Failed to vote. Please try again.');
+
+            // Clear error after 3 seconds
+            setTimeout(() => {
+                setError(null);
+                setStatus('idle');
+            }, 3000);
         }
     }, [votes, userVote, postId]);
 

@@ -138,47 +138,34 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
     };
 
     return (
-        <div className="login-container" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            width: '100%'
-        }}>
-            <div className="glass-panel" style={{
-                padding: '3rem',
-                maxWidth: '550px',
-                width: '90%',
-                textAlign: 'center'
-            }}>
-                <h1 className="cyber-text-neon" style={{ marginBottom: '1.5rem' }}>
+        <div className="flex flex-col items-center justify-center min-h-screen w-full p-4 bg-yellow-50">
+            <div className="neo-panel w-full max-w-lg p-8 md:p-12 text-center relative">
+
+                <h1 className="neo-text-heading mb-2 uppercase italic transform -rotate-2">
                     GrapFene
-                    <span style={{ fontSize: '0.4em', display: 'block', letterSpacing: '2px', color: '#fff' }}>
-                        FEDERALIZED NETWORK
-                    </span>
                 </h1>
+                <div className="bg-black text-white inline-block px-2 py-1 text-xs font-bold uppercase tracking-[0.2em] mb-8 transform rotate-1">
+                    Federalized Network
+                </div>
 
                 {/* Tab Buttons */}
-                <div style={{ display: 'flex', marginBottom: '1.5rem', gap: '0.5rem' }}>
+                <div className="flex gap-4 mb-8">
                     <button
-                        className={`cyber-button ${activeTab === 'login' ? '' : 'cyber-button-secondary'}`}
+                        className={`neo-button ${activeTab === 'login' ? '' : 'neo-button-secondary'}`}
                         onClick={() => handleTabChange('login')}
-                        style={{ flex: 1 }}
                     >
-                        LOGIN
+                        Login
                     </button>
                     <button
-                        className={`cyber-button ${activeTab === 'register' ? '' : 'cyber-button-secondary'}`}
+                        className={`neo-button ${activeTab === 'register' ? 'bg-pink-400 hover:bg-pink-300 active:bg-pink-500' : 'neo-button-secondary'}`}
                         onClick={() => handleTabChange('register')}
-                        style={{ flex: 1 }}
                     >
-                        REGISTER
+                        Register
                     </button>
                 </div>
 
                 {error && (
-                    <div className="warning-box" style={{ marginBottom: '1rem', background: 'rgba(255,0,0,0.2)' }}>
+                    <div className="neo-warning animate-bounce">
                         {error}
                     </div>
                 )}
@@ -187,80 +174,76 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
                 {activeTab === 'register' && (
                     <>
                         {phase === 'input' && (
-                            <div className="input-phase">
-                                <p style={{ marginBottom: '1rem', opacity: 0.8 }}>
-                                    Create your secure identity
+                            <div className="space-y-4 animate-fadeIn">
+                                <p className="text-black font-bold text-lg mb-4 text-left border-b-4 border-black pb-2">
+                                    Create Identity
                                 </p>
                                 <input
                                     type="text"
-                                    className="cyber-input"
+                                    className="neo-input"
                                     placeholder="USERNAME"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    style={{ marginBottom: '1rem' }}
                                 />
                                 <input
                                     type="password"
-                                    className="cyber-input"
+                                    className="neo-input"
                                     placeholder="PASSWORD"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    style={{ marginBottom: '1.5rem' }}
                                 />
                                 <button
-                                    className="cyber-button"
+                                    className="neo-button bg-green-400 hover:bg-green-300 active:bg-green-500 mt-4"
                                     onClick={handleGenerateIdentity}
-                                    style={{ width: '100%' }}
                                 >
-                                    GENERATE IDENTITY
+                                    Generate Identity
                                 </button>
                             </div>
                         )}
 
                         {phase === 'display' && identity && (
-                            <div className="display-phase">
-                                <p className="cyber-text-neon" style={{ fontSize: '0.9em', marginBottom: '0.5rem' }}>
-                                    IDENTITY GENERATED
+                            <div className="animate-fadeIn">
+                                <p className="bg-green-400 border-2 border-black p-2 font-black text-lg mb-4 uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                    Identity Generated
                                 </p>
 
-                                <div className="warning-box">
-                                    <strong>CRITICAL WARNING</strong><br />
-                                    Save this mnemonic sequence. It is the ONLY way to recover your account.
-                                    We do not store it.
+                                <div className="neo-warning bg-orange-400">
+                                    <strong className="block text-2xl mb-1 upercase">WARNING!</strong>
+                                    Save this sequence now. It is lost forever if you proceed without it.
                                 </div>
 
-                                <div className="mnemonic-grid">
+                                <div className="neo-grid">
                                     {identity.mnemonic.split(' ').map((word: string, idx: number) => (
-                                        <div key={idx} className="mnemonic-word">
-                                            <span style={{ opacity: 0.5, marginRight: '5px' }}>{idx + 1}.</span>
+                                        <div key={idx} className="neo-tag">
+                                            <span className="opacity-50 mr-1 text-[10px] font-normal">{idx + 1}.</span>
                                             {word}
                                         </div>
                                     ))}
                                 </div>
 
-                                <div style={{ marginTop: '1.5rem', textAlign: 'left' }}>
-                                    <label style={{ fontSize: '0.8em', opacity: 0.7 }}>PUBLIC KEY</label>
-                                    <div className="cyber-input" style={{ fontSize: '0.75em', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <div className="mt-6 text-left bg-white border-2 border-black p-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    <label className="text-xs font-black uppercase text-gray-500 block mb-1">Public Key</label>
+                                    <div className="text-xs font-mono text-black font-bold break-all">
                                         {identity.address}
                                     </div>
                                 </div>
 
-                                <button
-                                    className="cyber-button"
-                                    onClick={handleRegister}
-                                    disabled={loading}
-                                    style={{ width: '100%', marginTop: '2rem' }}
-                                >
-                                    {loading ? 'REGISTERING...' : 'COMPLETE REGISTRATION'}
-                                </button>
+                                <div className="flex flex-col gap-3 mt-8">
+                                    <button
+                                        className="neo-button bg-black text-white hover:bg-gray-800 hover:text-white"
+                                        onClick={handleRegister}
+                                        disabled={loading}
+                                    >
+                                        {loading ? 'Registering...' : 'I HAVE SAVED IT →'}
+                                    </button>
 
-                                <button
-                                    className="cyber-button cyber-button-secondary"
-                                    onClick={() => setPhase('input')}
-                                    style={{ width: '100%', marginTop: '0.5rem' }}
-                                >
-                                    BACK
-                                </button>
+                                    <button
+                                        className="neo-button neo-button-secondary"
+                                        onClick={() => setPhase('input')}
+                                    >
+                                        Back
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </>
@@ -270,77 +253,76 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
                 {activeTab === 'login' && (
                     <>
                         {phase === 'input' && (
-                            <div className="input-phase">
-                                <p style={{ marginBottom: '1rem', opacity: 0.8 }}>
-                                    Authenticate to access the network
+                            <div className="space-y-4 animate-fadeIn">
+                                <p className="text-black font-bold text-lg mb-4 text-left border-b-4 border-black pb-2">
+                                    Welcome Back
                                 </p>
                                 <input
                                     type="text"
-                                    className="cyber-input"
+                                    className="neo-input"
                                     placeholder="USERNAME"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    style={{ marginBottom: '1rem' }}
                                 />
                                 <input
                                     type="password"
-                                    className="cyber-input"
+                                    className="neo-input"
                                     placeholder="PASSWORD"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    style={{ marginBottom: '1.5rem' }}
                                 />
                                 <button
-                                    className="cyber-button"
+                                    className="neo-button mt-4"
                                     onClick={handleLoginInit}
                                     disabled={loading}
-                                    style={{ width: '100%' }}
                                 >
-                                    {loading ? 'VERIFYING...' : 'CONTINUE'}
+                                    {loading ? 'Verifying...' : 'Continue'}
                                 </button>
                             </div>
                         )}
 
                         {phase === 'challenge' && (
-                            <div className="challenge-phase">
-                                <p className="cyber-text-neon" style={{ fontSize: '0.9em', marginBottom: '0.5rem' }}>
-                                    IDENTITY VERIFICATION
+                            <div className="animate-fadeIn">
+                                <p className="bg-purple-400 border-2 border-black p-2 font-black text-lg mb-4 uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                    Security Check
                                 </p>
-                                <p style={{ marginBottom: '1.5rem', opacity: 0.8 }}>
-                                    Enter the following words from your mnemonic phrase:
+                                <p className="text-black font-bold text-sm mb-6 border-l-4 border-black pl-4 text-left">
+                                    Prove you own this identity. Enter the requested mnemonic words.
                                 </p>
 
-                                {challengeIndices.map((idx, i) => (
-                                    <div key={idx} style={{ marginBottom: '1rem' }}>
-                                        <label style={{ fontSize: '0.8em', opacity: 0.7, display: 'block', textAlign: 'left', marginBottom: '0.3rem' }}>
-                                            WORD #{idx + 1}
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="cyber-input"
-                                            placeholder={`Enter word ${idx + 1}`}
-                                            value={challengeWords[i]}
-                                            onChange={(e) => updateChallengeWord(i, e.target.value)}
-                                        />
-                                    </div>
-                                ))}
+                                <div className="space-y-4 mb-6">
+                                    {challengeIndices.map((idx, i) => (
+                                        <div key={idx} className="text-left">
+                                            <label className="text-xs font-black uppercase text-black block mb-1 bg-yellow-300 inline-block px-2 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                                Word #{idx + 1}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="neo-input"
+                                                placeholder={`Type word ${idx + 1}`}
+                                                value={challengeWords[i]}
+                                                onChange={(e) => updateChallengeWord(i, e.target.value)}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
 
-                                <button
-                                    className="cyber-button"
-                                    onClick={handleLoginVerify}
-                                    disabled={loading}
-                                    style={{ width: '100%', marginTop: '1rem' }}
-                                >
-                                    {loading ? 'AUTHENTICATING...' : 'VERIFY & LOGIN'}
-                                </button>
+                                <div className="flex flex-col gap-3">
+                                    <button
+                                        className="neo-button bg-black text-white hover:bg-gray-800 hover:text-white"
+                                        onClick={handleLoginVerify}
+                                        disabled={loading}
+                                    >
+                                        {loading ? 'Authenticating...' : 'VERIFY & LOGIN'}
+                                    </button>
 
-                                <button
-                                    className="cyber-button cyber-button-secondary"
-                                    onClick={() => setPhase('input')}
-                                    style={{ width: '100%', marginTop: '0.5rem' }}
-                                >
-                                    BACK
-                                </button>
+                                    <button
+                                        className="neo-button neo-button-secondary"
+                                        onClick={() => setPhase('input')}
+                                    >
+                                        Back
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </>

@@ -1,134 +1,96 @@
-import { useState, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import Header from './components/Header';
-import PostCard from './components/PostCard';
-import Sidebar from './components/Sidebar';
-import FilterBar from './components/FilterBar';
-import AuthPage from './components/AuthPage'; // Import AuthPage
-import { posts } from './data/mockData';
-import backgroundImage from './assets/background.png'; // Import background image
+import { useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+import CreatePostPage from './pages/CreatePostPage';
+import CommunityPage from './pages/CommunityPage';
+import PostDetailsPage from './pages/PostDetailsPage';
+import SearchPage from './pages/SearchPage';
+import RecoveryPage from './pages/RecoveryPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('graphene_token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    const checkAuth = () => {
+      const token = localStorage.getItem('graphene_token');
+      setIsAuthenticated(!!token);
+    };
+
+    checkAuth();
+    setLoading(false);
+
+    // Listen for storage changes (for cross-tab sync)
+    window.addEventListener('storage', checkAuth);
+
+    // Listen for custom auth events (for same-tab updates)
+    window.addEventListener('authChange', checkAuth);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('authChange', checkAuth);
+    };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('graphene_token');
-    localStorage.removeItem('graphene_user');
-    setIsAuthenticated(false);
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100">
+        <div className="text-2xl font-black">Loading...</div>
+      </div>
+    );
+  }
 
   return (
-    <AnimatePresence mode="wait">
-      {!isAuthenticated ? (
-        <motion.div
-          key="login"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.3 }}
-          style={{
-            backgroundImage: `url('${backgroundImage}')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            width: '100vw',
-            height: '100vh',
-            position: 'relative'
-          }}
-        >
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(5, 5, 5, 0.7)', // Overlay for better readability
-            zIndex: 1
-          }}>
-            <AuthPage onLoginSuccess={() => setIsAuthenticated(true)} />
-          </div>
-        </motion.div>
-      ) : (
-        <motion.div
-          key="home"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.4 }}
-          className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-200"
-        >
-          <Header />
+    <Routes>
+      {/* Public Routes */}
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/register"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+      />
+      <Route
+        path="/recovery"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <RecoveryPage />}
+      />
 
-          <main className="max-w-7xl mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-6">
-                <FilterBar />
+      {/* Protected Routes */}
+      <Route
+        path="/"
+        element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/submit"
+        element={isAuthenticated ? <CreatePostPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/profile"
+        element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/search"
+        element={isAuthenticated ? <SearchPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/r/:name"
+        element={isAuthenticated ? <CommunityPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/r/:name/:postId/:slug"
+        element={isAuthenticated ? <PostDetailsPage /> : <Navigate to="/login" replace />}
+      />
 
-                {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
-
-              <div className="hidden lg:block">
-                <div className="sticky top-24">
-                  <Sidebar onLogout={handleLogout} />
-                </div>
-              </div>
-            </div>
-          </main>
-
-          <footer className="bg-black dark:bg-gray-900 text-white border-t-4 border-black dark:border-gray-700 mt-16 transition-colors duration-200">
-            <div className="max-w-7xl mx-auto px-4 py-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div>
-                  <h4 className="font-black text-lg mb-3">About</h4>
-                  <ul className="space-y-2 font-bold">
-                    <li><a href="#" className="hover:text-yellow-300">About Us</a></li>
-                    <li><a href="#" className="hover:text-yellow-300">Careers</a></li>
-                    <li><a href="#" className="hover:text-yellow-300">Press</a></li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-black text-lg mb-3">Community</h4>
-                  <ul className="space-y-2 font-bold">
-                    <li><a href="#" className="hover:text-yellow-300">Guidelines</a></li>
-                    <li><a href="#" className="hover:text-yellow-300">Help</a></li>
-                    <li><a href="#" className="hover:text-yellow-300">Contact</a></li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-black text-lg mb-3">Legal</h4>
-                  <ul className="space-y-2 font-bold">
-                    <li><a href="#" className="hover:text-yellow-300">Privacy</a></li>
-                    <li><a href="#" className="hover:text-yellow-300">Terms</a></li>
-                    <li><a href="#" className="hover:text-yellow-300">Cookie Policy</a></li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-black text-lg mb-3">Follow</h4>
-                  <ul className="space-y-2 font-bold">
-                    <li><a href="#" className="hover:text-yellow-300">Twitter</a></li>
-                    <li><a href="#" className="hover:text-yellow-300">Discord</a></li>
-                    <li><a href="#" className="hover:text-yellow-300">GitHub</a></li>
-                  </ul>
-                </div>
-              </div>
-              <div className="mt-8 pt-8 border-t-2 border-white text-center font-black">
-                <p>GrapFene © 2024 - Brutally Honest Social Media</p>
-              </div>
-            </div>
-          </footer>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      {/* Catch all - redirect to home or login */}
+      <Route
+        path="*"
+        element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />}
+      />
+    </Routes>
   );
 }
 

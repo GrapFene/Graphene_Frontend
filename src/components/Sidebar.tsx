@@ -1,11 +1,28 @@
+import { useEffect, useState } from 'react';
 import { TrendingUp, Users, Flame } from 'lucide-react';
-import { communities } from '../data/mockData';
+import { getTopCommunities, Community } from '../services/api';
 
 interface SidebarProps {
   onLogout: () => void;
+  onProfileClick: () => void;
 }
 
-export default function Sidebar({ onLogout }: SidebarProps) {
+export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
+  const [topCommunities, setTopCommunities] = useState<Community[]>([]);
+
+  useEffect(() => {
+    fetchTopCommunities();
+  }, []);
+
+  const fetchTopCommunities = async () => {
+    try {
+      const data = await getTopCommunities(5);
+      setTopCommunities(data);
+    } catch (error) {
+      console.error('Failed to fetch top communities', error);
+    }
+  };
+
   return (
     <aside className="space-y-6">
       <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-700 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] transition-colors duration-200">
@@ -47,15 +64,15 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           </h3>
         </div>
         <div className="p-4 space-y-3">
-          {communities.map((community) => (
+          {topCommunities.map((community) => (
             <div
               key={community.name}
               className="flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 p-2 -mx-2 cursor-pointer transition-colors duration-200"
+              onClick={() => window.location.href = `/r/${community.name}`}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 border-3 border-black dark:border-gray-700 flex items-center justify-center font-black transition-colors duration-200"
-                  style={{ backgroundColor: community.color }}
+                  className="w-10 h-10 border-3 border-black dark:border-gray-700 flex items-center justify-center font-black bg-purple-400 transition-colors duration-200"
                 >
                   {community.name[0].toUpperCase()}
                 </div>
@@ -63,7 +80,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                   <p className="font-black text-black dark:text-white">g/{community.name}</p>
                   <p className="text-sm text-gray-600 dark:text-gray-400 font-bold flex items-center gap-1">
                     <Users className="w-3 h-3" />
-                    {community.members.toLocaleString()}
+                    {(community.members || community.subscriber_count || 0).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -81,6 +98,12 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           The brutally honest social platform. No algorithms, no BS. Just pure,
           unfiltered discussions.
         </p>
+        <button
+          onClick={onProfileClick}
+          className="w-full bg-white text-black border-4 border-black px-4 py-3 font-black mb-3 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+        >
+          My Profile
+        </button>
         <button
           onClick={onLogout}
           className="w-full bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-700 px-4 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"

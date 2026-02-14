@@ -97,11 +97,11 @@ export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps)
               <Bell className="w-5 h-5" />
             </button>
 
-            <button onClick={() => window.location.href = '/profile'} className="bg-lime-400 dark:bg-lime-700 border-4 border-black dark:border-gray-700 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white overflow-hidden relative w-10 h-10 flex items-center justify-center">
+            <button onClick={() => window.location.href = '/profile'} className="bg-lime-400 dark:bg-lime-700 border-4 border-black dark:border-gray-700 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white overflow-hidden relative w-12 h-12 flex items-center justify-center">
               {avatarUrl ? (
                 <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <User className="w-5 h-5" />
+                <User className="w-6 h-6" />
               )}
             </button>
           </div>

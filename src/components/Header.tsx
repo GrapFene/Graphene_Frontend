@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Plus, Bell, User, Users, Moon, Sun } from 'lucide-react';
+import { getProfile } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
 
 interface HeaderProps {
@@ -9,7 +10,34 @@ interface HeaderProps {
 
 export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const { theme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const userStr = localStorage.getItem('graphene_user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          const result = await getProfile(user.did);
+          if (result && result.content && result.content.avatarUrl) {
+            setAvatarUrl(result.content.avatarUrl);
+          }
+        } catch (error) {
+          console.error("Failed to fetch profile for header", error);
+        }
+      }
+    };
+
+    fetchProfile();
+
+    const handleProfileUpdate = () => {
+      fetchProfile();
+    };
+
+    window.addEventListener('profileUpdate', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdate', handleProfileUpdate);
+  }, []);
 
   const handleSearch = (e: React.KeyboardEvent | React.FormEvent) => {
     if ((e.type === 'keydown' && (e as React.KeyboardEvent).key !== 'Enter') || !searchQuery.trim()) return;
@@ -69,8 +97,12 @@ export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps)
               <Bell className="w-5 h-5" />
             </button>
 
-            <button onClick={() => window.location.href = '/profile'} className="bg-lime-400 dark:bg-lime-700 border-4 border-black dark:border-gray-700 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white">
-              <User className="w-5 h-5" />
+            <button onClick={() => window.location.href = '/profile'} className="bg-lime-400 dark:bg-lime-700 border-4 border-black dark:border-gray-700 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white overflow-hidden relative w-10 h-10 flex items-center justify-center">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>

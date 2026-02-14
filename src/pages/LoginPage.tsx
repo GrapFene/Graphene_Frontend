@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginInit, loginVerify } from '../services/api';
-import { hashData, hashMnemonicWord } from '../utils/crypto';
+import { hashMnemonicWord } from '../utils/crypto';
 
 export default function LoginPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    // Password state removed
     const [phase, setPhase] = useState<'input' | 'challenge'>('input');
     const [challengeIndices, setChallengeIndices] = useState<number[]>([]);
     const [challengeWords, setChallengeWords] = useState<string[]>(['', '', '']);
@@ -17,16 +17,16 @@ export default function LoginPage() {
 
     const handleLoginInit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!username.trim() || !password.trim()) {
-            setError('Please enter username and password');
+        if (!username.trim()) {
+            setError('Please enter username');
             return;
         }
         setLoading(true);
         setError('');
 
         try {
-            const passwordHash = hashData(password);
-            const result = await loginInit({ username, password_hash: passwordHash });
+            // Password logic removed
+            const result = await loginInit({ username });
 
             setChallengeIndices(result.challenge_indices);
             setLoginDid(result.did);
@@ -100,13 +100,7 @@ export default function LoginPage() {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
-                        <input
-                            type="password"
-                            className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold placeholder:text-gray-400 focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
-                            placeholder="PASSWORD"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
+                        {/* Password Input Removed */}
                         <button
                             type="submit"
                             disabled={loading}

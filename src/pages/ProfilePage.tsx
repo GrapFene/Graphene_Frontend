@@ -11,7 +11,7 @@ import {
     approveRecovery,
     RecoveryRequestInfo
 } from '../services/api';
-import { hashData, hashMnemonicWord } from '../utils/crypto';
+import { hashMnemonicWord } from '../utils/crypto';
 import { ethers } from 'ethers';
 import Header from '../components/Header';
 import { User, Lock, Save, AlertTriangle, ArrowLeft, Shield, Plus, X, HandHeart } from 'lucide-react';
@@ -29,7 +29,7 @@ export default function ProfilePage() {
     const [challengeIndices, setChallengeIndices] = useState<number[]>([]);
     const [challengeWords, setChallengeWords] = useState<string[]>(['', '', '']);
     const [salt, setSalt] = useState('');
-    const [password, setPassword] = useState('');
+    // Password state removed
 
     // Guardian State
     const [guardians, setGuardiansList] = useState<Guardian[]>([]);
@@ -154,17 +154,12 @@ export default function ProfilePage() {
 
     const handleRequestChallenge = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!password.trim()) {
-            setError('Please enter your password');
-            return;
-        }
-
         setLoading(true);
         setError('');
 
         try {
-            const passwordHash = hashData(password);
-            const result = await loginInit({ username, password_hash: passwordHash });
+            // Initiate login challenge (password-less)
+            const result = await loginInit({ username });
 
             setChallengeIndices(result.challenge_indices);
             setSalt(result.salt);
@@ -207,7 +202,7 @@ export default function ProfilePage() {
             });
 
             setMessage('Profile updated successfully!');
-            setPassword('');
+            // Password clear removed
             setChallengeWords(['', '', '']);
             setPhase('edit');
         } catch (err: any) {
@@ -426,23 +421,11 @@ export default function ProfilePage() {
                                             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-black dark:text-white" strokeWidth={3} />
                                             <div className="text-sm font-bold text-black dark:text-white">
                                                 <p className="font-black mb-1">Verification Required</p>
-                                                To update your profile, you'll need to verify your identity with your password and a few mnemonic words.
+                                                To update your profile, you'll need to answer a security challenge using your mnemonic words.
                                             </div>
                                         </div>
                                     </div>
-
-                                    <label className="block text-sm font-black mb-2 flex items-center gap-2 uppercase text-black dark:text-white">
-                                        <Lock className="w-4 h-4" strokeWidth={3} />
-                                        Password
-                                    </label>
-                                    <input
-                                        type="password"
-                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="Enter your password"
-                                        required
-                                    />
+                                    {/* Password Input Removed */}
                                 </div>
 
                                 {/* Messages */}
@@ -464,7 +447,7 @@ export default function ProfilePage() {
                                         disabled={loading}
                                         className="flex-1 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] disabled:opacity-50"
                                     >
-                                        {loading ? 'Verifying...' : 'Continue to Verification'}
+                                        {loading ? 'Starting...' : 'Start Verification'}
                                     </button>
                                     <button
                                         type="button"

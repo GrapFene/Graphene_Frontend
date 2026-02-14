@@ -59,12 +59,16 @@ export interface Community {
 
 // Auth (Existing)
 export const register = async (data: any) => {
-    const response = await api.post('/auth/register', data);
+    // Ensure no password_hash is sent even if passed by mistake
+    const { password_hash, ...rest } = data;
+    const response = await api.post('/auth/register', rest);
     return response.data;
 };
 
 export const loginInit = async (data: any) => {
-    const response = await api.post('/auth/login-init', data);
+    // Ensure no password_hash is sent
+    const { password_hash, ...rest } = data;
+    const response = await api.post('/auth/login-init', rest);
     return response.data;
 };
 

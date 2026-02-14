@@ -85,6 +85,28 @@ export default function RecoveryPage() {
         }
     };
 
+    const handleDownloadIdentity = () => {
+        if (!newIdentity || !username) return;
+
+        // 1. Split the mnemonic string by spaces into an array of words
+        const words = newIdentity.mnemonic.split(' ');
+
+        // 2. Map each word to "Number. Word" format and join with new lines
+        const formattedContent = words
+            .map((word: string, index: number) => `${index + 1}. ${word}`)
+            .join('\n');
+
+        const element = document.createElement("a");
+        // 3. Create the Blob using the formatted content
+        const file = new Blob([formattedContent], { type: 'text/plain' });
+
+        element.href = URL.createObjectURL(file);
+        element.download = `recovery_${username}.txt`;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    };
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen w-full p-4 bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black transition-colors duration-200">
             <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] w-full max-w-lg p-8 md:p-12 transition-colors">
@@ -183,6 +205,13 @@ export default function RecoveryPage() {
                         </div>
 
                         <button
+                            onClick={handleDownloadIdentity}
+                            className="w-full bg-blue-500 hover:bg-blue-400 text-white border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
+                        >
+                            ⬇ DOWNLOAD NEW ACCESS KEY
+                        </button>
+
+                        <button
                             onClick={handleSubmitRecovery}
                             disabled={loading || !newPassword}
                             className="w-full bg-green-500 text-white border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50"
@@ -258,7 +287,7 @@ export default function RecoveryPage() {
                 )}
 
             </div>
-        </div>
+        </div >
     );
 }
 

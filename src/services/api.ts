@@ -286,7 +286,7 @@ export const setGuardians = async (guardianDids: string[]) => {
 
 export const initiateRecovery = async (data: {
     target_did: string;
-    new_password_hash: string;
+    new_password_hash?: string;
     new_salt: string;
     new_mnemonic_hashes: string[];
 }) => {

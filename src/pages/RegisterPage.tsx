@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../services/api';
-import { generateIdentity, hashData, hashMnemonic, generateSalt } from '../utils/crypto';
+import { generateIdentity, hashMnemonic, generateSalt } from '../utils/crypto';
 
 export default function RegisterPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    // Password state removed
     const [phase, setPhase] = useState<'input' | 'display'>('input');
     const [identity, setIdentity] = useState<any>(null);
     const [salt, setSalt] = useState('');
@@ -14,8 +14,8 @@ export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
 
     const handleGenerateIdentity = () => {
-        if (!username.trim() || !password.trim()) {
-            setError('Please enter username and password');
+        if (!username.trim()) {
+            setError('Please enter username');
             return;
         }
         setError('');
@@ -26,18 +26,28 @@ export default function RegisterPage() {
         setPhase('display');
     };
 
+    const handleDownloadIdentity = () => {
+        if (!identity || !username) return;
+        const element = document.createElement("a");
+        const file = new Blob([identity.mnemonic], { type: 'text/plain' });
+        element.href = URL.createObjectURL(file);
+        element.download = `${username}.txt`;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    };
+
     const handleRegister = async () => {
         if (!identity) return;
         setLoading(true);
         setError('');
 
         try {
-            const passwordHash = hashData(password);
+            // Password hash logic removed
             const mnemonicHashes = hashMnemonic(identity.mnemonic, salt);
 
             await register({
                 username,
-                password_hash: passwordHash,
                 salt,
                 public_key: identity.address,
                 mnemonic_hashes: mnemonicHashes,
@@ -77,13 +87,7 @@ export default function RegisterPage() {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
-                        <input
-                            type="password"
-                            className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold placeholder:text-gray-400 focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
-                            placeholder="PASSWORD"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
+                        {/* Password Input Removed */}
                         <button
                             onClick={handleGenerateIdentity}
                             className="w-full bg-green-400 dark:bg-green-700 border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white"
@@ -131,6 +135,12 @@ export default function RegisterPage() {
                                 className="w-full bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] disabled:opacity-50"
                             >
                                 {loading ? 'Registering...' : 'I HAVE SAVED IT →'}
+                            </button>
+                            <button
+                                onClick={handleDownloadIdentity}
+                                className="w-full bg-blue-500 hover:bg-blue-400 text-white border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
+                            >
+                                ⬇ DOWNLOAD ACCESS KEY
                             </button>
                             <button
                                 onClick={() => setPhase('input')}

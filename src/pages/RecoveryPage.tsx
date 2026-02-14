@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { generateIdentity, generateSalt, hashData, hashMnemonic } from '../utils/crypto';
+import { generateIdentity, generateSalt, hashMnemonic } from '../utils/crypto';
 import { initiateRecovery, finalizeRecovery } from '../services/api';
 
 export default function RecoveryPage() {
@@ -12,7 +12,7 @@ export default function RecoveryPage() {
     // Recovery State
     const [phase, setPhase] = useState<'input' | 'generate' | 'status' | 'finalize'>('input');
     const [newIdentity, setNewIdentity] = useState<any>(null);
-    const [newPassword, setNewPassword] = useState('');
+    // Password state removed
     const [requestId, setRequestId] = useState('');
     const [finalizeRequestId, setFinalizeRequestId] = useState('');
 
@@ -35,8 +35,8 @@ export default function RecoveryPage() {
     };
 
     const handleSubmitRecovery = async () => {
-        if (!newIdentity || !newPassword) {
-            setError('Please ensure you have a password set');
+        if (!newIdentity) {
+            setError('Please ensure identity is generated');
             return;
         }
         setLoading(true);
@@ -44,13 +44,13 @@ export default function RecoveryPage() {
 
         try {
             const salt = generateSalt();
-            const passwordHash = hashData(newPassword);
+            // Password hash removed
             const mnemonicHashes = hashMnemonic(newIdentity.mnemonic, salt);
             const targetDid = deriveDid(username);
 
             const result = await initiateRecovery({
                 target_did: targetDid,
-                new_password_hash: passwordHash,
+                // No password hash sent
                 new_salt: salt,
                 new_mnemonic_hashes: mnemonicHashes
             });
@@ -192,17 +192,7 @@ export default function RecoveryPage() {
                             </div>
                         </div>
 
-                        {/* New Password */}
-                        <div>
-                            <label className="text-xs font-black uppercase text-gray-500 dark:text-gray-400 block mb-1">New Password</label>
-                            <input
-                                type="password"
-                                className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
-                                placeholder="Enter new password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                            />
-                        </div>
+                        {/* New Password Input Removed */}
 
                         <button
                             onClick={handleDownloadIdentity}
@@ -213,7 +203,7 @@ export default function RecoveryPage() {
 
                         <button
                             onClick={handleSubmitRecovery}
-                            disabled={loading || !newPassword}
+                            disabled={loading}
                             className="w-full bg-green-500 text-white border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50"
                         >
                             {loading ? 'SUBMITTING...' : 'SUBMIT REQUEST'}
@@ -243,7 +233,6 @@ export default function RecoveryPage() {
                                 setUsername('');
                                 setRequestId('');
                                 setNewIdentity(null);
-                                setNewPassword('');
                             }}
                             className="w-full bg-black text-white border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]"
                         >

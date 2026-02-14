@@ -14,7 +14,8 @@ export default function CreatePostPage() {
     const [communities, setCommunities] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
+    const [mediaFile, setMediaFile] = useState<File | null>(null);
+    const [mediaPreview, setMediaPreview] = useState<string | null>(null);
     const [linkUrl, setLinkUrl] = useState('');
 
     useEffect(() => {
@@ -33,6 +34,19 @@ export default function CreatePostPage() {
         }
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setMediaFile(file);
+            setMediaPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleRemoveMedia = () => {
+        setMediaFile(null);
+        setMediaPreview(null);
+    };
+
     const handleSubmit = async () => {
         if (!title.trim() || !subreddit) {
             setError('Please add a title and select a community');
@@ -48,7 +62,7 @@ export default function CreatePostPage() {
                 postContent = `${content}\n\nLink: ${linkUrl}`;
             }
 
-            await createPost(title, postContent, subreddit);
+            await createPost(title, postContent, subreddit, mediaFile);
             navigate('/'); // Navigate back to home feed
         } catch (err: any) {
             setError(err.message || 'Failed to create post');
@@ -208,13 +222,37 @@ export default function CreatePostPage() {
                         {/* Image/Video Post */}
                         {postType === 'image' && (
                             <div>
-                                <div className="border-4 border-dashed border-black p-12 text-center bg-gray-50">
-                                    <Image className="w-16 h-16 mx-auto mb-4" strokeWidth={3} />
-                                    <p className="font-black text-xl mb-2">Drag and drop images or videos</p>
-                                    <button className="bg-yellow-300 border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mt-4">
-                                        Upload
-                                    </button>
-                                </div>
+                                {!mediaPreview ? (
+                                    <div className="border-4 border-dashed border-black p-12 text-center bg-gray-50">
+                                        <Image className="w-16 h-16 mx-auto mb-4" strokeWidth={3} />
+                                        <p className="font-black text-xl mb-2">Drag and drop images or videos</p>
+                                        <label htmlFor="create-post-upload" className="cursor-pointer bg-yellow-300 border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mt-4 inline-block">
+                                            Upload
+                                        </label>
+                                        <input
+                                            id="create-post-upload"
+                                            type="file"
+                                            accept="image/*,video/*"
+                                            className="hidden"
+                                            onChange={handleFileChange}
+                                            onClick={(e) => (e.currentTarget.value = '')}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="relative mb-4 border-4 border-black inline-block bg-gray-100">
+                                        <button
+                                            onClick={handleRemoveMedia}
+                                            className="absolute -top-3 -right-3 bg-red-400 border-2 border-black p-1 hover:bg-red-500 transition-colors z-10"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                        {mediaFile?.type.startsWith('video/') ? (
+                                            <video src={mediaPreview} controls className="max-h-96" />
+                                        ) : (
+                                            <img src={mediaPreview} alt="Preview" className="max-h-96 object-contain" />
+                                        )}
+                                    </div>
+                                )}
                                 <textarea
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Image, Video } from 'lucide-react';
 import { createPost, getCommunities } from '../services/api';
 
 interface CreatePostModalProps {
@@ -10,6 +10,8 @@ interface CreatePostModalProps {
 export default function CreatePostModal({ onClose, onPostCreated }: CreatePostModalProps) {
     const [content, setContent] = useState('');
     const [subreddit, setSubreddit] = useState('');
+    const [mediaFile, setMediaFile] = useState<File | null>(null);
+    const [mediaPreview, setMediaPreview] = useState<string | null>(null);
     const [communities, setCommunities] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -30,10 +32,24 @@ export default function CreatePostModal({ onClose, onPostCreated }: CreatePostMo
         }
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setMediaFile(file);
+            setMediaPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleRemoveMedia = () => {
+        setMediaFile(null);
+        setMediaPreview(null);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!content.trim() || !subreddit) {
-            setError('Please fill in all fields');
+        
+        if (!content.trim() && !mediaFile) {
+            setError('Please provide content or media');
             return;
         }
 
@@ -41,7 +57,10 @@ export default function CreatePostModal({ onClose, onPostCreated }: CreatePostMo
         setError('');
 
         try {
-            await createPost(content, subreddit);
+            // Pass mediaFile to createPost
+            // Use the first 50 chars of content as title
+            const title = content.substring(0, 50) + (content.length > 50 ? '...' : '');
+            await createPost(title, content, subreddit, mediaFile); 
             onPostCreated();
             onClose();
         } catch (err: any) {
@@ -92,9 +111,55 @@ export default function CreatePostModal({ onClose, onPostCreated }: CreatePostMo
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             placeholder="What's on your mind?"
-                            rows={6}
-                            className="w-full px-4 py-2 border-4 border-black font-medium focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] resize-none"
+                            rows={4}
+                            className="w-full px-4 py-2 border-4 border-black font-medium focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] resize-none mb-4"
                         />
+                        
+                        {/* Media Upload Area */}
+                        
+                        {!mediaPreview ? (
+                            <div className="flex gap-4 mb-4">
+                                <label htmlFor="post-upload-image" className="cursor-pointer bg-blue-300 border-2 border-black p-2 hover:bg-blue-400 transition-colors flex items-center gap-2 font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
+                                    <Image className="w-5 h-5" />
+                                    Add Image
+                                </label>
+                                <input 
+                                    id="post-upload-image"
+                                    type="file" 
+                                    accept="image/*" 
+                                    className="hidden" 
+                                    onChange={handleFileChange}
+                                    onClick={(e) => (e.currentTarget.value = '')}
+                                />
+
+                                <label htmlFor="post-upload-video" className="cursor-pointer bg-green-300 border-2 border-black p-2 hover:bg-green-400 transition-colors flex items-center gap-2 font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
+                                    <Video className="w-5 h-5" />
+                                    Add Video
+                                </label>
+                                <input 
+                                    id="post-upload-video"
+                                    type="file" 
+                                    accept="video/*" 
+                                    className="hidden" 
+                                    onChange={handleFileChange}
+                                    onClick={(e) => (e.currentTarget.value = '')}
+                                />
+                            </div>
+                        ) : (
+                            <div className="relative mb-4 border-4 border-black inline-block">
+                                <button
+                                    onClick={handleRemoveMedia}
+                                    className="absolute -top-3 -right-3 bg-red-400 border-2 border-black p-1 hover:bg-red-500 transition-colors z-10"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                                {mediaFile?.type.startsWith('video/') ? (
+                                    <video src={mediaPreview} controls className="max-h-48" />
+                                ) : (
+                                    <img src={mediaPreview} alt="Preview" className="max-h-48 object-cover" />
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex gap-3">

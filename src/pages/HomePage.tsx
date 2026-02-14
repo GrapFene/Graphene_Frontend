@@ -52,7 +52,7 @@ export default function HomePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black transition-colors duration-200">
+        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:bg-black dark:from-black dark:via-black dark:to-black transition-colors duration-200">
             <Header
                 onCreatePost={() => navigate('/submit')}
                 onCreateCommunity={() => setShowCommunityModal(true)}
@@ -74,11 +74,11 @@ export default function HomePage() {
                         {loading ? (
                             <div className="text-center font-bold text-black dark:text-white">Loading feed...</div>
                         ) : posts.length === 0 ? (
-                            <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 p-8 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)]">
+                            <div className="bg-white dark:bg-black border-4 border-black dark:border-gray-800 p-8 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)]">
                                 <p className="font-black text-2xl mb-4 text-black dark:text-white">No posts yet!</p>
                                 <button
                                     onClick={() => navigate('/submit')}
-                                    className="bg-yellow-300 dark:bg-yellow-600 border-4 border-black dark:border-gray-900 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black dark:text-white"
+                                    className="bg-yellow-300 dark:bg-fuchsia-600 border-4 border-black dark:border-gray-700 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white"
                                 >
                                     Create First Post
                                 </button>
@@ -101,43 +101,43 @@ export default function HomePage() {
                 </div>
             </main>
 
-            <footer className="bg-black text-white border-t-4 border-black mt-16">
+            <footer className="bg-black text-white border-t-4 border-black dark:border-gray-800 mt-16">
                 <div className="max-w-7xl mx-auto px-4 py-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                         <div>
                             <h4 className="font-black text-lg mb-3">About</h4>
                             <ul className="space-y-2 font-bold">
-                                <li><a href="#" className="hover:text-yellow-300">About Us</a></li>
-                                <li><a href="#" className="hover:text-yellow-300">Careers</a></li>
-                                <li><a href="#" className="hover:text-yellow-300">Press</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">About Us</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Careers</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Press</a></li>
                             </ul>
                         </div>
                         <div>
                             <h4 className="font-black text-lg mb-3">Community</h4>
                             <ul className="space-y-2 font-bold">
-                                <li><a href="#" className="hover:text-yellow-300">Guidelines</a></li>
-                                <li><a href="#" className="hover:text-yellow-300">Help</a></li>
-                                <li><a href="#" className="hover:text-yellow-300">Contact</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Guidelines</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Help</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Contact</a></li>
                             </ul>
                         </div>
                         <div>
                             <h4 className="font-black text-lg mb-3">Legal</h4>
                             <ul className="space-y-2 font-bold">
-                                <li><a href="#" className="hover:text-yellow-300">Privacy</a></li>
-                                <li><a href="#" className="hover:text-yellow-300">Terms</a></li>
-                                <li><a href="#" className="hover:text-yellow-300">Cookie Policy</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Privacy</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Terms</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Cookie Policy</a></li>
                             </ul>
                         </div>
                         <div>
                             <h4 className="font-black text-lg mb-3">Follow</h4>
                             <ul className="space-y-2 font-bold">
-                                <li><a href="#" className="hover:text-yellow-300">Twitter</a></li>
-                                <li><a href="#" className="hover:text-yellow-300">Discord</a></li>
-                                <li><a href="#" className="hover:text-yellow-300">GitHub</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Twitter</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">Discord</a></li>
+                                <li><a href="#" className="hover:text-yellow-300 dark:hover:text-cyan-400">GitHub</a></li>
                             </ul>
                         </div>
                     </div>
-                    <div className="mt-8 pt-8 border-t-2 border-white text-center font-black">
+                    <div className="mt-8 pt-8 border-t-2 border-white dark:border-gray-800 text-center font-black">
                         <p>GrapFene © 2024 - Brutally Honest Social Media</p>
                     </div>
                 </div>

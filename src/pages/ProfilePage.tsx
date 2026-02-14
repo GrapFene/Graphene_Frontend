@@ -14,7 +14,7 @@ import {
 import { hashMnemonicWord } from '../utils/crypto';
 import { ethers } from 'ethers';
 import Header from '../components/Header';
-import { User, Lock, Save, AlertTriangle, ArrowLeft, Shield, Plus, X, HandHeart } from 'lucide-react';
+import { User, Lock, Save, AlertTriangle, ArrowLeft, Shield, Plus, X, HandHeart, Image, Upload, Camera } from 'lucide-react';
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -23,6 +23,20 @@ export default function ProfilePage() {
     const [displayName, setDisplayName] = useState('');
     const [bio, setBio] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
+    const [showAvatarSelection, setShowAvatarSelection] = useState(false);
+
+    const AVATAR_PRESETS = [
+        'https://api.dicebear.com/9.x/avataaars/svg?seed=Felix',
+        'https://api.dicebear.com/9.x/bottts/svg?seed=Spot',
+        'https://api.dicebear.com/9.x/adventurer/svg?seed=Zoey',
+        'https://api.dicebear.com/9.x/adventurer/svg?seed=Jack',
+        'https://api.dicebear.com/9.x/bottts/svg?seed=Mega',
+        'https://api.dicebear.com/9.x/avataaars/svg?seed=Aneka',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Leo',
+        'https://api.dicebear.com/9.x/micah/svg?seed=Molly',
+        'https://api.dicebear.com/9.x/lorelei/svg?seed=Sasha',
+        'https://api.dicebear.com/9.x/open-peeps/svg?seed=Sam'
+    ];
 
     // Challenge state
     const [phase, setPhase] = useState<'edit' | 'challenge'>('edit');
@@ -228,6 +242,24 @@ export default function ProfilePage() {
         navigate('/login');
     };
 
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Limit size to ~100KB to prevent PayloadTooLarge errors in simple JSON storage
+        if (file.size > 100000) {
+            setError("Image too large. Please choose a smaller image (< 100KB) or use a preset.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setAvatarUrl(reader.result as string);
+            setShowAvatarSelection(false);
+        };
+        reader.readAsDataURL(file);
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black pb-12 transition-colors duration-200">
             <Header onCreatePost={() => navigate('/submit')} />
@@ -402,16 +434,60 @@ export default function ProfilePage() {
                                     />
                                 </div>
 
-                                {/* Avatar URL */}
+                                {/* Avatar Selection */}
                                 <div>
-                                    <label className="block text-sm font-black mb-2 uppercase text-black dark:text-white">Avatar URL</label>
-                                    <input
-                                        type="text"
-                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] placeholder-gray-500 dark:placeholder-gray-400"
-                                        value={avatarUrl}
-                                        onChange={(e) => setAvatarUrl(e.target.value)}
-                                        placeholder="https://..."
-                                    />
+                                    <label className="block text-sm font-black mb-2 uppercase text-black dark:text-white">Avatar</label>
+
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="w-20 h-20 border-4 border-black dark:border-gray-500 bg-gray-200 shrink-0 overflow-hidden relative">
+                                            {avatarUrl ? (
+                                                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <User className="w-full h-full p-4 text-gray-400" />
+                                            )}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowAvatarSelection(!showAvatarSelection)}
+                                            className="bg-yellow-300 hover:bg-yellow-400 text-black border-4 border-black dark:border-gray-500 px-4 py-2 font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] flex items-center gap-2"
+                                        >
+                                            <Camera className="w-5 h-5" />
+                                            Change Avatar
+                                        </button>
+                                    </div>
+
+                                    {showAvatarSelection && (
+                                        <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-500 p-4 animate-fadeIn">
+                                            <p className="font-bold mb-2 text-black dark:text-white">Choose a Preset:</p>
+                                            <div className="grid grid-cols-5 gap-2 mb-6">
+                                                {AVATAR_PRESETS.map((url, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        type="button"
+                                                        onClick={() => { setAvatarUrl(url); setShowAvatarSelection(false); }}
+                                                        className="border-2 border-black dark:border-gray-600 hover:scale-110 transition-transform bg-gray-100 p-1"
+                                                    >
+                                                        <img src={url} alt={`Preset ${idx}`} className="w-full h-full" />
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <div className="border-t-2 border-black dark:border-gray-600 pt-4">
+                                                <p className="font-bold mb-2 text-black dark:text-white">Or Upload Your Own:</p>
+                                                <label className="cursor-pointer bg-blue-100 hover:bg-blue-200 border-2 border-dashed border-black dark:border-gray-500 p-4 flex flex-col items-center justify-center text-center text-black dark:text-black">
+                                                    <Upload className="w-6 h-6 mb-2" />
+                                                    <span className="text-xs font-bold uppercase">Click to Upload Image</span>
+                                                    <span className="text-[10px] opacity-75">(Max 100KB)</span>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={handleFileUpload}
+                                                    />
+                                                </label>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Verification Section */}

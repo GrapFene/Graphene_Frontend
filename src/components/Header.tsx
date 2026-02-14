@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Bell, User, Users, Moon, Sun } from 'lucide-react';
+import { Search, Plus, Bell, User, Users, Moon, Sun, Menu } from 'lucide-react';
 import { getProfile } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
+import MobileMenu from './MobileMenu';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   onCreatePost?: () => void;
@@ -12,6 +14,15 @@ export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps)
   const [searchQuery, setSearchQuery] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const { theme, toggleTheme } = useTheme();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('graphene_token');
+    localStorage.removeItem('graphene_user');
+    window.dispatchEvent(new Event('authChange'));
+    navigate('/login');
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -79,30 +90,37 @@ export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps)
             </button>
             <button
               onClick={onCreatePost}
-              className="hidden sm:flex items-center gap-2 bg-yellow-300 dark:bg-yellow-600 border-4 border-black dark:border-gray-700 px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white"
+              className="flex items-center gap-2 bg-yellow-300 dark:bg-yellow-600 border-4 border-black dark:border-gray-700 px-3 md:px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white"
             >
               <Plus className="w-5 h-5" />
-              <span>Post</span>
+              <span className="hidden sm:inline">Post</span>
             </button>
 
             <button
               onClick={onCreateCommunity}
-              className="hidden sm:flex items-center gap-2 bg-pink-300 dark:bg-pink-600 border-4 border-black dark:border-gray-700 px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white"
+              className="flex items-center gap-2 bg-pink-300 dark:bg-pink-600 border-4 border-black dark:border-gray-700 px-3 md:px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white"
             >
               <Users className="w-5 h-5" />
-              <span>Community</span>
+              <span className="hidden sm:inline">Community</span>
             </button>
 
             <button className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-700 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white">
               <Bell className="w-5 h-5" />
             </button>
 
-            <button onClick={() => window.location.href = '/profile'} className="bg-lime-400 dark:bg-lime-700 border-4 border-black dark:border-gray-700 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white overflow-hidden relative w-12 h-12 flex items-center justify-center">
+            <button onClick={() => window.location.href = '/profile'} className="bg-lime-400 dark:bg-lime-700 border-4 border-black dark:border-gray-700 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white overflow-hidden relative w-12 h-12 hidden md:flex items-center justify-center">
               {avatarUrl ? (
                 <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-6 h-6" />
               )}
+            </button>
+
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-2 border-4 border-black dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
+            >
+              <Menu className="w-6 h-6 text-black dark:text-white" />
             </button>
           </div>
         </div>
@@ -123,6 +141,13 @@ export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps)
           </div>
         </div>
       </div>
+
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        onLogout={handleLogout}
+        onProfileClick={() => navigate('/profile')}
+      />
     </header>
   );
 }

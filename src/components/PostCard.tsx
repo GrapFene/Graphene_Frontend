@@ -89,12 +89,27 @@ export default function PostCard({ post }: PostCardProps) {
           </p>
 
           {post.imageUrl && (
-            <div className="mb-4 border-4 border-black dark:border-gray-800">
-              <img
-                src={post.imageUrl}
-                alt=""
-                className="w-full h-64 object-cover"
-              />
+            <div className="mb-4 border-4 border-black dark:border-gray-700 relative overflow-hidden h-96 flex justify-center items-center bg-gray-100 dark:bg-gray-900">
+              {/* Blurred background layer */}
+              {post.mediaType !== 'video' && (
+                <div 
+                  className="absolute inset-0 bg-cover bg-center blur-md opacity-50 dark:opacity-30 scale-110 pointer-events-none"
+                  style={{ backgroundImage: `url(${post.imageUrl})` }}
+                />
+              )}
+
+              {/* Main content */}
+              <div className="relative z-10 w-full h-full flex justify-center items-center">
+                {post.mediaType === 'video' ? (
+                  <video src={post.imageUrl} controls className="max-w-full max-h-full object-contain" />
+                ) : (
+                  <img
+                    src={post.imageUrl}
+                    alt=""
+                    className="max-w-full max-h-full object-contain shadow-sm"
+                  />
+                )}
+              </div>
             </div>
           )}
 

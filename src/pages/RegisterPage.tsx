@@ -28,10 +28,21 @@ export default function RegisterPage() {
 
     const handleDownloadIdentity = () => {
         if (!identity || !username) return;
+
+        // 1. Split the mnemonic string by spaces into an array of words
+        const words = identity.mnemonic.split(' ');
+
+        // 2. Map each word to "Number. Word" format and join with new lines
+        const formattedContent = words
+            .map((word: string, index: number) => `${index + 1}. ${word}`)
+            .join('\n');
+
         const element = document.createElement("a");
-        const file = new Blob([identity.mnemonic], { type: 'text/plain' });
+        // 3. Create the Blob using the formatted content
+        const file = new Blob([formattedContent], { type: 'text/plain' });
+
         element.href = URL.createObjectURL(file);
-        element.download = `${username}.txt`;
+        element.download = `${username}.txt`; // Good practice to clarify filename
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);

@@ -25,8 +25,8 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
 
   return (
     <aside className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-700 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] transition-colors duration-200">
-        <div className="bg-gradient-to-r from-cyan-400 to-pink-400 border-b-4 border-black dark:border-gray-700 p-4 transition-colors duration-200">
+      <div className="bg-white dark:bg-black border-4 border-black dark:border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)] transition-colors duration-200">
+        <div className="bg-gradient-to-r from-cyan-400 to-pink-400 border-b-4 border-black dark:border-gray-800 p-4 transition-colors duration-200">
           <h3 className="font-black text-xl flex items-center gap-2 text-black dark:text-white">
             <Flame className="w-6 h-6" strokeWidth={3} />
             Trending Today
@@ -40,11 +40,11 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
             { title: 'AI takes over again', count: '15.3k' },
           ].map((trend, index) => (
             <div key={index} className="flex items-start gap-3">
-              <span className="font-black text-2xl text-gray-300">
+              <span className="font-black text-2xl text-gray-300 dark:text-gray-600">
                 {index + 1}
               </span>
               <div>
-                <p className="font-black hover:underline cursor-pointer text-black dark:text-white">
+                <p className="font-black hover:underline cursor-pointer text-black dark:text-white dark:hover:text-cyan-400">
                   {trend.title}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-bold">
@@ -56,8 +56,8 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-700 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] transition-colors duration-200">
-        <div className="bg-yellow-300 dark:bg-yellow-600 border-b-4 border-black dark:border-gray-700 p-4 transition-colors duration-200">
+      <div className="bg-white dark:bg-black border-4 border-black dark:border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)] transition-colors duration-200">
+        <div className="bg-yellow-300 dark:bg-fuchsia-600 border-b-4 border-black dark:border-gray-800 p-4 transition-colors duration-200">
           <h3 className="font-black text-xl flex items-center gap-2 text-black dark:text-white">
             <TrendingUp className="w-6 h-6" strokeWidth={3} />
             Top Communities
@@ -67,7 +67,7 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
           {topCommunities.map((community) => (
             <div
               key={community.name}
-              className="flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 p-2 -mx-2 cursor-pointer transition-colors duration-200"
+              className="flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-900 p-2 -mx-2 cursor-pointer transition-colors duration-200 border-2 border-transparent hover:border-black dark:hover:border-gray-700"
               onClick={() => window.location.href = `/r/${community.name}`}
             >
               <div className="flex items-center gap-3">
@@ -84,7 +84,7 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
                   </p>
                 </div>
               </div>
-              <button className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 font-bold text-sm hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors">
+              <button className="bg-black dark:bg-gray-700 text-white dark:text-white px-3 py-1 font-bold text-sm hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors">
                 Join
               </button>
             </div>
@@ -92,7 +92,7 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
         </div>
       </div>
 
-      <div className="bg-lime-300 dark:bg-lime-700 border-4 border-black dark:border-gray-700 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] p-6 transition-colors duration-200">
+      <div className="bg-lime-300 dark:bg-emerald-600 border-4 border-black dark:border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)] p-6 transition-colors duration-200">
         <h3 className="font-black text-xl mb-3 text-black dark:text-white">About GrapFene</h3>
         <p className="font-medium mb-4 leading-relaxed text-black dark:text-white">
           The brutally honest social platform. No algorithms, no BS. Just pure,
@@ -106,7 +106,7 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
         </button>
         <button
           onClick={onLogout}
-          className="w-full bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-700 px-4 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+          className="w-full bg-black text-white px-4 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] border-4 border-black dark:border-gray-700"
         >
           Logout
         </button>

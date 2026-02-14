@@ -224,6 +224,31 @@ export default function PostDetailsPage() {
                                         {post.content}
                                     </div>
 
+                                    {post.media_url && (
+                                        <div className="mb-8 border-4 border-black dark:border-gray-700 bg-gray-100 dark:bg-gray-900 relative overflow-hidden flex justify-center items-center h-[500px]">
+                                            {/* Blurred background layer */}
+                                            {post.media_type !== 'video' && (
+                                                <div 
+                                                    className="absolute inset-0 bg-cover bg-center blur-2xl opacity-50 dark:opacity-30 scale-110 pointer-events-none"
+                                                    style={{ backgroundImage: `url(${post.media_url})` }}
+                                                />
+                                            )}
+                                            
+                                            {/* Main content */}
+                                            <div className="relative z-10 w-full h-full flex justify-center items-center p-4">
+                                                {post.media_type === 'video' ? (
+                                                    <video src={post.media_url} controls className="max-w-full max-h-full object-contain" />
+                                                ) : (
+                                                    <img
+                                                        src={post.media_url}
+                                                        alt={post.title}
+                                                        className="max-w-full max-h-full object-contain shadow-lg"
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="flex items-center gap-6 pt-6 border-t-4 border-black/10 dark:border-white/10">
                                         <div className="flex items-center gap-2 font-black text-gray-500 dark:text-gray-400">
                                             <MessageSquare className="w-6 h-6" strokeWidth={3} />

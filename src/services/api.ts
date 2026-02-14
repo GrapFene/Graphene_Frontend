@@ -61,6 +61,7 @@ export interface Community {
 export const register = async (data: any) => {
     // Ensure no password_hash is sent even if passed by mistake
     const { password_hash, ...rest } = data;
+    // Pass everything else, including profile_content, profile_signed_hash, etc.
     const response = await api.post('/auth/register', rest);
     return response.data;
 };

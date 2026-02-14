@@ -2,6 +2,20 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../services/api';
 import { generateIdentity, hashMnemonic, generateSalt } from '../utils/crypto';
+import { ethers } from 'ethers';
+
+const AVATAR_PRESETS = [
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Felix&backgroundColor=ffdfbf',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Aneka&backgroundColor=c0aede',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Gizmo&backgroundColor=b6e3f4',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Leo&backgroundColor=ffd5dc',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Sasha&backgroundColor=d1d4f9',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Jack&backgroundColor=ffdfbf',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Molly&backgroundColor=c0aede',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Sam&backgroundColor=b6e3f4',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Simba&backgroundColor=ffd5dc',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Zoe&backgroundColor=d1d4f9'
+];
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -57,11 +71,28 @@ export default function RegisterPage() {
             // Password hash logic removed
             const mnemonicHashes = hashMnemonic(identity.mnemonic, salt);
 
+            // Generate Initial Profile Metadata
+            const randomAvatar = AVATAR_PRESETS[Math.floor(Math.random() * AVATAR_PRESETS.length)];
+            const initialProfile = {
+                displayName: username,
+                bio: `New member joined on ${new Date().toLocaleDateString()}`,
+                avatarUrl: randomAvatar
+            };
+
+            // Sign Profile Metadata
+            const profileContentStr = JSON.stringify(initialProfile);
+            const profileContentHash = ethers.keccak256(ethers.toUtf8Bytes(profileContentStr));
+            const wallet = new ethers.Wallet(identity.privateKey);
+            const profileSignature = await wallet.signMessage(ethers.getBytes(profileContentHash));
+
             await register({
                 username,
                 salt,
                 public_key: identity.address,
                 mnemonic_hashes: mnemonicHashes,
+                profile_content: initialProfile,
+                profile_signed_hash: profileSignature,
+                profile_nonce: Date.now().toString() // Simple nonce for now
             });
 
             alert(`Registration successful! Welcome, ${username}.`);

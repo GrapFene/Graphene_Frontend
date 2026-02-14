@@ -31,7 +31,8 @@ export default function HomePage() {
                 votes: p.votes || 0,
                 user_vote: p.user_vote,
                 commentCount: 0,
-                imageUrl: null
+                imageUrl: p.media_url || null,
+                mediaType: p.media_type
             }));
             setPosts(mappedPosts);
         } catch (err) {

@@ -29,6 +29,8 @@ export interface Post {
     title: string;
     content: string;
     subreddit: string;
+    media_url?: string;
+    media_type?: 'image' | 'video';
     created_at: string;
     score?: number;
     votes?: number; // Mapped from score
@@ -97,7 +99,9 @@ export const getPostDetails = async (id: string, viewerDid?: string) => {
     return {
         ...post,
         votes: post.score || 0,
-        user_vote: post.user_vote
+        user_vote: post.user_vote,
+        imageUrl: post.media_url,
+        mediaType: post.media_type
     } as Post;
 };
 
@@ -121,7 +125,9 @@ export const getFeed = async (sort: 'recent' | 'trending' = 'recent') => {
     return posts.map(post => ({
         ...post,
         votes: post.score || 0,
-        user_vote: post.user_vote
+        user_vote: post.user_vote,
+        imageUrl: post.media_url,
+        mediaType: post.media_type
     })) as Post[];
 };
 
@@ -141,22 +147,45 @@ export const getPostsByCommunity = async (subreddit: string) => {
     return posts.map(post => ({
         ...post,
         votes: post.score || 0,
-        user_vote: post.user_vote
+        user_vote: post.user_vote,
+        imageUrl: post.media_url,
+        mediaType: post.media_type
     })) as Post[];
 };
 
 
 
-export const createPost = async (title: string, content: string, subreddit: string) => {
-    const userStr = localStorage.getItem('graphene_user');
-    if (!userStr) throw new Error('User not logged in');
-    const user = JSON.parse(userStr);
+export const createPost = async (title: string, content: string, subreddit: string, mediaFile?: File | null) => {
+    let mediaOb = {};
+    if (mediaFile) {
+        // First upload the file
+        const formData = new FormData();
+        formData.append('file', mediaFile);
+        
+        try {
+            const uploadRes = await api.post('/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            
+            if (uploadRes.data?.url) {
+                mediaOb = {
+                    media_url: uploadRes.data.url,
+                    media_type: mediaFile.type.startsWith('image/') ? 'image' : 'video'
+                };
+            }
+        } catch (e) {
+            console.error('Failed to upload media', e);
+            throw new Error('Media upload failed');
+        }
+    }
 
-    const response = await api.post('/posts', {
-        did: user.did,
-        title,
-        content,
-        subreddit
+    const response = await api.post('/posts', { 
+        title, // Use provided title
+        content, 
+        subreddit,
+        ...mediaOb
     });
     return response.data;
 };

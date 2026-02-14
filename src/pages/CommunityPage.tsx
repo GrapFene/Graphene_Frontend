@@ -33,7 +33,8 @@ export default function CommunityPage() {
                 content: p.content,
                 votes: p.score || 0,
                 commentCount: 0,
-                imageUrl: null
+                imageUrl: p.media_url || null,
+                mediaType: p.media_type
             }));
             setPosts(mappedPosts);
         } catch (err) {

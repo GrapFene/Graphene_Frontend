@@ -14,7 +14,7 @@ import {
 import { hashMnemonicWord } from '../utils/crypto';
 import { ethers } from 'ethers';
 import Header from '../components/Header';
-import { User, Lock, Save, AlertTriangle, ArrowLeft, Shield, Plus, X, HandHeart, Image, Upload, Camera } from 'lucide-react';
+import { User, Save, AlertTriangle, ArrowLeft, Shield, Plus, X, HandHeart, Upload, Camera } from 'lucide-react';
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -264,20 +264,20 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black pb-12 transition-colors duration-200">
+        <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:bg-black dark:from-black dark:via-black dark:to-black pb-12 transition-colors duration-200">
             <Header onCreatePost={() => navigate('/submit')} />
 
             <main className="max-w-4xl mx-auto px-4 py-8">
                 <button
                     onClick={() => navigate('/')}
-                    className="mb-6 flex items-center gap-2 bg-white dark:bg-gray-800 text-black dark:text-white border-4 border-black dark:border-gray-600 px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
+                    className="mb-6 flex items-center gap-2 bg-white dark:bg-black text-black dark:text-white border-4 border-black dark:border-gray-800 px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)]"
                 >
                     <ArrowLeft className="w-5 h-5" strokeWidth={3} />
                     Back to Feed
                 </button>
 
-                <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] transition-colors">
-                    <div className="bg-purple-400 dark:bg-purple-700 border-b-4 border-black dark:border-gray-600 p-6">
+                <div className="bg-white dark:bg-black border-4 border-black dark:border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)] transition-colors">
+                    <div className="bg-purple-400 dark:bg-fuchsia-600 border-b-4 border-black dark:border-gray-800 p-6">
                         <h2 className="text-3xl font-black flex items-center gap-3 text-black dark:text-white">
                             <User className="w-8 h-8" strokeWidth={3} />
                             Profile Settings
@@ -286,13 +286,13 @@ export default function ProfilePage() {
 
                     <div className="p-8 space-y-6">
                         {/* DID Display */}
-                        <div className="bg-gray-100 dark:bg-gray-700 border-4 border-black dark:border-gray-500 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
-                            <label className="text-xs font-black uppercase text-gray-600 dark:text-gray-300 block mb-2">Your DID</label>
+                        <div className="bg-gray-100 dark:bg-black border-4 border-black dark:border-gray-800 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)]">
+                            <label className="text-xs font-black uppercase text-gray-600 dark:text-cyan-400 block mb-2">Your DID</label>
                             <code className="text-sm font-mono font-bold break-all text-black dark:text-white">{did}</code>
                         </div>
 
-                        <div className="bg-gray-100 dark:bg-gray-700 border-4 border-black dark:border-gray-500 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
-                            <label className="text-xs font-black uppercase text-gray-600 dark:text-gray-300 block mb-2">Username</label>
+                        <div className="bg-gray-100 dark:bg-black border-4 border-black dark:border-gray-800 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)]">
+                            <label className="text-xs font-black uppercase text-gray-600 dark:text-cyan-400 block mb-2">Username</label>
                             <p className="text-lg font-black text-black dark:text-white">{username}</p>
                         </div>
 
@@ -418,7 +418,7 @@ export default function ProfilePage() {
                                     <label className="block text-sm font-black mb-2 uppercase text-black dark:text-white">Display Name</label>
                                     <input
                                         type="text"
-                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] placeholder-gray-500 dark:placeholder-gray-400"
+                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] placeholder-gray-500 dark:placeholder-gray-500"
                                         value={displayName}
                                         onChange={(e) => setDisplayName(e.target.value)}
                                         placeholder="How should we call you?"
@@ -429,7 +429,7 @@ export default function ProfilePage() {
                                 <div>
                                     <label className="block text-sm font-black mb-2 uppercase text-black dark:text-white">Bio</label>
                                     <textarea
-                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-medium focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] resize-none placeholder-gray-500 dark:placeholder-gray-400"
+                                        className="w-full px-4 py-3 border-4 border-black dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white font-medium focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] resize-none placeholder-gray-500 dark:placeholder-gray-500"
                                         value={bio}
                                         onChange={(e) => setBio(e.target.value)}
                                         placeholder="Tell us about yourself..."
@@ -452,7 +452,7 @@ export default function ProfilePage() {
                                         <button
                                             type="button"
                                             onClick={() => setShowAvatarSelection(!showAvatarSelection)}
-                                            className="bg-yellow-300 hover:bg-yellow-400 text-black border-4 border-black dark:border-gray-500 px-4 py-2 font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] flex items-center gap-2"
+                                            className="bg-yellow-300 hover:bg-yellow-400 dark:bg-fuchsia-600 dark:hover:bg-fuchsia-500 text-black dark:text-white border-4 border-black dark:border-gray-700 px-4 py-2 font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] flex items-center gap-2"
                                         >
                                             <Camera className="w-5 h-5" />
                                             Change Avatar
@@ -524,14 +524,14 @@ export default function ProfilePage() {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="flex-1 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] disabled:opacity-50"
+                                        className="flex-1 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-700 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] disabled:opacity-50"
                                     >
                                         {loading ? 'Starting...' : 'Start Verification'}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={handleLogout}
-                                        className="bg-red-400 dark:bg-red-700 text-black dark:text-white border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
+                                        className="bg-red-400 dark:bg-red-600 text-black dark:text-white border-4 border-black dark:border-gray-700 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)]"
                                     >
                                         Logout
                                     </button>

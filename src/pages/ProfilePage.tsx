@@ -215,6 +215,9 @@ export default function ProfilePage() {
                 indices: challengeIndices
             });
 
+            // Notify header to update avatar
+            window.dispatchEvent(new Event('profileUpdate'));
+
             setMessage('Profile updated successfully!');
             // Password clear removed
             setChallengeWords(['', '', '']);

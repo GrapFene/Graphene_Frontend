@@ -26,16 +26,16 @@ export default function ProfilePage() {
     const [showAvatarSelection, setShowAvatarSelection] = useState(false);
 
     const AVATAR_PRESETS = [
-        'https://api.dicebear.com/9.x/avataaars/svg?seed=Felix',
-        'https://api.dicebear.com/9.x/bottts/svg?seed=Spot',
-        'https://api.dicebear.com/9.x/adventurer/svg?seed=Zoey',
-        'https://api.dicebear.com/9.x/adventurer/svg?seed=Jack',
-        'https://api.dicebear.com/9.x/bottts/svg?seed=Mega',
-        'https://api.dicebear.com/9.x/avataaars/svg?seed=Aneka',
-        'https://api.dicebear.com/9.x/notionists/svg?seed=Leo',
-        'https://api.dicebear.com/9.x/micah/svg?seed=Molly',
-        'https://api.dicebear.com/9.x/lorelei/svg?seed=Sasha',
-        'https://api.dicebear.com/9.x/open-peeps/svg?seed=Sam'
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Felix&backgroundColor=ffdfbf',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Aneka&backgroundColor=c0aede',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Gizmo&backgroundColor=b6e3f4',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Leo&backgroundColor=ffd5dc',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Sasha&backgroundColor=d1d4f9',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Jack&backgroundColor=ffdfbf',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Molly&backgroundColor=c0aede',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Sam&backgroundColor=b6e3f4',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Simba&backgroundColor=ffd5dc',
+        'https://api.dicebear.com/9.x/notionists/svg?seed=Zoe&backgroundColor=d1d4f9'
     ];
 
     // Challenge state

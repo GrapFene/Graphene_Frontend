@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { TrendingUp, Users, Flame } from 'lucide-react';
-import { getTopCommunities, Community } from '../services/api';
+import { getTopCommunities, Community, getSubscribedCommunities, joinCommunity, leaveCommunity } from '../services/api';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -12,17 +12,38 @@ interface SidebarProps {
 export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
   const navigate = useNavigate();
   const [topCommunities, setTopCommunities] = useState<Community[]>([]);
+  const [subscriptions, setSubscriptions] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchTopCommunities();
+    fetchData();
   }, []);
 
-  const fetchTopCommunities = async () => {
+  const fetchData = async () => {
     try {
-      const data = await getTopCommunities(5);
-      setTopCommunities(data);
+      const [communities, subs] = await Promise.all([
+        getTopCommunities(5),
+        getSubscribedCommunities()
+      ]);
+      setTopCommunities(communities);
+      setSubscriptions(subs);
     } catch (error) {
-      console.error('Failed to fetch top communities', error);
+      console.error('Failed to fetch sidebar data', error);
+    }
+  };
+
+  const handleJoinLeave = async (e: React.MouseEvent, communityName: string) => {
+    e.stopPropagation(); // Prevent navigation to community page
+    try {
+      if (subscriptions.includes(communityName)) {
+        await leaveCommunity(communityName);
+        setSubscriptions(prev => prev.filter(s => s !== communityName));
+      } else {
+        await joinCommunity(communityName);
+        setSubscriptions(prev => [...prev, communityName]);
+      }
+    } catch (error) {
+      console.error('Failed to update subscription', error);
+      alert('Failed to update subscription. Please try again.');
     }
   };
 
@@ -87,8 +108,15 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
                   </p>
                 </div>
               </div>
-              <button className="bg-black dark:bg-gray-700 text-white dark:text-white px-3 py-1 font-bold text-sm hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors">
-                Join
+              <button 
+                className={`px-3 py-1 font-bold text-sm transition-colors ${
+                  subscriptions.includes(community.name) 
+                    ? 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700' 
+                    : 'bg-black dark:bg-gray-700 text-white dark:text-white hover:bg-gray-800 dark:hover:bg-gray-600'
+                }`}
+                onClick={(e) => handleJoinLeave(e, community.name)}
+              >
+                {subscriptions.includes(community.name) ? 'Leave' : 'Join'}
               </button>
             </div>
           ))}

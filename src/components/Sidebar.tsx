@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { TrendingUp, Users, Flame } from 'lucide-react';
 import { getTopCommunities, Community, getSubscribedCommunities, joinCommunity, leaveCommunity } from '../services/api';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import Spinner from './Spinner';
 
 interface SidebarProps {
   onLogout: () => void;
@@ -11,8 +12,10 @@ interface SidebarProps {
 
 export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [topCommunities, setTopCommunities] = useState<Community[]>([]);
   const [subscriptions, setSubscriptions] = useState<string[]>([]);
+  const [loadingCommunities, setLoadingCommunities] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchData();
@@ -33,6 +36,9 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
 
   const handleJoinLeave = async (e: React.MouseEvent, communityName: string) => {
     e.stopPropagation(); // Prevent navigation to community page
+
+    setLoadingCommunities(prev => ({ ...prev, [communityName]: true }));
+
     try {
       if (subscriptions.includes(communityName)) {
         await leaveCommunity(communityName);
@@ -44,6 +50,8 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
     } catch (error) {
       console.error('Failed to update subscription', error);
       alert('Failed to update subscription. Please try again.');
+    } finally {
+      setLoadingCommunities(prev => ({ ...prev, [communityName]: false }));
     }
   };
 
@@ -91,7 +99,10 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
           {topCommunities.map((community) => (
             <div
               key={community.name}
-              className="flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-900 p-2 -mx-2 cursor-pointer transition-colors duration-200 border-2 border-transparent hover:border-black dark:hover:border-gray-700"
+              className={`flex items-center justify-between p-2 -mx-2 cursor-pointer transition-colors duration-200 border-2 ${location.pathname === `/r/${community.name}`
+                  ? 'bg-purple-100 dark:bg-purple-900/30 border-black dark:border-purple-500' // Active state
+                  : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-900 hover:border-black dark:hover:border-gray-700'
+                }`}
               onClick={() => navigate(`/r/${community.name}`)}
             >
               <div className="flex items-center gap-3">
@@ -108,15 +119,22 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
                   </p>
                 </div>
               </div>
-              <button 
-                className={`px-3 py-1 font-bold text-sm transition-colors ${
-                  subscriptions.includes(community.name) 
-                    ? 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700' 
+              <button
+                disabled={loadingCommunities[community.name]}
+                className={`px-3 py-1 font-bold text-sm transition-colors flex items-center gap-2 ${subscriptions.includes(community.name)
+                    ? 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700'
                     : 'bg-black dark:bg-gray-700 text-white dark:text-white hover:bg-gray-800 dark:hover:bg-gray-600'
-                }`}
+                  } ${loadingCommunities[community.name] ? 'opacity-75 cursor-not-allowed' : ''}`}
                 onClick={(e) => handleJoinLeave(e, community.name)}
               >
-                {subscriptions.includes(community.name) ? 'Leave' : 'Join'}
+                {loadingCommunities[community.name] ? (
+                  <>
+                    <Spinner className="w-3 h-3" />
+                    <span className="hidden sm:inline">Wait...</span>
+                  </>
+                ) : (
+                  subscriptions.includes(community.name) ? 'Leave' : 'Join'
+                )}
               </button>
             </div>
           ))}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { register } from '../services/api';
 import { generateIdentity, hashMnemonic, generateSalt } from '../utils/crypto';
 import { ethers } from 'ethers';
+import Spinner from '../components/Spinner';
 
 const AVATAR_PRESETS = [
     'https://api.dicebear.com/9.x/notionists/svg?seed=Felix&backgroundColor=ffdfbf',
@@ -176,7 +177,14 @@ export default function RegisterPage() {
                                 disabled={loading}
                                 className="w-full bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] disabled:opacity-50"
                             >
-                                {loading ? 'Registering...' : 'I HAVE SAVED IT →'}
+                                {loading ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Spinner className="w-5 h-5" />
+                                        <span>Please wait...</span>
+                                    </div>
+                                ) : (
+                                    'I HAVE SAVED IT →'
+                                )}
                             </button>
                             <button
                                 onClick={handleDownloadIdentity}

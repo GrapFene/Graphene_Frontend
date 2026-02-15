@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginInit, loginVerify } from '../services/api';
 import { hashMnemonicWord } from '../utils/crypto';
+import Spinner from '../components/Spinner';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -106,7 +107,14 @@ export default function LoginPage() {
                             disabled={loading}
                             className="w-full bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] disabled:opacity-50"
                         >
-                            {loading ? 'Verifying...' : 'Continue'}
+                            {loading ? (
+                                <div className="flex items-center justify-center gap-2">
+                                    <Spinner className="w-5 h-5" />
+                                    <span>Please wait...</span>
+                                </div>
+                            ) : (
+                                'Continue'
+                            )}
                         </button>
 
                         <div className="text-center">
@@ -156,7 +164,14 @@ export default function LoginPage() {
                             disabled={loading}
                             className="w-full bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] disabled:opacity-50"
                         >
-                            {loading ? 'Authenticating...' : 'VERIFY & LOGIN'}
+                            {loading ? (
+                                <div className="flex items-center justify-center gap-2">
+                                    <Spinner className="w-5 h-5" />
+                                    <span>Please wait...</span>
+                                </div>
+                            ) : (
+                                'VERIFY & LOGIN'
+                            )}
                         </button>
                         <button
                             type="button"

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import Spinner from './Spinner';
 import { communityTopics, CommunityTopic } from '../data/communityTopics';
 import { createCommunity } from '../services/api';
 
@@ -203,7 +204,14 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }: Cre
                             : 'bg-yellow-300 dark:bg-yellow-600 hover:translate-x-1 hover:translate-y-1 hover:shadow-none text-black dark:text-white'
                             }`}
                     >
-                        {loading ? 'Creating...' : currentStep === 'details' ? 'Create Community' : 'Next'}
+                        {loading ? (
+                            <div className="flex items-center gap-2">
+                                <Spinner />
+                                <span>Please wait...</span>
+                            </div>
+                        ) : (
+                            currentStep === 'details' ? 'Create Community' : 'Next'
+                        )}
                     </button>
                 </div>
 

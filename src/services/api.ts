@@ -80,6 +80,61 @@ export const loginVerify = async (data: any) => {
     return response.data;
 };
 
+// Community Actions
+export const joinCommunity = async (subreddit: string) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error("User not logged in");
+    const user = JSON.parse(userStr);
+    
+    const response = await api.post('/subscriptions/subscribe', { did: user.did, subreddit });
+    return response.data;
+};
+
+export const leaveCommunity = async (subreddit: string) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error("User not logged in");
+    const user = JSON.parse(userStr);
+    
+    const response = await api.post('/subscriptions/unsubscribe', { did: user.did, subreddit });
+    return response.data;
+};
+
+export const blockCommunity = async (communityName: string) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error("User not logged in");
+    const user = JSON.parse(userStr);
+    
+    const response = await api.post('/blocks', { did: user.did, communityName });
+    return response.data;
+};
+
+export const unblockCommunity = async (communityName: string) => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error("User not logged in");
+    const user = JSON.parse(userStr);
+    
+    const response = await api.delete(`/blocks/${communityName}?did=${user.did}`);
+    return response.data;
+};
+
+export const getBlockedCommunities = async () => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) return [];
+    const user = JSON.parse(userStr);
+    
+    const response = await api.get(`/blocks?did=${user.did}`);
+    return response.data; // array of strings
+};
+
+export const getSubscribedCommunities = async () => {
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) return [];
+    const user = JSON.parse(userStr);
+    
+    const response = await api.get(`/subscriptions/list?did=${user.did}`);
+    return response.data; // array of strings (subreddits)
+};
+
 // Posts
 export const getPostDetails = async (id: string, viewerDid?: string) => {
     if (!viewerDid) {

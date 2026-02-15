@@ -51,19 +51,13 @@
   /* 
    * TEXT STYLES
    */
-  .neo-text-heading {
-    @apply font-black text-5xl text-black;
-    filter: drop-shadow(2px 2px 0px rgba(255, 255, 255, 1));
-  }
-
-  /* Mnemonic Word Tag */
-  .neo-tag {
-    @apply bg-yellow-300 border-2 border-black px-2 py-1 text-sm font-bold text-black flex items-center justify-center;
-    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
-  }
-
   .neo-grid {
-    @apply grid grid-cols-3 gap-3 my-6;
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 my-6;
+  }
+
+  .neo-text-heading {
+    @apply font-black text-3xl md:text-5xl text-black;
+    filter: drop-shadow(2px 2px 0px rgba(255, 255, 255, 1));
   }
 
   .neo-warning {

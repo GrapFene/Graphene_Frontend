@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react';
 import { TrendingUp, Users, Flame } from 'lucide-react';
 import { getTopCommunities, Community } from '../services/api';
 
+import { useNavigate } from 'react-router-dom';
+
 interface SidebarProps {
   onLogout: () => void;
   onProfileClick: () => void;
 }
 
 export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
+  const navigate = useNavigate();
   const [topCommunities, setTopCommunities] = useState<Community[]>([]);
 
   useEffect(() => {
@@ -68,7 +71,7 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
             <div
               key={community.name}
               className="flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-900 p-2 -mx-2 cursor-pointer transition-colors duration-200 border-2 border-transparent hover:border-black dark:hover:border-gray-700"
-              onClick={() => window.location.href = `/r/${community.name}`}
+              onClick={() => navigate(`/r/${community.name}`)}
             >
               <div className="flex items-center gap-3">
                 <div

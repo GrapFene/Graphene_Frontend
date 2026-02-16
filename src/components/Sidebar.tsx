@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { TrendingUp, Users, Flame } from 'lucide-react';
 import { getTopCommunities, Community, getSubscribedCommunities, joinCommunity, leaveCommunity } from '../services/api';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
   onLogout: () => void;
@@ -11,6 +11,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [topCommunities, setTopCommunities] = useState<Community[]>([]);
   const [subscriptions, setSubscriptions] = useState<string[]>([]);
 
@@ -91,7 +92,10 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
           {topCommunities.map((community) => (
             <div
               key={community.name}
-              className="flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-900 p-2 -mx-2 cursor-pointer transition-colors duration-200 border-2 border-transparent hover:border-black dark:hover:border-gray-700"
+              className={`flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-900 p-2 -mx-2 cursor-pointer transition-colors duration-200 border-2 ${location.pathname === `/r/${community.name}`
+                  ? 'bg-yellow-100 dark:bg-gray-800 border-black dark:border-gray-600'
+                  : 'border-transparent hover:border-black dark:hover:border-gray-700'
+                }`}
               onClick={() => navigate(`/r/${community.name}`)}
             >
               <div className="flex items-center gap-3">
@@ -108,12 +112,11 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
                   </p>
                 </div>
               </div>
-              <button 
-                className={`px-3 py-1 font-bold text-sm transition-colors ${
-                  subscriptions.includes(community.name) 
-                    ? 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700' 
-                    : 'bg-black dark:bg-gray-700 text-white dark:text-white hover:bg-gray-800 dark:hover:bg-gray-600'
-                }`}
+              <button
+                className={`px-3 py-1 font-bold text-sm transition-colors ${subscriptions.includes(community.name)
+                  ? 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700'
+                  : 'bg-black dark:bg-gray-700 text-white dark:text-white hover:bg-gray-800 dark:hover:bg-gray-600'
+                  }`}
                 onClick={(e) => handleJoinLeave(e, community.name)}
               >
                 {subscriptions.includes(community.name) ? 'Leave' : 'Join'}

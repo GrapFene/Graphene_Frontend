@@ -10,6 +10,13 @@ import PostDetailsPage from './pages/PostDetailsPage';
 import SearchPage from './pages/SearchPage';
 import RecoveryPage from './pages/RecoveryPage';
 
+/**
+ * Main Application Component
+ * 
+ * Functionality: Handles routing, authentication checks, and global loading states.
+ * Input: None
+ * Response: JSX.Element - The rendered application with appropriate routes.
+ */
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);

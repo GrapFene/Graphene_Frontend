@@ -127,14 +127,15 @@ export default function HomePage() {
                                 </svg>
                                 GitHub
                             </a>
-                            <span className="text-gray-400">•</span>
                             <button
                                 onClick={() => navigate('/about')}
-                                className="hover:text-yellow-300 dark:hover:text-cyan-400 transition-colors"
+                                className="inline-flex items-center gap-2 bg-cyan-400 text-black border-3 border-cyan-400 px-4 py-2 hover:bg-pink-400 hover:border-pink-400 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] hover:shadow-[6px_6px_0px_0px_rgba(255,192,203,0.5)] hover:-translate-y-1 font-black"
                             >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                                 About
                             </button>
-                            <span className="text-gray-400">•</span>
                             <a 
                                 href="https://github.com/GrapFene/Graphene_Backend/blob/main/LICENSE" 
                                 target="_blank" 

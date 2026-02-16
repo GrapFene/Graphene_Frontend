@@ -1,5 +1,12 @@
 import { Flame, TrendingUp, Clock, Star } from 'lucide-react';
 
+/**
+ * Filter Bar Component
+ * 
+ * Functionality: Displays a list of filters (Hot, Trending, New, Top) for posts.
+ * Input: None
+ * Response: JSX.Element - The rendered filter bar.
+ */
 export default function FilterBar() {
   const filters = [
     { icon: Flame, label: 'Hot', color: 'bg-red-400' },

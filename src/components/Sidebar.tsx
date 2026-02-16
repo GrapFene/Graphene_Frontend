@@ -9,6 +9,14 @@ interface SidebarProps {
   onProfileClick: () => void;
 }
 
+/**
+ * Sidebar Component
+ * 
+ * Functionality: Displays trending topics and top communities, and handles community subscriptions.
+ * Input: onLogout (function) - Handler for user logout.
+ *        onProfileClick (function) - Handler for navigating to profile.
+ * Response: JSX.Element - The rendered sidebar component.
+ */
 export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -93,8 +101,8 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
             <div
               key={community.name}
               className={`flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-900 p-2 -mx-2 cursor-pointer transition-colors duration-200 border-2 ${location.pathname === `/r/${community.name}`
-                  ? 'bg-yellow-100 dark:bg-gray-800 border-black dark:border-gray-600'
-                  : 'border-transparent hover:border-black dark:hover:border-gray-700'
+                ? 'bg-yellow-100 dark:bg-gray-800 border-black dark:border-gray-600'
+                : 'border-transparent hover:border-black dark:hover:border-gray-700'
                 }`}
               onClick={() => navigate(`/r/${community.name}`)}
             >

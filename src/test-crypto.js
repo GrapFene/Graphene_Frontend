@@ -1,6 +1,12 @@
 import { generateIdentity, restoreIdentity } from './utils/crypto.js';
 import { ethers } from 'ethers';
 
+/**
+ * Crypto Verification Script
+ * 
+ * Functionality: Tests the generation and restoration of identities using the crypto utility.
+ * Usage: Run with node to verify crypto functions.
+ */
 console.log("Starting Crypto Verification...");
 
 try {

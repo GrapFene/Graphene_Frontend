@@ -4,6 +4,13 @@ import { loginInit, loginVerify } from '../services/api';
 import { hashMnemonicWord } from '../utils/crypto';
 import LoadingSpinner from '../components/LoadingSpinner';
 
+/**
+ * Login Page Component
+ * 
+ * Functionality: Handles user authentication via username and mnemonic verification.
+ * Input: None
+ * Response: JSX.Element - The rendered login page.
+ */
 export default function LoginPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');

@@ -8,6 +8,13 @@ interface ProfilePageProps {
     onBack: () => void;
 }
 
+/**
+ * Profile Page Component (Standalone)
+ * 
+ * Functionality: Allows users to view and update their profile, including signing updates with their mnemonic.
+ * Input: onBack (function) - Handler to go back to the previous view.
+ * Response: JSX.Element - The rendered profile page.
+ */
 const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
     const [did, setDid] = useState<string>('');
     const [username, setUsername] = useState<string>('');

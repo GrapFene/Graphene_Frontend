@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { getPostDetails, createComment, voteComment, Post as ApiPost, Comment } from '../services/api';
@@ -16,6 +16,8 @@ import { useVote } from '../hooks/useVote';
 export default function PostDetailsPage() {
     const { postId } = useParams<{ postId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+    const commentsRef = useRef<HTMLDivElement>(null);
     const [post, setPost] = useState<ApiPost | null>(null);
     const [loading, setLoading] = useState(true);
     const [commentText, setCommentText] = useState('');
@@ -27,6 +29,15 @@ export default function PostDetailsPage() {
             fetchPost();
         }
     }, [postId]);
+
+    useEffect(() => {
+        // Scroll to comments if navigated from comments button
+        if (location.state?.scrollToComments && commentsRef.current && !loading) {
+            setTimeout(() => {
+                commentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+    }, [location.state, loading]);
 
     const fetchPost = async () => {
         setLoading(true);
@@ -273,7 +284,10 @@ export default function PostDetailsPage() {
                         </article>
 
                         {/* Comment Section Input */}
-                        <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] mb-8 transition-colors">
+                        <div 
+                            ref={commentsRef}
+                            className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] mb-8 transition-colors"
+                        >
                             <h3 className="text-xl font-black mb-4 text-black dark:text-white">Add a comment</h3>
                             <textarea
                                 value={commentText}

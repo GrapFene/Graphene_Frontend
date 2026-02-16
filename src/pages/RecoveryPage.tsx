@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { generateIdentity, generateSalt, hashMnemonic } from '../utils/crypto';
 import { initiateRecovery, finalizeRecovery } from '../services/api';
 
+/**
+ * Recovery Page Component
+ * 
+ * Functionality: Handles account recovery process, including identity generation and guardian approval flow.
+ * Input: None
+ * Response: JSX.Element - The rendered recovery page.
+ */
 export default function RecoveryPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');

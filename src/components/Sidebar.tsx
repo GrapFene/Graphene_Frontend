@@ -141,6 +141,12 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
           unfiltered discussions.
         </p>
         <button
+          onClick={() => navigate('/about')}
+          className="w-full bg-cyan-400 dark:bg-cyan-600 text-black dark:text-white border-4 border-black dark:border-gray-700 px-4 py-3 font-black mb-3 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+        >
+          Learn More
+        </button>
+        <button
           onClick={onProfileClick}
           className="w-full bg-white text-black border-4 border-black px-4 py-3 font-black mb-3 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
         >

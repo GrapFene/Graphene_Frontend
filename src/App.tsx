@@ -9,6 +9,7 @@ import CommunityPage from './pages/CommunityPage';
 import PostDetailsPage from './pages/PostDetailsPage';
 import SearchPage from './pages/SearchPage';
 import RecoveryPage from './pages/RecoveryPage';
+import AboutPage from './pages/AboutPage';
 
 /**
  * Main Application Component
@@ -90,6 +91,10 @@ function App() {
       <Route
         path="/r/:name/:postId/:slug"
         element={isAuthenticated ? <PostDetailsPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/about"
+        element={isAuthenticated ? <AboutPage /> : <Navigate to="/login" replace />}
       />
 
       {/* Catch all - redirect to home or login */}

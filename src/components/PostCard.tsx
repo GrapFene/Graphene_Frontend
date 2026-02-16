@@ -1,4 +1,5 @@
 import { ArrowUp, ArrowDown, MessageSquare, Share2, Bookmark, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Post } from '../types';
 import { useVote } from '../hooks/useVote';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,11 +16,17 @@ interface PostCardProps {
  * Response: JSX.Element - The rendered post card.
  */
 export default function PostCard({ post }: PostCardProps) {
+  const navigate = useNavigate();
   const { votes, userVote, status, error, handleVote } = useVote({
     initialVotes: post.votes,
     postId: post.id,
     initialUserVote: post.user_vote
   });
+
+  const handleCommentsClick = () => {
+    const postUrl = `/r/${post.community}/${post.id}/${post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+    navigate(postUrl, { state: { scrollToComments: true } });
+  };
 
   const communityColors: Record<string, string> = {
     tech: 'bg-green-400',
@@ -121,7 +128,10 @@ export default function PostCard({ post }: PostCardProps) {
           )}
 
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 bg-white dark:bg-black border-3 border-black dark:border-gray-700 px-4 py-2 font-bold hover:bg-blue-200 dark:hover:bg-blue-900 transition-colors text-black dark:text-white">
+            <button 
+              onClick={handleCommentsClick}
+              className="flex items-center gap-2 bg-white dark:bg-black border-3 border-black dark:border-gray-700 px-4 py-2 font-bold hover:bg-blue-200 dark:hover:bg-blue-900 transition-colors text-black dark:text-white"
+            >
               <MessageSquare className="w-5 h-5" strokeWidth={3} />
               <span>{post.commentCount}</span>
             </button>

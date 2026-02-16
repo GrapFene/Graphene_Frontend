@@ -8,6 +8,14 @@ interface CreatePostModalProps {
     onPostCreated: () => void;
 }
 
+/**
+ * Create Post Modal Component
+ * 
+ * Functionality: Form to create a new post with optional media upload.
+ * Input: onClose (function) - Handler to close the modal.
+ *        onPostCreated (function) - Handler called after successful post creation.
+ * Response: JSX.Element - The rendered create post modal.
+ */
 export default function CreatePostModal({ onClose, onPostCreated }: CreatePostModalProps) {
     const [content, setContent] = useState('');
     const [subreddit, setSubreddit] = useState('');

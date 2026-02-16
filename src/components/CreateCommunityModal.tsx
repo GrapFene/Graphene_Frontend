@@ -12,6 +12,15 @@ interface CreateCommunityModalProps {
 
 type Step = 'topic' | 'privacy' | 'details';
 
+/**
+ * Create Community Modal Component
+ * 
+ * Functionality: Multi-step form to create a new community with topic selection and privacy settings.
+ * Input: isOpen (boolean) - Whether the modal is visible.
+ *        onClose (function) - Handler to close the modal.
+ *        onSuccess (function, optional) - Handler called after successful community creation.
+ * Response: JSX.Element | null - The rendered modal or null if not open.
+ */
 export default function CreateCommunityModal({ isOpen, onClose, onSuccess }: CreateCommunityModalProps) {
     const [currentStep, setCurrentStep] = useState<Step>('topic');
     const [selectedTopic, setSelectedTopic] = useState<CommunityTopic | null>(null);

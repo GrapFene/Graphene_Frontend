@@ -7,6 +7,13 @@ import CreateCommunityModal from '../components/CreateCommunityModal';
 import { useNavigate } from 'react-router-dom';
 import { getFeed, Post as ApiPost } from '../services/api';
 
+/**
+ * Home Page Component
+ * 
+ * Functionality: Main landing page displaying the feed, sidebar, and filter bar.
+ * Input: None
+ * Response: JSX.Element - The rendered home page.
+ */
 export default function HomePage() {
     const navigate = useNavigate();
     const [posts, setPosts] = useState<any[]>([]);

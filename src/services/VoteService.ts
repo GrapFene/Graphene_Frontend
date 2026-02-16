@@ -8,6 +8,14 @@ interface VoteResponse {
 const API_URL = 'http://localhost:3000';
 
 export const VoteService = {
+    /**
+     * Casts a vote on a post
+     * 
+     * Functionality: Submits a vote (up or down) for a specific post.
+     * Input: postId (string) - The ID of the post.
+     *        direction (VoteDirection) - 'up' or 'down'.
+     * Response: Promise<VoteResponse> - The updated vote score and user vote status.
+     */
     vote: async (postId: string, direction: VoteDirection): Promise<VoteResponse> => {
         const userStr = localStorage.getItem('graphene_user');
         if (!userStr) {
@@ -37,6 +45,13 @@ export const VoteService = {
         return await response.json();
     },
 
+    /**
+     * Removes a vote from a post
+     * 
+     * Functionality: Removes a previously cast vote for a specific post.
+     * Input: postId (string) - The ID of the post.
+     * Response: Promise<VoteResponse> - The updated vote score and user vote status.
+     */
     removeVote: async (postId: string): Promise<VoteResponse> => {
         const userStr = localStorage.getItem('graphene_user');
         if (!userStr) {

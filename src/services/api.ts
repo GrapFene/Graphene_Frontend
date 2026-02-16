@@ -60,6 +60,13 @@ export interface Community {
 }
 
 // Auth (Existing)
+/**
+ * Registers a new user
+ * 
+ * Functionality: Sends a registration request to the backend.
+ * Input: data (any) - Registration data excluding password_hash.
+ * Response: Promise<any> - The response data from the backend.
+ */
 export const register = async (data: any) => {
     // Ensure no password_hash is sent even if passed by mistake
     const { password_hash, ...rest } = data;
@@ -68,6 +75,13 @@ export const register = async (data: any) => {
     return response.data;
 };
 
+/**
+ * Initiates user login
+ * 
+ * Functionality: Sends a login initiation request to the backend.
+ * Input: data (any) - Login data excluding password_hash.
+ * Response: Promise<any> - The response data containing challenge or other init data.
+ */
 export const loginInit = async (data: any) => {
     // Ensure no password_hash is sent
     const { password_hash, ...rest } = data;
@@ -75,67 +89,124 @@ export const loginInit = async (data: any) => {
     return response.data;
 };
 
+/**
+ * Verifies user login
+ * 
+ * Functionality: Sends a login verification request to the backend.
+ * Input: data (any) - Verification data.
+ * Response: Promise<any> - The response data containing auth token.
+ */
 export const loginVerify = async (data: any) => {
     const response = await api.post('/auth/login-verify', data);
     return response.data;
 };
 
 // Community Actions
+/**
+ * Joins a community
+ * 
+ * Functionality: Subscribes the current user to a specified community (subreddit).
+ * Input: subreddit (string) - The name of the community to join.
+ * Response: Promise<any> - The response from the subscription endpoint.
+ */
 export const joinCommunity = async (subreddit: string) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error("User not logged in");
     const user = JSON.parse(userStr);
-    
+
     const response = await api.post('/subscriptions/subscribe', { did: user.did, subreddit });
     return response.data;
 };
 
+/**
+ * Leaves a community
+ * 
+ * Functionality: Unsubscribes the current user from a specified community.
+ * Input: subreddit (string) - The name of the community to leave.
+ * Response: Promise<any> - The response from the unsubscription endpoint.
+ */
 export const leaveCommunity = async (subreddit: string) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error("User not logged in");
     const user = JSON.parse(userStr);
-    
+
     const response = await api.post('/subscriptions/unsubscribe', { did: user.did, subreddit });
     return response.data;
 };
 
+/**
+ * Blocks a community
+ * 
+ * Functionality: Blocks a community for the current user.
+ * Input: communityName (string) - The name of the community to block.
+ * Response: Promise<any> - The response from the block endpoint.
+ */
 export const blockCommunity = async (communityName: string) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error("User not logged in");
     const user = JSON.parse(userStr);
-    
+
     const response = await api.post('/blocks', { did: user.did, communityName });
     return response.data;
 };
 
+/**
+ * Unblocks a community
+ * 
+ * Functionality: Unblocks a previously blocked community for the current user.
+ * Input: communityName (string) - The name of the community to unblock.
+ * Response: Promise<any> - The response from the unblock endpoint.
+ */
 export const unblockCommunity = async (communityName: string) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error("User not logged in");
     const user = JSON.parse(userStr);
-    
+
     const response = await api.delete(`/blocks/${communityName}?did=${user.did}`);
     return response.data;
 };
 
+/**
+ * Gets blocked communities
+ * 
+ * Functionality: Retrieves a list of communities blocked by the current user.
+ * Input: None
+ * Response: Promise<string[]> - A list of blocked community names.
+ */
 export const getBlockedCommunities = async () => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) return [];
     const user = JSON.parse(userStr);
-    
+
     const response = await api.get(`/blocks?did=${user.did}`);
     return response.data; // array of strings
 };
 
+/**
+ * Gets subscribed communities
+ * 
+ * Functionality: Retrieves a list of communities the current user is subscribed to.
+ * Input: None
+ * Response: Promise<string[]> - A list of subscribed community names.
+ */
 export const getSubscribedCommunities = async () => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) return [];
     const user = JSON.parse(userStr);
-    
+
     const response = await api.get(`/subscriptions/list?did=${user.did}`);
     return response.data; // array of strings (subreddits)
 };
 
 // Posts
+/**
+ * Gets post details
+ * 
+ * Functionality: Retrieves detailed information about a specific post.
+ * Input: id (string) - The ID of the post.
+ *        viewerDid (string, optional) - The DID of the viewer to interpret votes and blocks.
+ * Response: Promise<Post> - The post details object.
+ */
 export const getPostDetails = async (id: string, viewerDid?: string) => {
     if (!viewerDid) {
         const userStr = localStorage.getItem('graphene_user');
@@ -160,6 +231,13 @@ export const getPostDetails = async (id: string, viewerDid?: string) => {
     } as Post;
 };
 
+/**
+ * Gets feed posts
+ * 
+ * Functionality: Retrieves a list of posts for the feed, optionally sorted.
+ * Input: sort ('recent' | 'trending') - The sort order (default: 'recent').
+ * Response: Promise<Post[]> - An array of post objects.
+ */
 export const getFeed = async (sort: 'recent' | 'trending' = 'recent') => {
     const userStr = localStorage.getItem('graphene_user');
     let viewerDid = '';
@@ -186,6 +264,13 @@ export const getFeed = async (sort: 'recent' | 'trending' = 'recent') => {
     })) as Post[];
 };
 
+/**
+ * Gets posts by community
+ * 
+ * Functionality: Retrieves a list of posts belonging to a specific community.
+ * Input: subreddit (string) - The community name.
+ * Response: Promise<Post[]> - An array of post objects.
+ */
 export const getPostsByCommunity = async (subreddit: string) => {
     const userStr = localStorage.getItem('graphene_user');
     let viewerDid = '';
@@ -210,20 +295,30 @@ export const getPostsByCommunity = async (subreddit: string) => {
 
 
 
+/**
+ * Creates a new post
+ * 
+ * Functionality: Creates a new post, optionally uploading media first.
+ * Input: title (string) - Post title.
+ *        content (string) - Post content.
+ *        subreddit (string) - Community name.
+ *        mediaFile (File, optional) - Image or video file to upload.
+ * Response: Promise<any> - The created post data.
+ */
 export const createPost = async (title: string, content: string, subreddit: string, mediaFile?: File | null) => {
     let mediaOb = {};
     if (mediaFile) {
         // First upload the file
         const formData = new FormData();
         formData.append('file', mediaFile);
-        
+
         try {
             const uploadRes = await api.post('/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            
+
             if (uploadRes.data?.url) {
                 mediaOb = {
                     media_url: uploadRes.data.url,
@@ -236,9 +331,9 @@ export const createPost = async (title: string, content: string, subreddit: stri
         }
     }
 
-    const response = await api.post('/posts', { 
+    const response = await api.post('/posts', {
         title, // Use provided title
-        content, 
+        content,
         subreddit,
         ...mediaOb
     });
@@ -246,16 +341,40 @@ export const createPost = async (title: string, content: string, subreddit: stri
 };
 
 // Communities
+/**
+ * Gets communities
+ * 
+ * Functionality: Retrieves a list of communities matching a search term.
+ * Input: search (string) - Search term (default: '').
+ * Response: Promise<any> - List of communities.
+ */
 export const getCommunities = async (search: string = '') => {
     const response = await api.get(`/communities?search=${search}`);
     return response.data; // Returns { name, description, subscriber_count }
 };
 
+/**
+ * Gets top communities
+ * 
+ * Functionality: Retrieves a list of top communities.
+ * Input: limit (number) - Max number of communities to return (default: 5).
+ * Response: Promise<any> - List of top communities.
+ */
 export const getTopCommunities = async (limit: number = 5) => {
     const response = await api.get(`/communities/top?limit=${limit}`);
     return response.data;
 };
 
+/**
+ * Creates a new community
+ * 
+ * Functionality: Creates a new community (subreddit).
+ * Input: name (string) - Community name.
+ *        description (string) - Community description.
+ *        topic (string, optional) - Community topic.
+ *        isPrivate (boolean, optional) - Whether the community is private.
+ * Response: Promise<any> - The created community data.
+ */
 export const createCommunity = async (name: string, description: string, topic?: string, isPrivate?: boolean) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
@@ -272,6 +391,13 @@ export const createCommunity = async (name: string, description: string, topic?:
 };
 
 // Subscriptions
+/**
+ * Subscribes to a community
+ * 
+ * Functionality: Adds a subscription for the user to the specified community.
+ * Input: communityName (string) - The name of the community.
+ * Response: Promise<any> - The subscription response.
+ */
 export const subscribe = async (communityName: string) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
@@ -285,6 +411,15 @@ export const subscribe = async (communityName: string) => {
 };
 
 // Comments
+/**
+ * Creates a new comment
+ * 
+ * Functionality: Adds a comment to a post or a reply to another comment.
+ * Input: postId (string) - The ID of the post.
+ *        content (string) - The comment content.
+ *        parentId (string, optional) - The ID of the parent comment if it's a reply.
+ * Response: Promise<any> - The created comment data.
+ */
 export const createComment = async (postId: string, content: string, parentId?: string) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
@@ -299,6 +434,14 @@ export const createComment = async (postId: string, content: string, parentId?: 
     return response.data;
 };
 
+/**
+ * Votes on a comment
+ * 
+ * Functionality: Submits a vote for a comment (upvote or downvote).
+ * Input: commentId (string) - The ID of the comment.
+ *        voteType (1 | -1) - The type of vote.
+ * Response: Promise<any> - The vote response.
+ */
 export const voteComment = async (commentId: string, voteType: 1 | -1) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
@@ -318,6 +461,13 @@ export interface ProfileContent {
     avatarUrl?: string;
 }
 
+/**
+ * Updates user profile
+ * 
+ * Functionality: Updates the profile information for a user.
+ * Input: params (object) - Object containing did, content, nonce, signed_hash, etc.
+ * Response: Promise<any> - The update response.
+ */
 export const updateProfile = async (params: {
     did: string;
     content: ProfileContent;
@@ -330,6 +480,13 @@ export const updateProfile = async (params: {
     return response.data;
 };
 
+/**
+ * Gets user profile
+ * 
+ * Functionality: Retrieves the profile information for a specific DID.
+ * Input: did (string) - The Decentralized Identifier of the user.
+ * Response: Promise<any> - The profile data.
+ */
 export const getProfile = async (did: string) => {
     const response = await api.get(`/profile/${did}`);
     return response.data;
@@ -353,11 +510,25 @@ export interface RecoveryRequestInfo {
     has_approved: boolean;
 }
 
+/**
+ * Gets guardians
+ * 
+ * Functionality: Retrieves the list of guardians for the current user.
+ * Input: None
+ * Response: Promise<any> - List of guardians.
+ */
 export const getGuardians = async () => {
     const response = await api.get('/recovery/guardians');
     return response.data;
 };
 
+/**
+ * Sets guardians
+ * 
+ * Functionality: Sets the list of guardians for the current user.
+ * Input: guardianDids (string[]) - Array of guardian DIDs.
+ * Response: Promise<any> - The response from setting guardians.
+ */
 export const setGuardians = async (guardianDids: string[]) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
@@ -368,6 +539,13 @@ export const setGuardians = async (guardianDids: string[]) => {
     return response.data;
 };
 
+/**
+ * Initiates account recovery
+ * 
+ * Functionality: Starts the account recovery process.
+ * Input: data (object) - Recovery data including target_did, new_salt, etc.
+ * Response: Promise<any> - The recovery request response.
+ */
 export const initiateRecovery = async (data: {
     target_did: string;
     new_password_hash?: string;
@@ -378,16 +556,37 @@ export const initiateRecovery = async (data: {
     return response.data;
 };
 
+/**
+ * Gets pending recovery requests
+ * 
+ * Functionality: Retrieves a list of pending recovery requests.
+ * Input: None
+ * Response: Promise<RecoveryRequestInfo[]> - List of recovery requests.
+ */
 export const getPendingRecoveryRequests = async () => {
     const response = await api.get('/recovery/requests');
     return response.data; // Returns RecoveryRequestInfo[]
 };
 
+/**
+ * Approves a recovery request
+ * 
+ * Functionality: Approves a specific recovery request.
+ * Input: requestId (string) - The ID of the recovery request.
+ * Response: Promise<any> - The approval response.
+ */
 export const approveRecovery = async (requestId: string) => {
     const response = await api.post('/recovery/approve', { request_id: requestId });
     return response.data;
 };
 
+/**
+ * Finalizes recovery
+ * 
+ * Functionality: Finalizes the recovery process after sufficient approvals.
+ * Input: requestId (string) - The ID of the recovery request.
+ * Response: Promise<any> - The finalization response.
+ */
 export const finalizeRecovery = async (requestId: string) => {
     const response = await api.post('/recovery/finalize', { request_id: requestId });
     return response.data;

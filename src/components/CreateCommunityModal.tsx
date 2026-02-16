@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { communityTopics, CommunityTopic } from '../data/communityTopics';
 import { createCommunity } from '../services/api';
+import LoadingSpinner from './LoadingSpinner';
 
 interface CreateCommunityModalProps {
     isOpen: boolean;
@@ -196,14 +197,21 @@ export default function CreateCommunityModal({ isOpen, onClose, onSuccess }: Cre
                             (currentStep === 'topic' && !selectedTopic) ||
                             (currentStep === 'details' && !name.trim())
                         }
-                        className={`px-6 py-3 border-4 border-black dark:border-black font-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] ${loading ||
+                        className={`px-6 py-3 border-4 border-black dark:border-black font-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] flex items-center justify-center gap-2 ${loading ||
                             (currentStep === 'topic' && !selectedTopic) ||
                             (currentStep === 'details' && !name.trim())
                             ? 'bg-gray-300 dark:bg-gray-600 cursor-not-allowed text-gray-500 dark:text-gray-400'
                             : 'bg-yellow-300 dark:bg-yellow-600 hover:translate-x-1 hover:translate-y-1 hover:shadow-none text-black dark:text-white'
                             }`}
                     >
-                        {loading ? 'Creating...' : currentStep === 'details' ? 'Create Community' : 'Next'}
+                        {loading ? (
+                            <>
+                                <LoadingSpinner size={20} className="text-black dark:text-white" />
+                                <span>Please wait...</span>
+                            </>
+                        ) : (
+                            currentStep === 'details' ? 'Create Community' : 'Next'
+                        )}
                     </button>
                 </div>
 

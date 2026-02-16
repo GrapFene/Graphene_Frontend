@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Image, Video } from 'lucide-react';
 import { createPost, getCommunities } from '../services/api';
+import LoadingSpinner from './LoadingSpinner';
 
 interface CreatePostModalProps {
     onClose: () => void;
@@ -47,7 +48,7 @@ export default function CreatePostModal({ onClose, onPostCreated }: CreatePostMo
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!content.trim() && !mediaFile) {
             setError('Please provide content or media');
             return;
@@ -60,7 +61,7 @@ export default function CreatePostModal({ onClose, onPostCreated }: CreatePostMo
             // Pass mediaFile to createPost
             // Use the first 50 chars of content as title
             const title = content.substring(0, 50) + (content.length > 50 ? '...' : '');
-            await createPost(title, content, subreddit, mediaFile); 
+            await createPost(title, content, subreddit, mediaFile);
             onPostCreated();
             onClose();
         } catch (err: any) {
@@ -114,20 +115,20 @@ export default function CreatePostModal({ onClose, onPostCreated }: CreatePostMo
                             rows={4}
                             className="w-full px-4 py-2 border-4 border-black font-medium focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] resize-none mb-4"
                         />
-                        
+
                         {/* Media Upload Area */}
-                        
+
                         {!mediaPreview ? (
                             <div className="flex gap-4 mb-4">
                                 <label htmlFor="post-upload-image" className="cursor-pointer bg-blue-300 border-2 border-black p-2 hover:bg-blue-400 transition-colors flex items-center gap-2 font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
                                     <Image className="w-5 h-5" />
                                     Add Image
                                 </label>
-                                <input 
+                                <input
                                     id="post-upload-image"
-                                    type="file" 
-                                    accept="image/*" 
-                                    className="hidden" 
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
                                     onChange={handleFileChange}
                                     onClick={(e) => (e.currentTarget.value = '')}
                                 />
@@ -136,11 +137,11 @@ export default function CreatePostModal({ onClose, onPostCreated }: CreatePostMo
                                     <Video className="w-5 h-5" />
                                     Add Video
                                 </label>
-                                <input 
+                                <input
                                     id="post-upload-video"
-                                    type="file" 
-                                    accept="video/*" 
-                                    className="hidden" 
+                                    type="file"
+                                    accept="video/*"
+                                    className="hidden"
                                     onChange={handleFileChange}
                                     onClick={(e) => (e.currentTarget.value = '')}
                                 />
@@ -166,9 +167,16 @@ export default function CreatePostModal({ onClose, onPostCreated }: CreatePostMo
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 bg-black text-white border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] disabled:opacity-50"
+                            className="flex-1 bg-black text-white border-4 border-black px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] disabled:opacity-50 flex items-center justify-center gap-2"
                         >
-                            {loading ? 'Posting...' : 'Post'}
+                            {loading ? (
+                                <>
+                                    <LoadingSpinner size={20} className="text-white" />
+                                    <span>Please wait...</span>
+                                </>
+                            ) : (
+                                'Post'
+                            )}
                         </button>
                         <button
                             type="button"

@@ -18,6 +18,13 @@ const AVATAR_PRESETS = [
     'https://api.dicebear.com/9.x/notionists/svg?seed=Zoe&backgroundColor=d1d4f9'
 ];
 
+/**
+ * Register Page Component
+ * 
+ * Functionality: Handles new user registration, identity generation, and profile creation.
+ * Input: None
+ * Response: JSX.Element - The rendered registration page.
+ */
 export default function RegisterPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');

@@ -16,6 +16,13 @@ import { ethers } from 'ethers';
 import Header from '../components/Header';
 import { User, Save, AlertTriangle, ArrowLeft, Shield, Plus, X, HandHeart, Upload, Camera } from 'lucide-react';
 
+/**
+ * Profile Page Component
+ * 
+ * Functionality: Manages user profile, avatar, bio, and guardian settings.
+ * Input: None
+ * Response: JSX.Element - The rendered profile page.
+ */
 export default function ProfilePage() {
     const navigate = useNavigate();
     const [did, setDid] = useState<string>('');

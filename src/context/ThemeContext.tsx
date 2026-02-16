@@ -9,6 +9,13 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+/**
+ * Theme Provider Component
+ * 
+ * Functionality: Manages the application theme (light/dark) and persists it to local storage.
+ * Input: children (ReactNode) - Child components to be wrapped.
+ * Response: JSX.Element - The ThemeContext provider wrapping the children.
+ */
 export function ThemeProvider({ children }: { children: ReactNode }) {
     // Initialize state from local storage or default to light
     const [theme, setTheme] = useState<Theme>(() => {
@@ -40,6 +47,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     );
 }
 
+/**
+ * Custom hook to use theme context
+ * 
+ * Functionality: Provides access to the theme context.
+ * Input: None
+ * Response: ThemeContextType - The theme context value including theme and toggleTheme.
+ */
 export function useTheme() {
     const context = useContext(ThemeContext);
     if (context === undefined) {

@@ -5,6 +5,13 @@ import { useNavigate } from 'react-router-dom';
 
 type PostType = 'text' | 'image' | 'link' | 'poll';
 
+/**
+ * Create Post Page Component
+ * 
+ * Functionality: Page for creating new posts with text, image, link, or poll content.
+ * Input: None
+ * Response: JSX.Element - The rendered create post page.
+ */
 export default function CreatePostPage() {
     const navigate = useNavigate();
     const [postType, setPostType] = useState<PostType>('text');

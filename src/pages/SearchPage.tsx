@@ -5,6 +5,13 @@ import Sidebar from '../components/Sidebar';
 import { getCommunities, Community } from '../services/api';
 import { Users } from 'lucide-react';
 
+/**
+ * Search Page Component
+ * 
+ * Functionality: Displays search results for communities based on a query.
+ * Input: None (Uses useSearchParams to get query)
+ * Response: JSX.Element - The rendered search page.
+ */
 export default function SearchPage() {
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q') || '';

@@ -7,6 +7,15 @@ interface UseVoteProps {
     initialUserVote?: number | null;
 }
 
+/**
+ * Custom hook for handling voting logic
+ * 
+ * Functionality: Manages vote state, handles API calls for voting, and provides optimistic UI updates.
+ * Input: initialVotes (number) - Initial score of the post.
+ *        postId (string) - The ID of the post.
+ *        initialUserVote (number | null) - The initial vote of the user (1 for up, -1 for down, null for none).
+ * Response: Object containing votes, userVote, status, error, and handleVote function.
+ */
 export const useVote = ({ initialVotes, postId, initialUserVote = null }: UseVoteProps) => {
     const [votes, setVotes] = useState(initialVotes);
     const [userVote, setUserVote] = useState<VoteDirection | null>(() => {

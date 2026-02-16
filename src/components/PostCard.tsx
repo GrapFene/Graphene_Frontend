@@ -7,6 +7,13 @@ interface PostCardProps {
   post: Post;
 }
 
+/**
+ * Post Card Component
+ * 
+ * Functionality: Displays a single post with voting, content, and interaction buttons.
+ * Input: post (Post) - The post data object.
+ * Response: JSX.Element - The rendered post card.
+ */
 export default function PostCard({ post }: PostCardProps) {
   const { votes, userVote, status, error, handleVote } = useVote({
     initialVotes: post.votes,
@@ -92,7 +99,7 @@ export default function PostCard({ post }: PostCardProps) {
             <div className="mb-4 border-4 border-black dark:border-gray-700 relative overflow-hidden h-96 flex justify-center items-center bg-gray-100 dark:bg-gray-900">
               {/* Blurred background layer */}
               {post.mediaType !== 'video' && (
-                <div 
+                <div
                   className="absolute inset-0 bg-cover bg-center blur-md opacity-50 dark:opacity-30 scale-110 pointer-events-none"
                   style={{ backgroundImage: `url(${post.imageUrl})` }}
                 />

@@ -5,6 +5,11 @@ import App from './App.tsx';
 import './index.css';
 import { ThemeProvider } from './context/ThemeContext';
 
+/**
+ * Application Entry Point
+ * 
+ * Functionality: Mounts the React application to the DOM, dealing with strict mode, theme provider, and router.
+ */
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>

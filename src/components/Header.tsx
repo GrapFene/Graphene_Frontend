@@ -10,6 +10,14 @@ interface HeaderProps {
   onCreateCommunity?: () => void;
 }
 
+/**
+ * Header Component
+ * 
+ * Functionality: Displays the top navigation bar with search, theme toggle, and creation buttons.
+ * Input: onCreatePost (function) - Handler for opening create post modal.
+ *        onCreateCommunity (function) - Handler for opening create community modal.
+ * Response: JSX.Element - The rendered header component.
+ */
 export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');

@@ -3,17 +3,24 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import PostCard from '../components/PostCard';
 import Sidebar from '../components/Sidebar';
-import { 
-    getPostsByCommunity, 
-    Post as ApiPost, 
-    joinCommunity, 
-    leaveCommunity, 
-    blockCommunity, 
+import {
+    getPostsByCommunity,
+    Post as ApiPost,
+    joinCommunity,
+    leaveCommunity,
+    blockCommunity,
     unblockCommunity,
     getSubscribedCommunities,
     getBlockedCommunities
 } from '../services/api';
 
+/**
+ * Community Page Component
+ * 
+ * Functionality: Displays posts and details for a specific community, allowing joining/leaving and blocking.
+ * Input: None (Uses useParams to get community name)
+ * Response: JSX.Element - The rendered community page.
+ */
 export default function CommunityPage() {
     const { name } = useParams<{ name: string }>();
     const navigate = useNavigate();
@@ -126,21 +133,19 @@ export default function CommunityPage() {
                             <div className="flex gap-4">
                                 <button
                                     onClick={handleJoinLeave}
-                                    className={`px-6 py-2 font-black border-4 border-black dark:border-gray-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all ${
-                                        isSubscribed 
-                                        ? 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white' 
-                                        : 'bg-green-400 dark:bg-green-600 text-black dark:text-white'
-                                    }`}
+                                    className={`px-6 py-2 font-black border-4 border-black dark:border-gray-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all ${isSubscribed
+                                            ? 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white'
+                                            : 'bg-green-400 dark:bg-green-600 text-black dark:text-white'
+                                        }`}
                                 >
                                     {isSubscribed ? 'Joined' : 'Join'}
                                 </button>
                                 <button
                                     onClick={handleBlockUnblock}
-                                    className={`px-6 py-2 font-black border-4 border-black dark:border-gray-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all ${
-                                        isBlocked 
-                                        ? 'bg-red-400 dark:bg-red-700 text-black dark:text-white' 
-                                        : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white hover:bg-red-100 dark:hover:bg-red-900'
-                                    }`}
+                                    className={`px-6 py-2 font-black border-4 border-black dark:border-gray-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all ${isBlocked
+                                            ? 'bg-red-400 dark:bg-red-700 text-black dark:text-white'
+                                            : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white hover:bg-red-100 dark:hover:bg-red-900'
+                                        }`}
                                 >
                                     {isBlocked ? 'Blocked' : 'Block'}
                                 </button>

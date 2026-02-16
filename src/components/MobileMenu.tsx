@@ -9,6 +9,16 @@ interface MobileMenuProps {
     onProfileClick: () => void;
 }
 
+/**
+ * Mobile Menu Component
+ * 
+ * Functionality: Displays a slide-out menu for mobile devices, containing sidebar content.
+ * Input: isOpen (boolean) - Whether the menu is visible.
+ *        onClose (function) - Handler to close the menu.
+ *        onLogout (function) - Handler for user logout.
+ *        onProfileClick (function) - Handler for navigating to profile.
+ * Response: JSX.Element | null - The rendered mobile menu or null if not open.
+ */
 export default function MobileMenu({ isOpen, onClose, onLogout, onProfileClick }: MobileMenuProps) {
     const menuRef = useRef<HTMLDivElement>(null);
 

@@ -6,6 +6,13 @@ import { getPostDetails, createComment, voteComment, Post as ApiPost, Comment } 
 import { ArrowUp, ArrowDown, MessageSquare, Share2, Reply } from 'lucide-react';
 import { useVote } from '../hooks/useVote';
 
+/**
+ * Post Details Page Component
+ * 
+ * Functionality: Displays full details of a post, including comments and voting.
+ * Input: None (Uses useParams to get postId)
+ * Response: JSX.Element - The rendered post details page.
+ */
 export default function PostDetailsPage() {
     const { postId } = useParams<{ postId: string }>();
     const navigate = useNavigate();
@@ -228,12 +235,12 @@ export default function PostDetailsPage() {
                                         <div className="mb-8 border-4 border-black dark:border-gray-700 bg-gray-100 dark:bg-gray-900 relative overflow-hidden flex justify-center items-center h-[500px]">
                                             {/* Blurred background layer */}
                                             {post.media_type !== 'video' && (
-                                                <div 
+                                                <div
                                                     className="absolute inset-0 bg-cover bg-center blur-2xl opacity-50 dark:opacity-30 scale-110 pointer-events-none"
                                                     style={{ backgroundImage: `url(${post.media_url})` }}
                                                 />
                                             )}
-                                            
+
                                             {/* Main content */}
                                             <div className="relative z-10 w-full h-full flex justify-center items-center p-4">
                                                 {post.media_type === 'video' ? (

@@ -17,7 +17,7 @@ interface PostCardProps {
  */
 export default function PostCard({ post }: PostCardProps) {
   const navigate = useNavigate();
-  const { votes, userVote, status, error, handleVote } = useVote({
+  const { votes, userVote, error, handleVote } = useVote({
     initialVotes: post.votes,
     postId: post.id,
     initialUserVote: post.user_vote
@@ -44,7 +44,6 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex flex-col items-center gap-2 bg-gray-100 dark:bg-black border-r-4 border-black dark:border-gray-800 p-4 transition-colors duration-200">
           <button
             onClick={() => handleVote('up')}
-            disabled={status === 'voting'}
             className={`bg-white dark:bg-black border-3 border-black dark:border-gray-700 p-2 transition-colors ${userVote === 'up' ? 'bg-green-400 dark:bg-green-600' : 'hover:bg-green-300 dark:hover:bg-green-900'
               } text-black dark:text-white`}
           >
@@ -59,7 +58,6 @@ export default function PostCard({ post }: PostCardProps) {
 
           <button
             onClick={() => handleVote('down')}
-            disabled={status === 'voting'}
             className={`bg-white dark:bg-black border-3 border-black dark:border-gray-700 p-2 transition-colors ${userVote === 'down' ? 'bg-red-400 dark:bg-red-600' : 'hover:bg-red-300 dark:hover:bg-red-900'
               } text-black dark:text-white`}
           >
@@ -128,7 +126,7 @@ export default function PostCard({ post }: PostCardProps) {
           )}
 
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={handleCommentsClick}
               className="flex items-center gap-2 bg-white dark:bg-black border-3 border-black dark:border-gray-700 px-4 py-2 font-bold hover:bg-blue-200 dark:hover:bg-blue-900 transition-colors text-black dark:text-white"
             >

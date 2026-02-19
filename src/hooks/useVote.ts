@@ -35,23 +35,42 @@ export const useVote = ({ initialVotes, postId, initialUserVote = null }: UseVot
         setStatus('voting');
         setError(null);
 
+        // Calculate optimistic score
+        let newVotes = votes;
+        let newUserVote: VoteDirection | null = direction;
+
+        if (userVote === direction) {
+            // Toggling off
+            newUserVote = null;
+            newVotes = direction === 'up' ? votes - 1 : votes + 1;
+        } else if (userVote === null) {
+            // New vote
+            newVotes = direction === 'up' ? votes + 1 : votes - 1;
+        } else {
+            // Switching vote (e.g. up -> down)
+            // If was up (+1) and going down (-1), change is -2
+            // If was down (-1) and going up (+1), change is +2
+            newVotes = direction === 'up' ? votes + 2 : votes - 2;
+        }
+
+        setVotes(newVotes);
+        setUserVote(newUserVote);
+
         try {
             let result;
 
             // If clicking the same direction, remove the vote
             if (userVote === direction) {
                 result = await VoteService.removeVote(postId);
-                setUserVote(null);
             } else {
                 // Otherwise cast a new vote (or switch vote direction)
                 result = await VoteService.vote(postId, direction);
-                setUserVote(direction);
             }
 
-            // Update with server response
+            // Update with actual server response (should match optimistic, but ensures consistency)
             setVotes(result.score);
 
-            // Sync user vote from server (in case of race conditions)
+            // Sync user vote from server
             if (result.userVote === 1) setUserVote('up');
             else if (result.userVote === -1) setUserVote('down');
             else setUserVote(null);

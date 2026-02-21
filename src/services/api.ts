@@ -23,6 +23,30 @@ api.interceptors.request.use(
     }
 );
 
+// Add a response interceptor to handle authentication errors
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 403 || error.response?.status === 401) {
+            const errorMessage = error.response?.data?.error?.message || 'Session expired';
+            
+            // Clear auth data
+            localStorage.removeItem('graphene_token');
+            localStorage.removeItem('graphene_user');
+            
+            // Dispatch auth change event
+            window.dispatchEvent(new Event('authChange'));
+            
+            // Redirect to login
+            window.location.href = '/login';
+            
+            // Return a more helpful error
+            return Promise.reject(new Error(`Authentication failed: ${errorMessage}. Please login again.`));
+        }
+        return Promise.reject(error);
+    }
+);
+
 export interface Post {
     id: string;
     author_did: string;

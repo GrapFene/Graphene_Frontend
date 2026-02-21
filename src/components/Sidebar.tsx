@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Users, Flame } from 'lucide-react';
+import { TrendingUp, Users } from 'lucide-react';
 import { getTopCommunities, Community, getSubscribedCommunities, joinCommunity, leaveCommunity } from '../services/api';
 
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -30,7 +30,7 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
   const fetchData = async () => {
     try {
       const [communities, subs] = await Promise.all([
-        getTopCommunities(5),
+        getTopCommunities(10),
         getSubscribedCommunities()
       ]);
       setTopCommunities(communities);
@@ -58,37 +58,6 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
 
   return (
     <aside className="space-y-6">
-      <div className="bg-white dark:bg-black border-4 border-black dark:border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)] transition-colors duration-200">
-        <div className="bg-gradient-to-r from-cyan-400 to-pink-400 border-b-4 border-black dark:border-gray-800 p-4 transition-colors duration-200">
-          <h3 className="font-black text-xl flex items-center gap-2 text-black dark:text-white">
-            <Flame className="w-6 h-6" strokeWidth={3} />
-            Trending Today
-          </h3>
-        </div>
-        <div className="p-4 space-y-4">
-          {[
-            { title: 'Neobrutalism is back', count: '12.5k' },
-            { title: 'New framework drama', count: '8.9k' },
-            { title: 'Designer quits tech', count: '7.2k' },
-            { title: 'AI takes over again', count: '15.3k' },
-          ].map((trend, index) => (
-            <div key={index} className="flex items-start gap-3">
-              <span className="font-black text-2xl text-gray-300 dark:text-gray-600">
-                {index + 1}
-              </span>
-              <div>
-                <p className="font-black hover:underline cursor-pointer text-black dark:text-white dark:hover:text-cyan-400">
-                  {trend.title}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-bold">
-                  {trend.count} posts
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="bg-white dark:bg-black border-4 border-black dark:border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)] transition-colors duration-200">
         <div className="bg-yellow-300 dark:bg-fuchsia-600 border-b-4 border-black dark:border-gray-800 p-4 transition-colors duration-200">
           <h3 className="font-black text-xl flex items-center gap-2 text-black dark:text-white">

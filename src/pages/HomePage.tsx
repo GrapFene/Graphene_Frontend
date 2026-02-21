@@ -37,7 +37,7 @@ export default function HomePage() {
                 content: p.content,
                 votes: p.votes || 0,
                 user_vote: p.user_vote,
-                commentCount: 0,
+                commentCount: p.comment_count || 0,
                 imageUrl: p.media_url || null,
                 mediaType: p.media_type
             }));

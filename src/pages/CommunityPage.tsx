@@ -96,7 +96,7 @@ export default function CommunityPage() {
                 title: p.title || 'Untitled Post',
                 content: p.content,
                 votes: p.score || 0,
-                commentCount: 0,
+                commentCount: p.comment_count || 0,
                 imageUrl: p.media_url || null,
                 mediaType: p.media_type
             }));

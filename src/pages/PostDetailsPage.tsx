@@ -19,7 +19,7 @@ export default function PostDetailsPage() {
     const location = useLocation();
     const commentsRef = useRef<HTMLDivElement>(null);
     const [post, setPost] = useState<ApiPost | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [initialLoading, setInitialLoading] = useState(true);
     const [commentText, setCommentText] = useState('');
     const [replyText, setReplyText] = useState('');
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -32,30 +32,31 @@ export default function PostDetailsPage() {
 
     useEffect(() => {
         // Scroll to comments if navigated from comments button
-        if (location.state?.scrollToComments && commentsRef.current && !loading) {
+        if (location.state?.scrollToComments && commentsRef.current && !initialLoading) {
             setTimeout(() => {
                 commentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 300);
         }
-    }, [location.state, loading]);
+    }, [location.state, initialLoading]);
 
-    const fetchPost = async () => {
-        setLoading(true);
+    const fetchPost = async (showLoading = true) => {
         try {
             const data = await getPostDetails(postId!);
             setPost(data);
         } catch (err) {
             console.error("Failed to fetch post", err);
         } finally {
-            setLoading(false);
+            if (showLoading) {
+                setInitialLoading(false);
+            }
         }
     };
 
     const handleCommentVote = async (commentId: string, type: 1 | -1) => {
         try {
             await voteComment(commentId, type);
-            // In a real app we'd update optimistic state, here just refetch
-            fetchPost();
+            // Refresh without showing loading screen
+            fetchPost(false);
         } catch (error) {
             console.error('Vote failed', error);
         }
@@ -73,7 +74,8 @@ export default function PostDetailsPage() {
             } else {
                 setCommentText('');
             }
-            fetchPost();
+            // Refresh without showing loading screen
+            fetchPost(false);
         } catch (error) {
             console.error('Comment failed', error);
         }
@@ -195,7 +197,7 @@ export default function PostDetailsPage() {
     );
 
 
-    if (loading) return (
+    if (initialLoading) return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
             <div className="font-black text-2xl animate-pulse text-black dark:text-white">Loading post...</div>
         </div>

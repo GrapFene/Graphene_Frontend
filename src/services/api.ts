@@ -61,6 +61,7 @@ export interface Post {
     user_vote?: number | null; // User's vote: 1, -1, or null
     trendingScore?: number;
     comments?: Comment[];
+    comment_count?: number; // Number of comments on the post
 }
 
 export interface Comment {

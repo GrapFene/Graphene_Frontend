@@ -44,24 +44,41 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex flex-col items-center gap-2 bg-gray-100 dark:bg-black border-r-4 border-black dark:border-gray-800 p-4 transition-colors duration-200">
           <button
             onClick={() => handleVote('up')}
-            className={`bg-white dark:bg-black border-3 border-black dark:border-gray-700 p-2 transition-colors ${userVote === 'up' ? 'bg-green-400 dark:bg-green-600' : 'hover:bg-green-300 dark:hover:bg-green-900'
-              } text-black dark:text-white`}
+            className={`border-3 border-black dark:border-gray-700 p-2 transition-all duration-200 ${
+              userVote === 'up' 
+                ? 'bg-green-400 dark:bg-green-600 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(34,197,94,0.5)]' 
+                : 'bg-white dark:bg-black hover:bg-green-300 dark:hover:bg-green-900'
+            }`}
           >
-            <ArrowUp className="w-5 h-5" strokeWidth={3} />
+            <ArrowUp 
+              className={`w-5 h-5 transition-colors ${
+                userVote === 'up' ? 'text-white dark:text-white' : 'text-black dark:text-white'
+              }`} 
+              strokeWidth={3} 
+            />
           </button>
 
-          <span className={`font-black text-lg ${userVote === 'up' ? 'text-green-600 dark:text-green-400' :
+          <span className={`font-black text-lg transition-colors duration-200 ${
+            userVote === 'up' ? 'text-green-600 dark:text-green-400' :
             userVote === 'down' ? 'text-red-600 dark:text-red-400' : 'text-black dark:text-white'
-            }`}>
+          }`}>
             {votes}
           </span>
 
           <button
             onClick={() => handleVote('down')}
-            className={`bg-white dark:bg-black border-3 border-black dark:border-gray-700 p-2 transition-colors ${userVote === 'down' ? 'bg-red-400 dark:bg-red-600' : 'hover:bg-red-300 dark:hover:bg-red-900'
-              } text-black dark:text-white`}
+            className={`border-3 border-black dark:border-gray-700 p-2 transition-all duration-200 ${
+              userVote === 'down' 
+                ? 'bg-red-400 dark:bg-red-600 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(239,68,68,0.5)]' 
+                : 'bg-white dark:bg-black hover:bg-red-300 dark:hover:bg-red-900'
+            }`}
           >
-            <ArrowDown className="w-5 h-5" strokeWidth={3} />
+            <ArrowDown 
+              className={`w-5 h-5 transition-colors ${
+                userVote === 'down' ? 'text-white dark:text-white' : 'text-black dark:text-white'
+              }`} 
+              strokeWidth={3} 
+            />
           </button>
         </div>
 

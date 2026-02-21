@@ -64,7 +64,10 @@ export default function LoginPage() {
             });
 
             localStorage.setItem('graphene_token', result.token);
-            localStorage.setItem('graphene_user', JSON.stringify(result.identity));
+            localStorage.setItem('graphene_user', JSON.stringify({ 
+                ...result.identity, 
+                salt: salt  // ✅ STORE THE SALT!
+            }));
 
             // Trigger auth state update
             window.dispatchEvent(new Event('authChange'));
@@ -153,7 +156,7 @@ export default function LoginPage() {
 
                         {challengeIndices.map((idx, i) => (
                             <div key={idx}>
-                                <label className="text-xs font-black uppercase text-black dark:text-white block mb-1 bg-yellow-300 dark:bg-yellow-600 inline-block px-2 border border-black dark:border-gray-500 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
+                                <label className="text-xs font-black uppercase text-black dark:text-white mb-1 bg-yellow-300 dark:bg-yellow-600 inline-block px-2 border border-black dark:border-gray-500 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
                                     Word #{idx + 1}
                                 </label>
                                 <input

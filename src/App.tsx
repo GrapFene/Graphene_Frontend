@@ -10,6 +10,7 @@ import PostDetailsPage from './pages/PostDetailsPage';
 import SearchPage from './pages/SearchPage';
 import RecoveryPage from './pages/RecoveryPage';
 import AboutPage from './pages/AboutPage';
+import MyPostsPage from './pages/MyPostsPage';
 
 /**
  * Main Application Component
@@ -79,6 +80,10 @@ function App() {
       <Route
         path="/profile"
         element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/my-posts"
+        element={isAuthenticated ? <MyPostsPage /> : <Navigate to="/login" replace />}
       />
       <Route
         path="/search"

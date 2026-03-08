@@ -39,7 +39,7 @@ concurrency:
 # no hardcoded org/repo name ever lives in this file.
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}   # e.g. grapfene/graphene_frontend
+  IMAGE_NAME: ghcr.io/grapfene/graphene_frontend   # hardcoded lowercase — GHCR requires it
 
 
 jobs:
@@ -82,7 +82,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
             type=sha,prefix=sha-,format=short

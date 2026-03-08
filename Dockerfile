@@ -25,12 +25,13 @@ WORKDIR /app
 # Copy dependency manifests first to leverage Docker's layer cache:
 # if package.json / package-lock.json haven't changed, the npm ci
 # step is skipped entirely on subsequent builds.
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 
-# Install exact versions from the lock file; omit dev tools not needed
-# in production. --frozen-lockfile makes the build fail if the lock file
-# is out of sync, which protects against supply-chain drift.
-RUN npm ci --frozen-lockfile
+# Install exact versions from the lock file.
+# `npm ci` is inherently frozen — it fails if package-lock.json is missing
+# or out of sync with package.json. --frozen-lockfile is a yarn flag and is
+# invalid for npm, causing exit code 1.
+RUN npm ci
 
 # Copy the rest of the source code
 COPY . .

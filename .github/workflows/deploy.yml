@@ -128,14 +128,20 @@ jobs:
           script: |
             set -euo pipefail
 
-            # Navigate to the infrastructure directory where docker-compose.yml lives.
             cd /home/azureuser/graphene-infra
 
+            # Authenticate to GHCR so the VM can pull the image.
+            echo "${{ secrets.GHCR_PAT }}" | \
+              docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
             # Pull the freshly pushed :latest image from GHCR.
-            docker compose pull frontend-app
+            docker compose --env-file .env pull frontend-app
 
             # Recreate ONLY the frontend-app container with the new image.
             # Caddy and backend-app remain running and continue to serve traffic.
-            docker compose up -d --no-deps frontend-app
+            docker compose --env-file .env up -d --no-deps frontend-app
+
+            docker image prune -f
 
             echo "✅ frontend-app restarted with latest image"
+            docker compose ps

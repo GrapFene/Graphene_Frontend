@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000';
+// VITE_API_BASE_URL is baked into the JS bundle at Docker build time via
+// --build-arg VITE_API_BASE_URL=... in the CI/CD pipeline (deploy.yml).
+// Falls back to localhost:3000 for local `npm run dev` without a .env file.
+const API_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
 const api = axios.create({
     baseURL: API_URL,

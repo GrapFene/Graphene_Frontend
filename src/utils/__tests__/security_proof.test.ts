@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { generateIdentity, hashMnemonicWord, generateSalt, hashMnemonic, restoreIdentity } from '../crypto';
-import { ethers } from 'ethers';
+import { generateIdentity, hashMnemonicWord, generateSalt } from '../crypto';
 
 describe('Security Stress Tests & Simulations', () => {
 

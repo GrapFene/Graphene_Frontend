@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { hashData, restoreIdentity } from '../utils/crypto';
-import { ethers } from 'ethers';
-import { getProfile, updateProfile } from '../services/api';
+import { restoreIdentity } from '../utils/crypto';
+import { getProfile } from '../services/api';
 import { User, Lock, Save, AlertTriangle } from 'lucide-react';
 
 interface ProfilePageProps {
@@ -17,7 +16,6 @@ interface ProfilePageProps {
  */
 const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
     const [did, setDid] = useState<string>('');
-    const [username, setUsername] = useState<string>('');
     const [displayName, setDisplayName] = useState('');
     const [bio, setBio] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
@@ -32,7 +30,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
         if (userStr) {
             const user = JSON.parse(userStr);
             setDid(user.did);
-            setUsername(user.username);
             loadProfile(user.did);
         }
     }, []);
@@ -71,56 +68,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
                 throw new Error('Invalid mnemonic phrase');
             }
 
-            // 2. Prepare content
-            const content = {
-                displayName,
-                bio,
-                avatarUrl
-            };
-
-            // 3. Hash content
-            // Note: We need a hash function that matches backend. 
-            // Backend uses SHA-256 of JSON string.
-            // Frontend utils/crypto has hashData (Keccak256).
-            // We should use what the backend expects or standardize.
-            // Current plan: Frontend hashes with whatever it has, signs it.
-            // BUT backend `updateProfile` calculates hash itself to store in DB.
-            // AND backend verifies signature against that hash.
-            // So Frontend MUST generate the EXACT SAME hash as backend.
-            // Backend: `createHash('sha256').update(JSON.stringify(content)).digest('hex')`
-            // Frontend: We need SHA-256. `ethers.sha256(ethers.toUtf8Bytes(JSON.stringify(content)))`.
-
-            // Let's implement this logic here or in api.ts? 
-            // `api.ts` is cleaner. But `sign` needs private key which we only have here.
-
-            // WAIT. `restoreIdentity` gives us a wallet/signer.
-            // `wallet.signMessage(message)`
-
-            // Backend expects `signed_hash`.
-            // Message = Content Hash.
-            // So we must hash the content first.
-
-            // Imports for hashing?
-            // We can use `ethers.sha256`.
-
-            // Wait, `utils/crypto.ts` exports `hashData` which is keccak256. 
-            // Backend uses sha256. 
-            // I should update `utils/crypto.ts` or add `hashContent` there.
-            // Or just import ethers here. `utils/crypto` already imports ethers.
-
-            // I'll assume I can add `hashContent` to `utils/crypto.ts` or just use ethers here.
-            // I'll create a helper in this file for now to be safe/quick, or better, update `utils/crypto.ts`.
-            // Let's stick to using what we have. `hashData` is keccak256.
-            // If backend uses sha256, we have a mismatch.
-            // I should update backend to use Keccak256 (matches Ethereum standard) OR update frontend to use SHA256.
-            // Ethers defaults to Keccak256.
-            // I will update the backend `services/profile.ts` to use Keccak256 to match Ethereum/Ethers standard!
-            // This is better for "Ethereum style" app.
-            // **SELF-CORRECTION**: I ALREADY wrote `profile.ts` with SHA-256 in previous step!
-            // I should have used Keccak.
-            // I will update `backend/src/services/profile.ts` to use Keccak256 logic if possible, or just accept SHA256.
-            // Frontend `ethers.sha256` exists.
-            // I will use `ethers.sha256` in Frontend.
+            // TODO: hash content with ethers.sha256, sign with identity.wallet,
+            //       then call updateProfile(did, signedHash, { displayName, bio, avatarUrl })
 
         } catch (err: any) {
             setError(err.message || 'Failed to update profile');

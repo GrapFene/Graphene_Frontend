@@ -526,16 +526,18 @@ export const createComment = async (postId: string, content: string, parentId?: 
  * Functionality: Submits a vote for a comment (upvote or downvote).
  * Input: commentId (string) - The ID of the comment.
  *        voteType (1 | -1) - The type of vote.
+ *        peerDomain (string | null, optional) - Peer instance domain if comment lives on a peer.
  * Response: Promise<any> - The vote response.
  */
-export const voteComment = async (commentId: string, voteType: 1 | -1) => {
+export const voteComment = async (commentId: string, voteType: 1 | -1, peerDomain?: string | null) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
     const user = JSON.parse(userStr);
 
     const response = await api.post(`/comments/${commentId}/vote`, {
         did: user.did,
-        voteType
+        voteType,
+        ...(peerDomain ? { peer_domain: peerDomain } : {})
     });
     return response.data;
 };

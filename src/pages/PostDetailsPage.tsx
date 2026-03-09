@@ -54,7 +54,7 @@ export default function PostDetailsPage() {
 
     const handleCommentVote = async (commentId: string, type: 1 | -1) => {
         try {
-            await voteComment(commentId, type);
+            await voteComment(commentId, type, post?.peer_domain);
             // Refresh without showing loading screen
             fetchPost(false);
         } catch (error) {

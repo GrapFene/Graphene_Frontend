@@ -40,6 +40,8 @@ export default function HomePage() {
                 mediaType: p.media_type,
                 source_instance_url: p.source_instance_url ?? null,
                 is_verified: p.is_verified ?? false,
+                peer_domain: p.peer_domain ?? null,
+                is_federated_post: p.is_federated_post ?? false,
             }));
             setPosts(mappedPosts);
         } catch (err) {

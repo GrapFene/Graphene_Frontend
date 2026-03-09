@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Bell, User, Users, Moon, Sun, Menu, FileText, Globe } from 'lucide-react';
+import { Search, Plus, Bell, User, Users, Moon, Sun, Menu, Newspaper, Globe } from 'lucide-react';
 import { getProfile } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
 import MobileMenu from './MobileMenu';
@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   onCreatePost?: () => void;
-  onCreateCommunity?: () => void;
 }
 
 /**
@@ -18,7 +17,7 @@ interface HeaderProps {
  *        onCreateCommunity (function) - Handler for opening create community modal.
  * Response: JSX.Element - The rendered header component.
  */
-export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps) {
+export default function Header({ onCreatePost }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const { theme, toggleTheme } = useTheme();
@@ -123,7 +122,7 @@ export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps)
             </button>
 
             <button
-              onClick={onCreateCommunity}
+              onClick={() => window.dispatchEvent(new Event('openCreateCommunity'))}
               className="flex items-center gap-2 bg-pink-300 dark:bg-cyan-600 border-4 border-black dark:border-gray-700 px-3 md:px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white"
             >
               <Users className="w-5 h-5" />
@@ -132,10 +131,10 @@ export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps)
 
             <button
               onClick={() => navigate('/my-posts')}
-              className="flex items-center gap-2 bg-purple-300 dark:bg-purple-600 border-4 border-black dark:border-gray-700 px-3 md:px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white"
+              className="flex items-center gap-2 bg-purple-300 dark:bg-purple-600 border-4 border-black dark:border-gray-700 px-3 md:px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white whitespace-nowrap"
             >
-              <FileText className="w-5 h-5" />
-              <span className="hidden lg:inline">My Posts</span>
+              <Newspaper className="w-5 h-5 shrink-0" />
+              <span className="hidden xl:inline">My Posts</span>
             </button>
 
             <button
@@ -143,8 +142,8 @@ export default function Header({ onCreatePost, onCreateCommunity }: HeaderProps)
               className="flex items-center gap-2 bg-blue-300 dark:bg-blue-700 border-4 border-black dark:border-gray-700 px-3 md:px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white"
               title="Federation Network"
             >
-              <Globe className="w-5 h-5" />
-              <span className="hidden lg:inline">Federation</span>
+              <Globe className="w-5 h-5 shrink-0" />
+              <span className="hidden xl:inline">Federation</span>
             </button>
 
             <button className="bg-white dark:bg-gray-900 border-4 border-black dark:border-gray-700 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white">

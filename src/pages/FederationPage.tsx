@@ -40,9 +40,26 @@ export default function FederationPage() {
     };
 
     const copyToClipboard = (text: string, key: string) => {
-        navigator.clipboard.writeText(text);
+        // navigator.clipboard requires HTTPS; fall back to execCommand for plain HTTP
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+        } else {
+            fallbackCopy(text);
+        }
         setCopied(key);
         setTimeout(() => setCopied(''), 2000);
+    };
+
+    const fallbackCopy = (text: string) => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
     };
 
     const formatDate = (iso: string) =>
@@ -61,7 +78,6 @@ export default function FederationPage() {
         <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:bg-black dark:from-black dark:via-black dark:to-black transition-colors duration-200">
             <Header
                 onCreatePost={() => navigate('/submit')}
-                onCreateCommunity={() => {}}
             />
 
             <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">

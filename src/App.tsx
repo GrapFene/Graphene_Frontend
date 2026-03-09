@@ -12,6 +12,7 @@ import RecoveryPage from './pages/RecoveryPage';
 import AboutPage from './pages/AboutPage';
 import MyPostsPage from './pages/MyPostsPage';
 import FederationPage from './pages/FederationPage';
+import CreateCommunityModal from './components/CreateCommunityModal';
 
 /**
  * Main Application Component
@@ -23,6 +24,7 @@ import FederationPage from './pages/FederationPage';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
+  const [showCommunityModal, setShowCommunityModal] = useState(false);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -39,9 +41,14 @@ function App() {
     // Listen for custom auth events (for same-tab updates)
     window.addEventListener('authChange', checkAuth);
 
+    // Global event so any page's Header button can open this modal
+    const openModal = () => setShowCommunityModal(true);
+    window.addEventListener('openCreateCommunity', openModal);
+
     return () => {
       window.removeEventListener('storage', checkAuth);
       window.removeEventListener('authChange', checkAuth);
+      window.removeEventListener('openCreateCommunity', openModal);
     };
   }, []);
 
@@ -54,7 +61,13 @@ function App() {
   }
 
   return (
-    <Routes>
+    <>
+      <CreateCommunityModal
+        isOpen={showCommunityModal}
+        onClose={() => setShowCommunityModal(false)}
+        onSuccess={() => setShowCommunityModal(false)}
+      />
+      <Routes>
       {/* Public Routes */}
       <Route
         path="/login"
@@ -113,6 +126,7 @@ function App() {
         element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />}
       />
     </Routes>
+    </>
   );
 }
 

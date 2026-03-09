@@ -152,7 +152,6 @@ export default function CommunityPage() {
         <div className="min-h-screen bg-gradient-to-br from-blue-100 via-cyan-100 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-black transition-colors duration-200">
             <Header
                 onCreatePost={() => navigate('/submit')}
-                onCreateCommunity={() => { }}
             />
 
             <main className="max-w-7xl mx-auto px-4 py-8">

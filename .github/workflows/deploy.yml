@@ -1,26 +1,3 @@
-# =============================================================================
-# Graphene Frontend — Dockerized Continuous Deployment Pipeline
-# Repository: GrapFene/Graphene_Frontend
-# =============================================================================
-#
-# Architecture
-# ────────────
-# Job 1 (build-and-push): Builds the Docker image (Vite inside Node builder,
-#   static assets copied into nginx:alpine runner), bakes VITE_* secrets as
-#   build-args, and pushes to GitHub Container Registry (GHCR).
-#
-# Job 2 (deploy-to-vm): SSHs into the Azure VM, pulls the new image, and
-#   hot-swaps ONLY the frontend-app container — backend and Caddy stay up.
-#
-# REQUIRED SECRETS  (Settings → Secrets and variables → Actions)
-# ──────────────────────────────────────────────────────────────
-#   GHCR_PAT              GitHub Personal Access Token with write:packages scope
-#   VITE_API_BASE_URL     Backend API URL (e.g. http://<your-vm-ip>/api)
-#   VM_HOST               Azure VM public IP or DNS name
-#   VM_USER               Linux user on the VM (e.g. azureuser)
-#   VM_SSH_PRIVATE_KEY    Full contents of the SSH private key file
-# =============================================================================
-
 name: Frontend — Build & Push & Deploy
 
 on:
@@ -33,28 +10,19 @@ concurrency:
   group: frontend-deploy-${{ github.ref }}
   cancel-in-progress: true
 
-# IMAGE NAMING
-# ─────────────────────────────────────────────────────────────────────────────
-# ghcr.io/<owner>/<repo>  is derived automatically from the GitHub context so
-# no hardcoded org/repo name ever lives in this file.
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/grapfene/graphene_frontend   # hardcoded lowercase — GHCR requires it
+  IMAGE_NAME: ghcr.io/grapfene/graphene_frontend
 
 
 jobs:
 
-  # ── Job 1: Build Docker image and push to GHCR ───────────────────────────────
   build-and-push:
     name: Build & Push → GHCR
     runs-on: ubuntu-latest
-
-    # Grant the job permission to write packages (required for GHCR push)
     permissions:
       contents: read
       packages: write
-
-    # Expose the lowercase image name as an output so Job 2 can use it
     outputs:
       image: ${{ steps.meta.outputs.tags }}
 
@@ -62,12 +30,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Buildx enables BuildKit, multi-platform builds, and layer caching
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Authenticate to GHCR using the PAT stored as a repository secret.
-      # GHCR_PAT must have the `write:packages` scope.
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -75,9 +40,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
-      # Generate OCI-compliant image tags:
-      #   latest          → always points to the most recent main-branch build
-      #   sha-<short SHA> → immutable, traceable to the exact commit
       - name: Extract image metadata (tags & labels)
         id: meta
         uses: docker/metadata-action@v5
@@ -87,10 +49,6 @@ jobs:
             type=raw,value=latest
             type=sha,prefix=sha-,format=short
 
-      # Build the multi-stage Dockerfile and push both tags in one step.
-      # VITE_API_BASE_URL is passed as --build-arg so the Node builder stage
-      # can bake it into the compiled JS bundle (import.meta.env.VITE_API_BASE_URL).
-      # It is NOT present in the final nginx:alpine runner layer.
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -101,23 +59,17 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
-          # Use GitHub Actions cache to avoid re-downloading npm packages
-          # and unchanged layers on every run.
           cache-from: type=gha
           cache-to:   type=gha,mode=max
 
 
-  # ── Job 2: Deploy to Azure VM ─────────────────────────────────────────────────
   deploy-to-vm:
     name: Deploy → Azure VM
     runs-on: ubuntu-latest
-    needs: build-and-push          # only runs if Job 1 succeeds
+    needs: build-and-push
     environment: production
 
     steps:
-      # SSH into the Azure VM and perform a zero-downtime container swap.
-      # --no-deps ensures only frontend-app is restarted; backend-app and
-      # caddy continue serving traffic without interruption.
       - name: Pull new image and restart frontend-app
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -130,15 +82,11 @@ jobs:
 
             cd /home/azureuser/graphene-infra
 
-            # Authenticate to GHCR so the VM can pull the image.
             echo "${{ secrets.GHCR_PAT }}" | \
               docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-            # Pull the freshly pushed :latest image from GHCR.
             docker compose --env-file .env pull frontend-app
 
-            # Recreate ONLY the frontend-app container with the new image.
-            # Caddy and backend-app remain running and continue to serve traffic.
             docker compose --env-file .env up -d --no-deps frontend-app
 
             docker image prune -f

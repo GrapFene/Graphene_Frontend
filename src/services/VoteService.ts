@@ -5,18 +5,19 @@ interface VoteResponse {
     userVote: number | null;
 }
 
-const API_URL = 'http://localhost:3000';
+const API_URL = (import.meta as any).env?.VITE_API_URL || '/api';
 
 export const VoteService = {
     /**
      * Casts a vote on a post
-     * 
+     *
      * Functionality: Submits a vote (up or down) for a specific post.
      * Input: postId (string) - The ID of the post.
      *        direction (VoteDirection) - 'up' or 'down'.
+     *        peerDomain (string | null, optional) - The peer instance domain if the post is federated.
      * Response: Promise<VoteResponse> - The updated vote score and user vote status.
      */
-    vote: async (postId: string, direction: VoteDirection): Promise<VoteResponse> => {
+    vote: async (postId: string, direction: VoteDirection, peerDomain?: string | null): Promise<VoteResponse> => {
         const userStr = localStorage.getItem('graphene_user');
         if (!userStr) {
             throw new Error('User not logged in');
@@ -26,7 +27,7 @@ export const VoteService = {
         const voteType = direction === 'up' ? 1 : -1;
 
         const token = localStorage.getItem('graphene_token');
-        const response = await fetch(`${API_URL}/posts/${postId}/vote`, {
+        const response = await fetch(`${API_URL}/votes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -34,7 +35,9 @@ export const VoteService = {
             },
             body: JSON.stringify({
                 did: user.did,
-                voteType
+                postId,
+                voteType,
+                ...(peerDomain ? { peer_domain: peerDomain } : {})
             })
         });
 
@@ -47,12 +50,13 @@ export const VoteService = {
 
     /**
      * Removes a vote from a post
-     * 
+     *
      * Functionality: Removes a previously cast vote for a specific post.
      * Input: postId (string) - The ID of the post.
+     *        peerDomain (string | null, optional) - The peer instance domain if the post is federated.
      * Response: Promise<VoteResponse> - The updated vote score and user vote status.
      */
-    removeVote: async (postId: string): Promise<VoteResponse> => {
+    removeVote: async (postId: string, peerDomain?: string | null): Promise<VoteResponse> => {
         const userStr = localStorage.getItem('graphene_user');
         if (!userStr) {
             throw new Error('User not logged in');
@@ -61,7 +65,7 @@ export const VoteService = {
         const user = JSON.parse(userStr);
         const token = localStorage.getItem('graphene_token');
 
-        const response = await fetch(`${API_URL}/posts/${postId}/vote`, {
+        const response = await fetch(`${API_URL}/votes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -69,7 +73,9 @@ export const VoteService = {
             },
             body: JSON.stringify({
                 did: user.did,
-                voteType: 0
+                postId,
+                voteType: 0,
+                ...(peerDomain ? { peer_domain: peerDomain } : {})
             })
         });
 

@@ -12,6 +12,8 @@ export interface Post {
   user_vote?: number | null;
   // Federation
   source_instance_url?: string | null;
+  peer_domain?: string | null;
+  is_federated_post?: boolean;
   is_verified?: boolean;
 }
 

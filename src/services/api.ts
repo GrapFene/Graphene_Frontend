@@ -68,6 +68,8 @@ export interface Post {
     // Federation fields
     source_instance_url?: string | null;
     is_verified?: boolean;
+    peer_domain?: string | null;
+    is_federated_post?: boolean;
 }
 
 export interface Comment {
@@ -503,7 +505,7 @@ export const subscribe = async (communityName: string) => {
  *        parentId (string, optional) - The ID of the parent comment if it's a reply.
  * Response: Promise<any> - The created comment data.
  */
-export const createComment = async (postId: string, content: string, parentId?: string) => {
+export const createComment = async (postId: string, content: string, parentId?: string, peerDomain?: string | null) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
     const user = JSON.parse(userStr);
@@ -512,7 +514,8 @@ export const createComment = async (postId: string, content: string, parentId?: 
         did: user.did,
         postId,
         content,
-        parentId
+        parentId,
+        ...(peerDomain ? { peer_domain: peerDomain } : {})
     });
     return response.data;
 };

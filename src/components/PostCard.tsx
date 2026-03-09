@@ -20,7 +20,8 @@ export default function PostCard({ post }: PostCardProps) {
   const { votes, userVote, error, handleVote } = useVote({
     initialVotes: post.votes,
     postId: post.id,
-    initialUserVote: post.user_vote
+    initialUserVote: post.user_vote,
+    peerDomain: post.peer_domain
   });
 
   const handleCommentsClick = () => {

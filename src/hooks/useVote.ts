@@ -5,6 +5,7 @@ interface UseVoteProps {
     initialVotes: number;
     postId: string;
     initialUserVote?: number | null;
+    peerDomain?: string | null;
 }
 
 /**
@@ -14,9 +15,10 @@ interface UseVoteProps {
  * Input: initialVotes (number) - Initial score of the post.
  *        postId (string) - The ID of the post.
  *        initialUserVote (number | null) - The initial vote of the user (1 for up, -1 for down, null for none).
+ *        peerDomain (string | null, optional) - The peer instance domain if the post is federated.
  * Response: Object containing votes, userVote, status, error, and handleVote function.
  */
-export const useVote = ({ initialVotes, postId, initialUserVote = null }: UseVoteProps) => {
+export const useVote = ({ initialVotes, postId, initialUserVote = null, peerDomain }: UseVoteProps) => {
     const [votes, setVotes] = useState(initialVotes);
     const [userVote, setUserVote] = useState<VoteDirection | null>(() => {
         if (initialUserVote === 1) return 'up';
@@ -68,10 +70,10 @@ export const useVote = ({ initialVotes, postId, initialUserVote = null }: UseVot
 
             // If clicking the same direction, remove the vote
             if (userVote === direction) {
-                result = await VoteService.removeVote(postId);
+                result = await VoteService.removeVote(postId, peerDomain);
             } else {
                 // Otherwise cast a new vote (or switch vote direction)
-                result = await VoteService.vote(postId, direction);
+                result = await VoteService.vote(postId, direction, peerDomain);
             }
 
             // Only update if the server response differs from our optimistic update

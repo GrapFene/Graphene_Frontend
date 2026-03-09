@@ -67,7 +67,7 @@ export default function PostDetailsPage() {
         if (!text.trim()) return;
 
         try {
-            await createComment(postId!, text, parentId);
+            await createComment(postId!, text, parentId, post?.peer_domain);
             if (parentId) {
                 setReplyText('');
                 setReplyingTo(null);
@@ -91,7 +91,8 @@ export default function PostDetailsPage() {
         const { votes, userVote, handleVote } = useVote({
             initialVotes: post.votes || 0,
             postId: post.id,
-            initialUserVote: post.user_vote
+            initialUserVote: post.user_vote,
+            peerDomain: post.peer_domain
         });
 
         return (
@@ -117,7 +118,8 @@ export default function PostDetailsPage() {
         const { votes, userVote, handleVote } = useVote({
             initialVotes: post.votes || 0,
             postId: post.id,
-            initialUserVote: post.user_vote
+            initialUserVote: post.user_vote,
+            peerDomain: post.peer_domain
         });
 
         return (

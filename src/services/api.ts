@@ -60,11 +60,14 @@ export interface Post {
     media_type?: 'image' | 'video';
     created_at: string;
     score?: number;
-    votes?: number; // Mapped from score
-    user_vote?: number | null; // User's vote: 1, -1, or null
+    votes?: number;
+    user_vote?: number | null;
     trendingScore?: number;
     comments?: Comment[];
-    comment_count?: number; // Number of comments on the post
+    comment_count?: number;
+    // Federation fields
+    source_instance_url?: string | null;
+    is_verified?: boolean;
 }
 
 export interface Comment {
@@ -321,6 +324,26 @@ export const getPostsByCommunity = async (subreddit: string) => {
     })) as Post[];
 };
 
+/**
+ * Fetches posts directly from a self-hosted peer server's public API.
+ * Used when a community's home_instance_domain points to an external server.
+ */
+export const getPostsFromPeer = async (peerDomain: string, subreddit: string): Promise<Post[]> => {
+    const url = `http://${peerDomain}/api/posts?subreddit=${encodeURIComponent(subreddit)}`;
+    const response = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+    if (!response.ok) throw new Error(`Peer server returned ${response.status}`);
+    const posts = await response.json() as any[];
+    return posts.map(post => ({
+        ...post,
+        votes: post.score || 0,
+        user_vote: post.user_vote ?? null,
+        imageUrl: post.media_url,
+        mediaType: post.media_type,
+        source_instance_url: peerDomain,
+        is_verified: true,
+    })) as Post[];
+};
+
 
 
 /**
@@ -394,6 +417,23 @@ export const getTopCommunities = async (limit: number = 5) => {
 };
 
 /**
+ * Gets a single community by name (includes home_instance_domain for federated communities).
+ */
+export const getCommunityDetails = async (name: string) => {
+    const response = await api.get(`/communities/${name}`);
+    return response.data as {
+        name: string;
+        description: string;
+        topic?: string;
+        is_private: boolean;
+        is_federated: boolean;
+        home_instance_domain?: string | null;
+        owner_did: string;
+        created_at: string;
+    };
+};
+
+/**
  * Creates a new community
  * 
  * Functionality: Creates a new community (subreddit).
@@ -403,7 +443,13 @@ export const getTopCommunities = async (limit: number = 5) => {
  *        isPrivate (boolean, optional) - Whether the community is private.
  * Response: Promise<any> - The created community data.
  */
-export const createCommunity = async (name: string, description: string, topic?: string, isPrivate?: boolean) => {
+export const createCommunity = async (
+    name: string,
+    description: string,
+    topic?: string,
+    isPrivate?: boolean,
+    homeInstanceDomain?: string          // undefined = hosted on main server
+) => {
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
     const user = JSON.parse(userStr);
@@ -413,7 +459,11 @@ export const createCommunity = async (name: string, description: string, topic?:
         name,
         description,
         topic,
-        is_private: isPrivate
+        is_private: isPrivate,
+        ...(homeInstanceDomain ? {
+            is_federated: true,
+            home_instance_domain: homeInstanceDomain,
+        } : {}),
     });
     return response.data;
 };
@@ -620,4 +670,49 @@ export const finalizeRecovery = async (requestId: string) => {
     return response.data;
 };
 
+// =============================================================================
+// Federation API
+// =============================================================================
+
+export interface KnownPeer {
+    domain: string;
+    actor_url: string;
+    public_address: string;
+    last_seen_at: string;
+    first_seen_at: string;
+    is_active: boolean;
+}
+
+/**
+ * Get the list of known peer instances that have federated with us.
+ */
+export const getFederatedPeers = async (): Promise<KnownPeer[]> => {
+    const response = await api.get('/federation/peers');
+    return response.data.peers ?? [];
+};
+
+/**
+ * Get this instance's actor card (public address + inbox URL).
+ */
+export const getInstanceActor = async () => {
+    const response = await api.get('/federation/actor');
+    return response.data;
+};
+
+/**
+ * Get only federated posts (posts from remote instances).
+ */
+export const getFederatedFeed = async (): Promise<Post[]> => {
+    const userStr = localStorage.getItem('graphene_user');
+    let viewerDid = '';
+    if (userStr) {
+        try { viewerDid = JSON.parse(userStr).did; } catch (_) {}
+    }
+    const response = await api.get(`/posts?sort=recent&viewerDid=${viewerDid}&federated=true`);
+    return (response.data as any[]).map(post => ({
+        ...post,
+        votes: post.score || 0,
+        user_vote: post.user_vote,
+    })) as Post[];
+};
 

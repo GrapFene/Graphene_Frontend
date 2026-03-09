@@ -39,7 +39,9 @@ export default function HomePage() {
                 user_vote: p.user_vote,
                 commentCount: p.comment_count || 0,
                 imageUrl: p.media_url || null,
-                mediaType: p.media_type
+                mediaType: p.media_type,
+                source_instance_url: p.source_instance_url ?? null,
+                is_verified: p.is_verified ?? false,
             }));
             setPosts(mappedPosts);
         } catch (err) {

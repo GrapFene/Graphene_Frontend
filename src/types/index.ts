@@ -9,7 +9,10 @@ export interface Post {
   timestamp: string;
   imageUrl?: string;
   mediaType?: 'image' | 'video';
-  user_vote?: number | null; // 1 for upvote, -1 for downvote, null for no vote
+  user_vote?: number | null;
+  // Federation
+  source_instance_url?: string | null;
+  is_verified?: boolean;
 }
 
 export interface Comment {

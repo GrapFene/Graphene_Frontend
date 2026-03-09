@@ -11,6 +11,7 @@ import SearchPage from './pages/SearchPage';
 import RecoveryPage from './pages/RecoveryPage';
 import AboutPage from './pages/AboutPage';
 import MyPostsPage from './pages/MyPostsPage';
+import FederationPage from './pages/FederationPage';
 
 /**
  * Main Application Component
@@ -100,6 +101,10 @@ function App() {
       <Route
         path="/about"
         element={isAuthenticated ? <AboutPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/federation"
+        element={isAuthenticated ? <FederationPage /> : <Navigate to="/login" replace />}
       />
 
       {/* Catch all - redirect to home or login */}

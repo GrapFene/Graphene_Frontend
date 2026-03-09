@@ -329,8 +329,13 @@ export const getPostsByCommunity = async (subreddit: string) => {
  * Used when a community's home_instance_domain points to an external server.
  */
 export const getPostsFromPeer = async (peerDomain: string, subreddit: string): Promise<Post[]> => {
-    const url = `http://${peerDomain}/api/posts?subreddit=${encodeURIComponent(subreddit)}`;
-    const response = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+    const url = `https://${peerDomain}/api/posts?subreddit=${encodeURIComponent(subreddit)}`;
+    const response = await fetch(url, {
+        headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true',
+        },
+    });
     if (!response.ok) throw new Error(`Peer server returned ${response.status}`);
     const posts = await response.json() as any[];
     return posts.map(post => ({

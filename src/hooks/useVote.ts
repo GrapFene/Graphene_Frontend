@@ -76,25 +76,20 @@ export const useVote = ({ initialVotes, postId, initialUserVote = null, peerDoma
                 result = await VoteService.vote(postId, direction, peerDomain);
             }
 
-            // Only update if the server response differs from our optimistic update
-            // This prevents overwriting if user made another vote action during the API call
-            if (result.userVote === 1 && newUserVote === 'up') {
-                // Server confirms upvote - keep optimistic state
-            } else if (result.userVote === -1 && newUserVote === 'down') {
-                // Server confirms downvote - keep optimistic state
-            } else if (result.userVote === null && newUserVote === null) {
-                // Server confirms vote removal - keep optimistic state
-            } else {
-                // Something changed on the server, sync with server state
+            // Always update score from server (source of truth),
+            // but keep our optimistic userVote — the server confirmed the action succeeded.
+            if (typeof result.score === 'number') {
                 setVotes(result.score);
-                if (result.userVote === 1) {
-                    setUserVote('up');
-                } else if (result.userVote === -1) {
-                    setUserVote('down');
-                } else {
-                    setUserVote(null);
-                }
             }
+            // Sync userVote from server only if it's a valid value
+            if (result.userVote === 1) {
+                setUserVote('up');
+            } else if (result.userVote === -1) {
+                setUserVote('down');
+            } else if (result.userVote === null || result.userVote === 0) {
+                setUserVote(null);
+            }
+            // If server returns something unexpected, keep optimistic state (already set above)
 
             setStatus('idle');
         } catch (err) {

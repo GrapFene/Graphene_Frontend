@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -85,7 +86,7 @@ function App() {
       {/* Protected Routes */}
       <Route
         path="/"
-        element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
+        element={isAuthenticated ? <HomePage /> : <LandingPage />}
       />
       <Route
         path="/submit"
@@ -120,10 +121,10 @@ function App() {
         element={isAuthenticated ? <FederationPage /> : <Navigate to="/login" replace />}
       />
 
-      {/* Catch all - redirect to home or login */}
+      {/* Catch all - redirect to home or landing */}
       <Route
         path="*"
-        element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />}
+        element={<Navigate to="/" replace />}
       />
     </Routes>
     </>

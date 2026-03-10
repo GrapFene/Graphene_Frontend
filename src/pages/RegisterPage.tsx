@@ -4,6 +4,7 @@ import { register } from '../services/api';
 import { generateIdentity, hashMnemonic, generateSalt } from '../utils/crypto';
 import { ethers } from 'ethers';
 import LoadingSpinner from '../components/LoadingSpinner';
+import CommunityRules from '../components/CommunityRules';
 
 const AVATAR_PRESETS = [
     'https://api.dicebear.com/9.x/notionists/svg?seed=Felix&backgroundColor=ffdfbf',
@@ -29,7 +30,7 @@ export default function RegisterPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     // Password state removed
-    const [phase, setPhase] = useState<'input' | 'display'>('input');
+    const [phase, setPhase] = useState<'rules' | 'input' | 'display'>('rules');
     const [identity, setIdentity] = useState<any>(null);
     const [salt, setSalt] = useState('');
     const [error, setError] = useState('');
@@ -118,9 +119,62 @@ export default function RegisterPage() {
                 <h1 className="text-4xl font-black mb-2 uppercase text-black dark:text-white">
                     GrapFene
                 </h1>
-                <div className="bg-black dark:bg-white text-white dark:text-black inline-block px-2 py-1 text-xs font-bold uppercase tracking-[0.2em] mb-8">
+                <div className="bg-black dark:bg-white text-white dark:text-black inline-block px-2 py-1 text-xs font-bold uppercase tracking-[0.2em] mb-6">
                     Register
                 </div>
+
+                {/* ── Step Progress Indicator ── */}
+                {(() => {
+                    const steps = ['Accept Rules', 'Your Details', 'Save Identity'];
+                    const currentStep = phase === 'rules' ? 0 : phase === 'input' ? 1 : 2;
+                    return (
+                        <div className="flex items-start mb-8">
+                            {steps.map((label, i) => {
+                                const done = i < currentStep;
+                                const active = i === currentStep;
+                                return (
+                                    <div key={label} className="flex items-start flex-1 last:flex-none">
+                                        {/* Circle + label */}
+                                        <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                                            <div
+                                                className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                                                    done
+                                                        ? 'bg-indigo-600 border-indigo-600'
+                                                        : active
+                                                        ? 'bg-indigo-600 border-indigo-600 ring-4 ring-indigo-300 dark:ring-indigo-800'
+                                                        : 'bg-transparent border-gray-400 dark:border-gray-600'
+                                                }`}
+                                            >
+                                                {done ? (
+                                                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                ) : active ? (
+                                                    <div className="w-3 h-3 rounded-full bg-white" />
+                                                ) : null}
+                                            </div>
+                                            <span className={`text-[10px] font-black uppercase tracking-wide text-center w-20 leading-tight ${
+                                                active ? 'text-indigo-600 dark:text-indigo-400' : done ? 'text-black dark:text-white' : 'text-gray-400 dark:text-gray-600'
+                                            }`}>
+                                                {label}
+                                            </span>
+                                        </div>
+                                        {/* Connector line — skip after last step */}
+                                        {i < steps.length - 1 && (
+                                            <div className="flex-1 h-0.5 mt-4 mx-1 relative">
+                                                <div className="absolute inset-0 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                                                <div
+                                                    className="absolute inset-0 bg-indigo-600 rounded-full transition-all duration-500"
+                                                    style={{ width: i < currentStep ? '100%' : '0%' }}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    );
+                })()}
 
                 {error && (
                     <div className="bg-red-300 border-4 border-black p-3 font-bold mb-4 animate-bounce">
@@ -128,7 +182,9 @@ export default function RegisterPage() {
                     </div>
                 )}
 
-                {phase === 'input' ? (
+                {phase === 'rules' ? (
+                    <CommunityRules onAccept={() => setPhase('input')} />
+                ) : phase === 'input' ? (
                     <div className="space-y-4">
                         <input
                             type="text"

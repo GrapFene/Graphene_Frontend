@@ -163,9 +163,9 @@ export default function LoginPage() {
                                         Word #{idx + 1}
                                     </label>
                                     <input
-                                        type="text"
+                                        type="password"
                                         className="w-full px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
-                                        placeholder="Type word ${idx + 1}"
+                                        placeholder={`Type word ${idx + 1}`}
                                         value={challengeWords[i]}
                                         onChange={(e) => updateChallengeWord(i, e.target.value)}
                                     />

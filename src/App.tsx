@@ -70,6 +70,7 @@ function App() {
       />
       <Routes>
       {/* Public Routes */}
+      <Route path="/welcome" element={<LandingPage />} />
       <Route
         path="/login"
         element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}

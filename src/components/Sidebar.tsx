@@ -79,8 +79,6 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
 
   const handleJoinLeave = async (e: React.MouseEvent, community: Community) => {
     e.stopPropagation();
-    // Can only join/leave local communities
-    if (community.peer_domain) return;
     try {
       if (subscriptions.includes(community.name)) {
         await leaveCommunity(community.name);
@@ -161,18 +159,16 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
                       </p>
                     </div>
                   </div>
-                  {!isPeer && (
-                    <button
-                      className={`ml-2 shrink-0 px-3 py-1 font-bold text-sm transition-colors ${
-                        subscriptions.includes(community.name)
-                          ? 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700'
-                          : 'bg-black dark:bg-gray-700 text-white hover:bg-gray-800 dark:hover:bg-gray-600'
-                      }`}
-                      onClick={(e) => handleJoinLeave(e, community)}
-                    >
-                      {subscriptions.includes(community.name) ? 'Leave' : 'Join'}
-                    </button>
-                  )}
+                  <button
+                    className={`ml-2 shrink-0 px-3 py-1 font-bold text-sm transition-colors ${
+                      subscriptions.includes(community.name)
+                        ? 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700'
+                        : 'bg-black dark:bg-gray-700 text-white hover:bg-gray-800 dark:hover:bg-gray-600'
+                    }`}
+                    onClick={(e) => handleJoinLeave(e, community)}
+                  >
+                    {subscriptions.includes(community.name) ? 'Leave' : 'Join'}
+                  </button>
                 </div>
               );
             })
@@ -181,7 +177,7 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
       </div>
 
       <div className="bg-lime-300 dark:bg-emerald-600 border-4 border-black dark:border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)] p-6 transition-colors duration-200">
-        <h3 className="font-black text-xl mb-3 text-black dark:text-white">About GrapFene</h3>
+        <h3 className="font-black text-xl mb-3 text-black dark:text-white">About Graphene</h3>
         <p className="font-medium mb-4 leading-relaxed text-black dark:text-white">
           The brutally honest social platform. No algorithms, no BS. Just pure,
           unfiltered discussions.

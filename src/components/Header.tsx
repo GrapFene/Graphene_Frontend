@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Bell, User, Users, Moon, Sun, Menu, Newspaper, Globe } from 'lucide-react';
+import { Search, Plus, Bell, User, Users, Moon, Sun, Menu, Newspaper, Globe, Home } from 'lucide-react';
 import { getProfile } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
 import MobileMenu from './MobileMenu';
@@ -78,7 +78,7 @@ export default function Header({ onCreatePost }: HeaderProps) {
               onClick={() => navigate('/')}
             >
               <span className="bg-black dark:bg-cyan-500 text-white dark:text-black px-3 py-1 transition-colors duration-200">
-                GrapFene
+                Graphene
               </span>
             </h1>
 
@@ -144,6 +144,15 @@ export default function Header({ onCreatePost }: HeaderProps) {
             >
               <Globe className="w-5 h-5 shrink-0" />
               <span className="hidden xl:inline">Federation</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/welcome')}
+              className="flex items-center gap-2 bg-orange-300 dark:bg-orange-700 border-4 border-black dark:border-gray-700 px-3 md:px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white"
+              title="Welcome Page"
+            >
+              <Home className="w-5 h-5 shrink-0" />
+              <span className="hidden xl:inline">Welcome</span>
             </button>
 
             <button className="bg-white dark:bg-gray-900 border-4 border-black dark:border-gray-700 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white">

@@ -118,7 +118,7 @@ export default function RecoveryPage() {
         <div className="flex flex-col items-center justify-center min-h-screen w-full p-4 bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black transition-colors duration-200">
             <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] w-full max-w-lg p-8 md:p-12 transition-colors">
                 <h1 className="text-4xl font-black mb-2 uppercase text-black dark:text-white">
-                    GrapFene
+                    Graphene
                 </h1>
                 <div className="bg-red-500 text-white inline-block px-2 py-1 text-xs font-bold uppercase tracking-[0.2em] mb-8 border-2 border-black dark:border-gray-600">
                     Account Recovery

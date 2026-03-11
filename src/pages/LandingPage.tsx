@@ -201,6 +201,7 @@ function RevealUp({ children, className = '' }: { children: React.ReactNode; cla
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem('graphene_token');
 
   // Parallax: track scroll offset for hero text layer
   const [scrollY, setScrollY] = useState(0);
@@ -220,18 +221,29 @@ export default function LandingPage() {
           <span className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-black px-2 py-0.5 uppercase tracking-widest">Beta</span>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={() => navigate('/login')}
-            className="border-4 border-black dark:border-gray-400 bg-white dark:bg-gray-800 text-black dark:text-white font-black px-5 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-sm uppercase"
-          >
-            Login
-          </button>
-          <button
-            onClick={() => navigate('/register')}
-            className="border-4 border-black dark:border-gray-400 bg-black dark:bg-white text-white dark:text-black font-black px-5 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-sm uppercase"
-          >
-            Sign Up
-          </button>
+          {isLoggedIn ? (
+            <button
+              onClick={() => navigate('/')}
+              className="border-4 border-black dark:border-gray-400 bg-black dark:bg-white text-white dark:text-black font-black px-5 py-2 shadow-[4px_4px_0px_0px_rgba(251,146,60,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-sm uppercase"
+            >
+              ↗ Go to Portal
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate('/login')}
+                className="border-4 border-black dark:border-gray-400 bg-white dark:bg-gray-800 text-black dark:text-white font-black px-5 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-sm uppercase"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate('/register')}
+                className="border-4 border-black dark:border-gray-400 bg-black dark:bg-white text-white dark:text-black font-black px-5 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-sm uppercase"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </nav>
 
@@ -297,18 +309,29 @@ export default function LandingPage() {
             A federated, cryptographically-secured Social media owned by nobody.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={() => navigate('/register')}
-              className="border-4 border-black dark:border-gray-300 bg-black dark:bg-white text-white dark:text-black font-black px-10 py-4 text-lg shadow-[6px_6px_0px_0px_rgba(251,146,60,1)] hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all uppercase"
-            >
-              Get Started — Free
-            </button>
-            <button
-              onClick={() => navigate('/login')}
-              className="border-4 border-black dark:border-gray-400 bg-white dark:bg-gray-800 text-black dark:text-white font-black px-10 py-4 text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.2)] hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all uppercase"
-            >
-              I Have an Account
-            </button>
+            {isLoggedIn ? (
+              <button
+                onClick={() => navigate('/')}
+                className="border-4 border-black dark:border-gray-300 bg-black dark:bg-white text-white dark:text-black font-black px-10 py-4 text-lg shadow-[6px_6px_0px_0px_rgba(251,146,60,1)] hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all uppercase"
+              >
+                ↗ Go to Portal
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/register')}
+                  className="border-4 border-black dark:border-gray-300 bg-black dark:bg-white text-white dark:text-black font-black px-10 py-4 text-lg shadow-[6px_6px_0px_0px_rgba(251,146,60,1)] hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all uppercase"
+                >
+                  Get Started — Free
+                </button>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="border-4 border-black dark:border-gray-400 bg-white dark:bg-gray-800 text-black dark:text-white font-black px-10 py-4 text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.2)] hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all uppercase"
+                >
+                  I Have an Account
+                </button>
+              </>
+            )}
           </div>
 
           {/* Scroll hint */}
@@ -350,18 +373,29 @@ export default function LandingPage() {
             Join the federated network. No data mining. No algorithmic manipulation. Just people talking.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={() => navigate('/register')}
-              className="border-4 border-black dark:border-gray-400 bg-black dark:bg-white text-white dark:text-black font-black px-14 py-5 text-xl shadow-[8px_8px_0px_0px_rgba(251,146,60,1)] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all uppercase"
-            >
-              Create Account — Free
-            </button>
-            <button
-              onClick={() => navigate('/login')}
-              className="border-4 border-black dark:border-gray-400 bg-white dark:bg-gray-800 text-black dark:text-white font-black px-14 py-5 text-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all uppercase"
-            >
-              Login
-            </button>
+            {isLoggedIn ? (
+              <button
+                onClick={() => navigate('/')}
+                className="border-4 border-black dark:border-gray-400 bg-black dark:bg-white text-white dark:text-black font-black px-14 py-5 text-xl shadow-[8px_8px_0px_0px_rgba(251,146,60,1)] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all uppercase"
+              >
+                ↗ Go to Portal
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/register')}
+                  className="border-4 border-black dark:border-gray-400 bg-black dark:bg-white text-white dark:text-black font-black px-14 py-5 text-xl shadow-[8px_8px_0px_0px_rgba(251,146,60,1)] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all uppercase"
+                >
+                  Create Account — Free
+                </button>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="border-4 border-black dark:border-gray-400 bg-white dark:bg-gray-800 text-black dark:text-white font-black px-14 py-5 text-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all uppercase"
+                >
+                  Login
+                </button>
+              </>
+            )}
           </div>
         </RevealUp>
       </section>
@@ -378,7 +412,7 @@ export default function LandingPage() {
           className="flex items-center gap-2 text-xs font-black uppercase text-black dark:text-white hover:opacity-60 transition-opacity"
         >
           <Github className="w-4 h-4" />
-          GrapFene on GitHub
+          Graphene on GitHub
         </a>
         <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
           Open source · Self-hostable · Federated

@@ -95,7 +95,7 @@ export default function LoginPage() {
 
                 {/* RIGHT: Login form */}
                 <div className="flex-1 bg-white dark:bg-gray-800 p-8 md:p-12 transition-colors">
-                    <h1 className="text-4xl font-black mb-2 uppercase text-black dark:text-white">GrapFene</h1>
+                    <h1 className="text-4xl font-black mb-2 uppercase text-black dark:text-white">Graphene</h1>
                     <div className="flex items-center justify-between mb-8">
                         <div className="bg-black dark:bg-white text-white dark:text-black inline-block px-2 py-1 text-xs font-bold uppercase tracking-[0.2em]">
                             Login

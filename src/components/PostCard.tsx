@@ -105,10 +105,10 @@ export default function PostCard({ post }: PostCardProps) {
             <span className="font-bold text-gray-600 dark:text-cyan-400">u/{post.author}</span>
             <span className="text-gray-500 dark:text-gray-500">•</span>
             <span className="text-gray-500 dark:text-gray-400 font-bold">{post.timestamp}</span>
-            {post.source_instance_url && (
-              <span className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900 border-2 border-blue-500 dark:border-blue-400 px-2 py-0.5 text-xs font-black text-blue-700 dark:text-blue-300" title={`Federated from ${post.source_instance_url}`}>
+            {post.is_federated_post && post.peer_domain && (
+              <span className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900 border-2 border-blue-500 dark:border-blue-400 px-2 py-0.5 text-xs font-black text-blue-700 dark:text-blue-300" title={`Federated from ${post.peer_domain}`}>
                 <Globe className="w-3 h-3" strokeWidth={3} />
-                {post.source_instance_url}
+                {post.peer_domain}
               </span>
             )}
           </div>

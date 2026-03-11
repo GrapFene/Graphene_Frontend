@@ -99,6 +99,8 @@ export default function CommunityPage() {
                 source_instance_url: p.source_instance_url ?? peerDomain ?? null,
                 is_verified: p.is_verified ?? (peerDomain ? true : false),
                 user_vote: p.user_vote ?? null,
+                peer_domain: p.peer_domain ?? peerDomain ?? null,
+                is_federated_post: !!(p.peer_domain ?? peerDomain),
             }));
             setPosts(mapped);
         } catch (err: any) {

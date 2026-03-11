@@ -347,6 +347,8 @@ export const getPostsFromPeer = async (peerDomain: string, subreddit: string): P
         imageUrl: post.media_url,
         mediaType: post.media_type,
         source_instance_url: peerDomain,
+        peer_domain: peerDomain,
+        is_federated_post: true,
         is_verified: true,
     })) as Post[];
 };

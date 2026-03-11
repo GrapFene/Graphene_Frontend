@@ -153,7 +153,7 @@ export default function CommunityPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-100 via-cyan-100 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-black transition-colors duration-200">
             <Header
-                onCreatePost={() => navigate('/submit')}
+                onCreatePost={() => navigate(`/submit?community=${encodeURIComponent(name ?? '')}`)}
             />
 
             <main className="max-w-7xl mx-auto px-4 py-8">
@@ -216,7 +216,7 @@ export default function CommunityPage() {
                             <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 p-8 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] transition-colors">
                                 <p className="font-black text-2xl mb-4 text-black dark:text-white">No posts here yet!</p>
                                 <button
-                                    onClick={() => navigate('/submit')}
+                                    onClick={() => navigate(`/submit?community=${encodeURIComponent(name ?? '')}`)}
                                     className="bg-yellow-300 dark:bg-yellow-600 border-4 border-black dark:border-gray-500 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white"
                                 >
                                     Be the first to post

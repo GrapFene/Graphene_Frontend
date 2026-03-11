@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Image, Link as LinkIcon, BarChart3, MessageCircle, Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote } from 'lucide-react';
 import { createPost, getCommunities } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 type PostType = 'text' | 'image' | 'link' | 'poll';
 
@@ -14,6 +14,7 @@ type PostType = 'text' | 'image' | 'link' | 'poll';
  */
 export default function CreatePostPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [postType, setPostType] = useState<PostType>('text');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -33,7 +34,12 @@ export default function CreatePostPage() {
         try {
             const data = await getCommunities();
             setCommunities(data);
-            if (data.length > 0) {
+            // Pre-select community from ?community= query param if present,
+            // otherwise fall back to the first community in the list.
+            const preselect = searchParams.get('community');
+            if (preselect && data.some((c: any) => c.name === preselect)) {
+                setSubreddit(preselect);
+            } else if (data.length > 0) {
                 setSubreddit(data[0].name);
             }
         } catch (err) {

@@ -407,67 +407,28 @@ export const createPost = async (title: string, content: string, subreddit: stri
 /**
  * Creates a new post directly on a peer server.
  * Used when the selected community lives on a peer instance.
- * All traffic goes to the peer — the main backend is NOT involved.
+ *
+ * The peer backend uses its own JWT secret — we cannot send the user's token
+ * directly to it (it would reject with 403).
+ *
+ * Instead we POST to our own main backend at /posts, which:
+ *   1. Sees the community's home_instance_domain points to the peer
+ *   2. Signs the request with its federation key (X-Federation-Forward header)
+ *   3. Forwards to the peer — which trusts federation-signed requests
+ *
+ * This is identical to calling createPost() — the main backend's existing
+ * community-home-check logic handles the routing automatically.
  */
 export const createPostOnPeer = async (
-    peerDomain: string,
+    _peerDomain: string,   // kept for API compatibility — routing is now backend-driven
     title: string,
     content: string,
     subreddit: string,
     mediaFile?: File | null
 ) => {
-    const token = localStorage.getItem('graphene_token');
-    const userStr = localStorage.getItem('graphene_user');
-    if (!userStr) throw new Error('User not logged in');
-    const user = JSON.parse(userStr);
-
-    let mediaOb: Record<string, string> = {};
-
-    if (mediaFile) {
-        // Upload media directly to the peer server
-        const formData = new FormData();
-        formData.append('file', mediaFile);
-
-        const uploadRes = await fetch(`https://${peerDomain}/api/upload`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'ngrok-skip-browser-warning': 'true',
-            },
-            body: formData,
-        });
-        if (!uploadRes.ok) throw new Error('Media upload to peer failed');
-        const uploadData = await uploadRes.json();
-        if (uploadData?.url) {
-            mediaOb = {
-                media_url: uploadData.url,
-                media_type: mediaFile.type.startsWith('image/') ? 'image' : 'video',
-            };
-        }
-    }
-
-    const res = await fetch(`https://${peerDomain}/api/posts`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'ngrok-skip-browser-warning': 'true',
-        },
-        body: JSON.stringify({
-            did: user.did,
-            title,
-            content,
-            subreddit,
-            ...mediaOb,
-        }),
-    });
-
-    if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData?.error || `Peer server error: ${res.status}`);
-    }
-
-    return await res.json();
+    // Delegate to the normal createPost which goes through the main backend.
+    // The main backend will detect the community is federated and forward to the peer.
+    return createPost(title, content, subreddit, mediaFile);
 };
 
 /**
@@ -503,7 +464,9 @@ export const getPostDetailsFromPeer = async (peerDomain: string, postId: string)
 };
 
 /**
- * Creates a comment directly on a peer server.
+ * Creates a comment on a peer-hosted post.
+ * Routes through the main backend which signs and forwards it via federation headers.
+ * The peer's JWT secret differs from ours — never call the peer directly with our token.
  */
 export const createCommentOnPeer = async (
     peerDomain: string,
@@ -511,77 +474,41 @@ export const createCommentOnPeer = async (
     content: string,
     parentId?: string
 ) => {
-    const token = localStorage.getItem('graphene_token');
-    const userStr = localStorage.getItem('graphene_user');
-    if (!userStr) throw new Error('User not logged in');
-    const user = JSON.parse(userStr);
-
-    const res = await fetch(`https://${peerDomain}/api/comments`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'ngrok-skip-browser-warning': 'true',
-        },
-        body: JSON.stringify({ did: user.did, postId, content, parentId }),
-    });
-    if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData?.error || `Peer comment error: ${res.status}`);
-    }
-    return await res.json();
+    // Use the normal createComment — the main backend's comment route checks
+    // peer_domain and forwards with X-Federation-Forward headers automatically.
+    return createComment(postId, content, parentId, peerDomain);
 };
 
 /**
- * Votes on a post directly on a peer server.
+ * Votes on a post on a peer server.
+ * Routes through the main backend which signs and forwards via federation headers.
  */
 export const votePostOnPeer = async (
     peerDomain: string,
     postId: string,
     voteType: 1 | -1 | 0
 ) => {
-    const token = localStorage.getItem('graphene_token');
+    // VoteService already sends peer_domain to the main backend's /votes endpoint,
+    // which proxies it to the peer with federation headers. No direct call needed.
     const userStr = localStorage.getItem('graphene_user');
     if (!userStr) throw new Error('User not logged in');
     const user = JSON.parse(userStr);
-
-    const res = await fetch(`https://${peerDomain}/api/votes`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'ngrok-skip-browser-warning': 'true',
-        },
-        body: JSON.stringify({ did: user.did, postId, voteType }),
-    });
-    if (!res.ok) throw new Error(`Peer vote error: ${res.status}`);
-    return await res.json();
+    const response = await api.post('/votes', { did: user.did, postId, voteType, peer_domain: peerDomain });
+    return response.data;
 };
 
 /**
- * Votes on a comment directly on a peer server.
+ * Votes on a comment on a peer server.
+ * Routes through the main backend which signs and forwards via federation headers.
  */
 export const voteCommentOnPeer = async (
     peerDomain: string,
     commentId: string,
     voteType: 1 | -1
 ) => {
-    const token = localStorage.getItem('graphene_token');
-    const userStr = localStorage.getItem('graphene_user');
-    if (!userStr) throw new Error('User not logged in');
-    const user = JSON.parse(userStr);
-
-    const res = await fetch(`https://${peerDomain}/api/comments/${commentId}/vote`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'ngrok-skip-browser-warning': 'true',
-        },
-        body: JSON.stringify({ did: user.did, voteType }),
-    });
-    if (!res.ok) throw new Error(`Peer comment vote error: ${res.status}`);
-    return await res.json();
+    // Use the normal voteComment — the main backend's comment vote route accepts
+    // peer_domain and forwards with X-Federation-Forward headers automatically.
+    return voteComment(commentId, voteType, peerDomain);
 };
 
 // Communities

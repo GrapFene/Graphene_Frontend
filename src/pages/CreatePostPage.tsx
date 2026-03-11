@@ -100,9 +100,10 @@ export default function CreatePostPage() {
             }
             navigate('/');
         } catch (err: any) {
-            // Extract backend error message from axios response if available
+            // Safely extract a string message regardless of error shape
             const backendMsg = err?.response?.data?.error;
-            setError(backendMsg || err.message || 'Failed to create post');
+            const raw = backendMsg || err?.message || 'Failed to create post';
+            setError(typeof raw === 'string' ? raw : JSON.stringify(raw));
         } finally {
             setLoading(false);
         }

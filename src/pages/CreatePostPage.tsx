@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Image, Link as LinkIcon, BarChart3, MessageCircle, Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote } from 'lucide-react';
-import { createPost, getCommunities } from '../services/api';
+import { createPost, getCommunities, getActivePeers, getTopCommunitiesFromPeer } from '../services/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 type PostType = 'text' | 'image' | 'link' | 'poll';
@@ -32,15 +32,31 @@ export default function CreatePostPage() {
 
     const fetchCommunities = async () => {
         try {
-            const data = await getCommunities();
-            setCommunities(data);
+            // Fetch main-server communities + all active peer communities in parallel
+            const [mainData, peers] = await Promise.all([
+                getCommunities(),
+                getActivePeers(),
+            ]);
+
+            const peerCommunityArrays = await Promise.all(
+                peers.map(p => getTopCommunitiesFromPeer(p.domain, 50))
+            );
+            const peerCommunities = peerCommunityArrays.flat();
+
+            // Merge: avoid duplicates (same name already in main list)
+            const mainNames = new Set(mainData.map((c: any) => c.name));
+            const uniquePeer = peerCommunities.filter(c => !mainNames.has(c.name));
+            const allCommunities = [...mainData, ...uniquePeer];
+
+            setCommunities(allCommunities);
+
             // Pre-select community from ?community= query param if present,
             // otherwise fall back to the first community in the list.
             const preselect = searchParams.get('community');
-            if (preselect && data.some((c: any) => c.name === preselect)) {
+            if (preselect && allCommunities.some((c: any) => c.name === preselect)) {
                 setSubreddit(preselect);
-            } else if (data.length > 0) {
-                setSubreddit(data[0].name);
+            } else if (allCommunities.length > 0) {
+                setSubreddit(allCommunities[0].name);
             }
         } catch (err) {
             console.error('Failed to fetch communities', err);

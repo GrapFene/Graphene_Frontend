@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Bell, User, Users, Moon, Sun, Menu, Newspaper, Globe, Home } from 'lucide-react';
-import { getProfile } from '../services/api';
+import { Search, Plus, Bell, User, Users, Moon, Sun, Menu, Newspaper, Globe, Home, MessageSquare } from 'lucide-react';
+import { getProfile, getMessageThreads } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
+import { useWebSocket } from '../context/WebSocketContext';
 import MobileMenu from './MobileMenu';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,7 +21,9 @@ interface HeaderProps {
 export default function Header({ onCreatePost }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [unreadCount, setUnreadCount] = useState(0);
   const { theme, toggleTheme } = useTheme();
+  const { lastMessage } = useWebSocket();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -47,15 +50,45 @@ export default function Header({ onCreatePost }: HeaderProps) {
       }
     };
 
+    const fetchUnread = async () => {
+      try {
+        const data = await getMessageThreads();
+        const total = data.threads.reduce((acc: number, t: any) => acc + (t.unread_count || 0), 0);
+        setUnreadCount(total);
+      } catch (e) {
+        console.error('Failed to fetch unread count', e);
+      }
+    };
+
     fetchProfile();
+    fetchUnread();
+    
+    // Refresh every minute
+    const interval = setInterval(fetchUnread, 60000);
 
     const handleProfileUpdate = () => {
       fetchProfile();
     };
 
     window.addEventListener('profileUpdate', handleProfileUpdate);
-    return () => window.removeEventListener('profileUpdate', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('profileUpdate', handleProfileUpdate);
+      clearInterval(interval);
+    };
   }, []);
+
+  // Real-time unread increment
+  useEffect(() => {
+    if (lastMessage) {
+      const userStr = localStorage.getItem('graphene_user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (lastMessage.to_did === user.did) {
+          setUnreadCount(prev => prev + 1);
+        }
+      }
+    }
+  }, [lastMessage]);
 
   const handleSearch = (e: React.KeyboardEvent | React.FormEvent) => {
     if (
@@ -153,6 +186,20 @@ export default function Header({ onCreatePost }: HeaderProps) {
             >
               <Home className="w-5 h-5 shrink-0" />
               <span className="hidden xl:inline">Welcome</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/messages')}
+              className="hidden lg:flex items-center gap-2 bg-pink-400 dark:bg-pink-600 border-4 border-black dark:border-gray-700 px-3 md:px-4 py-2 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white relative"
+              title="Messages"
+            >
+              <MessageSquare className="w-5 h-5 shrink-0" />
+              <span className="hidden xl:inline">Messages</span>
+              {unreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-lime-400 text-black text-[11px] w-6 h-6 flex items-center justify-center border-2 border-black rounded-none font-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] animate-bounce-short">
+                  {unreadCount}
+                </span>
+              )}
             </button>
 
             <button className="bg-white dark:bg-gray-900 border-4 border-black dark:border-gray-700 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white">

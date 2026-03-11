@@ -13,7 +13,10 @@ import RecoveryPage from './pages/RecoveryPage';
 import AboutPage from './pages/AboutPage';
 import MyPostsPage from './pages/MyPostsPage';
 import FederationPage from './pages/FederationPage';
+import MessagesPage from './pages/MessagesPage';
 import CreateCommunityModal from './components/CreateCommunityModal';
+import { WebSocketProvider } from './context/WebSocketContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 /**
  * Main Application Component
@@ -62,73 +65,79 @@ function App() {
   }
 
   return (
-    <>
-      <CreateCommunityModal
-        isOpen={showCommunityModal}
-        onClose={() => setShowCommunityModal(false)}
-        onSuccess={() => setShowCommunityModal(false)}
-      />
-      <Routes>
-      {/* Public Routes */}
-      <Route path="/welcome" element={<LandingPage />} />
-      <Route
-        path="/login"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
-      />
-      <Route
-        path="/register"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
-      />
-      <Route
-        path="/recovery"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <RecoveryPage />}
-      />
+    <ThemeProvider>
+      <WebSocketProvider>
+        <CreateCommunityModal
+          isOpen={showCommunityModal}
+          onClose={() => setShowCommunityModal(false)}
+          onSuccess={() => setShowCommunityModal(false)}
+        />
+        <Routes>
+          {/* ... existing routes ... */}
+          <Route path="/welcome" element={<LandingPage />} />
+          <Route
+            path="/login"
+            element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
+          />
+          <Route
+            path="/register"
+            element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+          />
+          <Route
+            path="/recovery"
+            element={isAuthenticated ? <Navigate to="/" replace /> : <RecoveryPage />}
+          />
 
-      {/* Protected Routes */}
-      <Route
-        path="/"
-        element={isAuthenticated ? <HomePage /> : <LandingPage />}
-      />
-      <Route
-        path="/submit"
-        element={isAuthenticated ? <CreatePostPage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/profile"
-        element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/my-posts"
-        element={isAuthenticated ? <MyPostsPage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/search"
-        element={isAuthenticated ? <SearchPage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/r/:name"
-        element={isAuthenticated ? <CommunityPage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/r/:name/:postId/:slug"
-        element={isAuthenticated ? <PostDetailsPage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/about"
-        element={isAuthenticated ? <AboutPage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/federation"
-        element={isAuthenticated ? <FederationPage /> : <Navigate to="/login" replace />}
-      />
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={isAuthenticated ? <HomePage /> : <LandingPage />}
+          />
+          <Route
+            path="/submit"
+            element={isAuthenticated ? <CreatePostPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/profile"
+            element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/my-posts"
+            element={isAuthenticated ? <MyPostsPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/search"
+            element={isAuthenticated ? <SearchPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/r/:name"
+            element={isAuthenticated ? <CommunityPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/r/:name/:postId/:slug"
+            element={isAuthenticated ? <PostDetailsPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/about"
+            element={isAuthenticated ? <AboutPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/federation"
+            element={isAuthenticated ? <FederationPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/messages"
+            element={isAuthenticated ? <MessagesPage /> : <Navigate to="/login" replace />}
+          />
 
-      {/* Catch all - redirect to home or landing */}
-      <Route
-        path="*"
-        element={<Navigate to="/" replace />}
-      />
-    </Routes>
-    </>
+          {/* Catch all - redirect to home or landing */}
+          <Route
+            path="*"
+            element={<Navigate to="/" replace />}
+          />
+        </Routes>
+      </WebSocketProvider>
+    </ThemeProvider>
   );
 }
 

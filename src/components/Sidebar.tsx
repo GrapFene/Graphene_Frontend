@@ -177,6 +177,13 @@ export default function Sidebar({ onLogout, onProfileClick }: SidebarProps) {
       </div>
 
       <div className="bg-lime-300 dark:bg-emerald-600 border-4 border-black dark:border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)] p-6 transition-colors duration-200">
+        <button
+          onClick={() => navigate('/messages')}
+          className="w-full bg-pink-400 dark:bg-pink-600 text-black dark:text-white border-4 border-black dark:border-gray-700 px-4 py-3 font-black mb-6 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+        >
+          Messages
+        </button>
+
         <h3 className="font-black text-xl mb-3 text-black dark:text-white">About Graphene</h3>
         <p className="font-medium mb-4 leading-relaxed text-black dark:text-white">
           The brutally honest social platform. No algorithms, no BS. Just pure,

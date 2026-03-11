@@ -733,6 +733,14 @@ export const getProfile = async (did: string) => {
     return response.data;
 };
 
+/**
+ * Search for users by username
+ */
+export const searchUsers = async (query: string) => {
+    const response = await api.get(`/profile/search?q=${encodeURIComponent(query)}`);
+    return response.data; // { users: [{ did, username }] }
+};
+
 // Recovery / Guardians
 export interface Guardian {
     did: string;
@@ -888,3 +896,50 @@ export const getFederatedFeed = async (): Promise<Post[]> => {
     })) as Post[];
 };
 
+// =============================================================================
+// Direct Messaging API
+// =============================================================================
+
+export interface DirectMessage {
+    id: string;
+    from_did: string;
+    to_did: string;
+    content: string;
+    created_at: string;
+    read_at?: string;
+}
+
+export interface MessageThread {
+    partner_did: string;
+    partner_username?: string;
+    last_message: DirectMessage;
+    unread_count: number;
+}
+
+/**
+ * Gets a WebSocket ticket for the current user.
+ * The central WS server uses this to verify the user without needing the backend's JWT secret.
+ */
+export const getWsTicket = async (): Promise<{ ticket: any, signature: string, connectUrl: string }> => {
+    const response = await api.get('/messages/ws-ticket');
+    return response.data;
+};
+
+/**
+ * Gets the chat history with a specific user.
+ */
+export const getConversation = async (otherDid: string, limit: number = 50, before?: string): Promise<{ messages: DirectMessage[], count: number }> => {
+    const url = before 
+        ? `/messages/conversation/${otherDid}?limit=${limit}&before=${encodeURIComponent(before)}`
+        : `/messages/conversation/${otherDid}?limit=${limit}`;
+    const response = await api.get(url);
+    return response.data;
+};
+
+/**
+ * Gets a list of all active message threads for the current user.
+ */
+export const getMessageThreads = async (): Promise<{ threads: MessageThread[], count: number }> => {
+    const response = await api.get('/messages/threads');
+    return response.data;
+};

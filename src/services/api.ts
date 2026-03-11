@@ -446,7 +446,8 @@ export const getPostDetailsFromPeer = async (peerDomain: string, postId: string)
     const res = await fetch(url, {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('graphene_token') || ''}`,
+            // Do NOT send Authorization here — peer has a different JWT secret and will reject it.
+            // The GET /posts/:id endpoint is public on the peer; viewerDid is passed as a query param.
             'ngrok-skip-browser-warning': 'true',
         },
     });

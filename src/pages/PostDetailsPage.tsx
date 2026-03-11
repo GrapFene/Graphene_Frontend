@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import { getPostDetails, getPostDetailsFromPeer, createComment, createCommentOnPeer, voteComment, voteCommentOnPeer, Post as ApiPost, Comment } from '../services/api';
+import { getPostDetails, getPostDetailsFromPeer, createComment, createCommentOnPeer, voteComment, voteCommentOnPeer, getCommunityDetails, Post as ApiPost, Comment } from '../services/api';
 import { ArrowUp, ArrowDown, MessageSquare, Share2, Reply } from 'lucide-react';
 import { useVote } from '../hooks/useVote';
 
@@ -14,7 +14,7 @@ import { useVote } from '../hooks/useVote';
  * Response: JSX.Element - The rendered post details page.
  */
 export default function PostDetailsPage() {
-    const { postId } = useParams<{ postId: string }>();
+    const { postId, name: communityName } = useParams<{ postId: string; name: string }>();
     const navigate = useNavigate();
     const location = useLocation();
     const commentsRef = useRef<HTMLDivElement>(null);
@@ -23,9 +23,11 @@ export default function PostDetailsPage() {
     const [commentText, setCommentText] = useState('');
     const [replyText, setReplyText] = useState('');
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
+    // Shown when a comment/vote/reply action fails — never silently swallowed
+    const [actionError, setActionError] = useState<string | null>(null);
 
-    // Peer domain comes from navigation state (set by PostCard / CommunityPage).
-    // Once the post is loaded we also trust post.peer_domain as the source of truth.
+    // peer_domain passed via navigation state (set by PostCard / CommunityPage).
+    // This is the fast path — no extra network call needed.
     const locationPeerDomain: string | null = location.state?.peer_domain ?? null;
 
     useEffect(() => {
@@ -45,23 +47,50 @@ export default function PostDetailsPage() {
 
     const fetchPost = async () => {
         try {
-            // Prefer peer_domain from navigation state (set by PostCard)
-            const peerDomain = locationPeerDomain;
-            let data: ApiPost;
-            if (peerDomain) {
-                data = await getPostDetailsFromPeer(peerDomain, postId!);
-            } else {
-                data = await getPostDetails(postId!);
+            // --- Step 1: fast path — peer_domain from navigation state ---
+            if (locationPeerDomain) {
+                const data = await getPostDetailsFromPeer(locationPeerDomain, postId!);
+                setPost(data);
+                return;
             }
-            setPost(data);
+
+            // --- Step 2: try main backend ---
+            try {
+                const data = await getPostDetails(postId!);
+                setPost(data);
+                return;
+            } catch {
+                // Post not found on main backend — may be a peer post opened via direct URL
+            }
+
+            // --- Step 3: fallback — look up the community's home_instance_domain ---
+            // The URL contains /r/:name/:postId/... so communityName is always available.
+            if (communityName) {
+                try {
+                    const community = await getCommunityDetails(communityName);
+                    const peerDomain = community.is_federated && community.home_instance_domain
+                        ? community.home_instance_domain
+                        : null;
+                    if (peerDomain) {
+                        const data = await getPostDetailsFromPeer(peerDomain, postId!);
+                        setPost(data);
+                        return;
+                    }
+                } catch {
+                    // Community lookup failed — give up
+                }
+            }
+
+            console.error('Post not found on main or any peer');
         } catch (err) {
-            console.error("Failed to fetch post", err);
+            console.error('Failed to fetch post', err);
         } finally {
             setInitialLoading(false);
         }
     };
 
     const handleCommentVote = async (commentId: string, type: 1 | -1) => {
+        setActionError(null);
         try {
             const peerDomain = post?.peer_domain;
             let result: any;
@@ -84,8 +113,14 @@ export default function PostDetailsPage() {
                     return { ...prev, comments: patchComments(prev.comments ?? []) };
                 });
             }
-        } catch (error) {
-            console.error('Vote failed', error);
+        } catch (error: any) {
+            const isPeer = !!post?.peer_domain;
+            const msg = error?.response?.data?.error || error?.message || 'Unknown error';
+            setActionError(
+                isPeer
+                    ? `Peer server error — vote not saved: ${msg}`
+                    : `Failed to vote: ${msg}`
+            );
         }
     };
 
@@ -93,6 +128,7 @@ export default function PostDetailsPage() {
         const text = parentId ? replyText : commentText;
         if (!text.trim()) return;
 
+        setActionError(null);
         try {
             const peerDomain = post?.peer_domain;
             let newComment: Comment;
@@ -125,8 +161,15 @@ export default function PostDetailsPage() {
                     return { ...prev, comments: [...(prev.comments ?? []), newComment] };
                 });
             }
-        } catch (error) {
-            console.error('Comment failed', error);
+        } catch (error: any) {
+            // Do NOT append anything to local state — the comment was NOT saved.
+            const isPeer = !!post?.peer_domain;
+            const msg = error?.response?.data?.error || error?.message || 'Unknown error';
+            setActionError(
+                isPeer
+                    ? `Peer server error — comment not posted: ${msg}`
+                    : `Failed to post comment: ${msg}`
+            );
         }
     };
 
@@ -342,6 +385,19 @@ export default function PostDetailsPage() {
                             className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] mb-8 transition-colors"
                         >
                             <h3 className="text-xl font-black mb-4 text-black dark:text-white">Add a comment</h3>
+
+                            {/* Action error banner — shown when comment/vote/reply fails */}
+                            {actionError && (
+                                <div className="mb-4 border-4 border-red-500 bg-red-50 dark:bg-red-950 px-4 py-3 flex items-start justify-between gap-3">
+                                    <p className="font-bold text-red-700 dark:text-red-300 text-sm">{actionError}</p>
+                                    <button
+                                        onClick={() => setActionError(null)}
+                                        className="font-black text-red-500 hover:text-red-700 shrink-0 text-lg leading-none"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            )}
                             <textarea
                                 value={commentText}
                                 onChange={(e) => setCommentText(e.target.value)}

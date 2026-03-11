@@ -92,17 +92,21 @@ export default function CreatePostPage() {
             const peerDomain = selectedCommunity?.peer_domain || selectedCommunity?.home_instance_domain || null;
 
             if (peerDomain) {
-                // Peer community — post directly to that peer's backend
-                await createPostOnPeer(peerDomain, title, postContent, subreddit, mediaFile);
+                // Peer community — route through main backend which signs and forwards to peer.
+                // If this throws, the post was NOT created anywhere. We never fall back to local.
+                try {
+                    await createPostOnPeer(peerDomain, title, postContent, subreddit, mediaFile);
+                } catch (peerErr: any) {
+                    const msg = peerErr?.response?.data?.error || peerErr?.message || 'Unknown error';
+                    throw new Error(`Peer server (${peerDomain}) could not post: ${msg}`);
+                }
             } else {
-                // Local community — post to our main backend
+                // Local community — post to our main backend only
                 await createPost(title, postContent, subreddit, mediaFile);
             }
             navigate('/');
         } catch (err: any) {
-            // Safely extract a string message regardless of error shape
-            const backendMsg = err?.response?.data?.error;
-            const raw = backendMsg || err?.message || 'Failed to create post';
+            const raw = err?.message || 'Failed to create post';
             setError(typeof raw === 'string' ? raw : JSON.stringify(raw));
         } finally {
             setLoading(false);

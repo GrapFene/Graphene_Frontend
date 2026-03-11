@@ -1,17 +1,10 @@
-import { useState, useEffect } from 'react';
-import { X, Image, Link as LinkIcon, BarChart3, MessageCircle, Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, Image, Link as LinkIcon, BarChart3, MessageCircle, Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote, ChevronDown, Search, Globe } from 'lucide-react';
 import { createPost, getCommunities, getActivePeers, getTopCommunitiesFromPeer } from '../services/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 type PostType = 'text' | 'image' | 'link' | 'poll';
 
-/**
- * Create Post Page Component
- * 
- * Functionality: Page for creating new posts with text, image, link, or poll content.
- * Input: None
- * Response: JSX.Element - The rendered create post page.
- */
 export default function CreatePostPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -25,33 +18,40 @@ export default function CreatePostPage() {
     const [mediaFile, setMediaFile] = useState<File | null>(null);
     const [mediaPreview, setMediaPreview] = useState<string | null>(null);
     const [linkUrl, setLinkUrl] = useState('');
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const pickerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchCommunities();
     }, []);
 
+    // Close picker on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+                setPickerOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
     const fetchCommunities = async () => {
         try {
-            // Fetch main-server communities + all active peer communities in parallel
             const [mainData, peers] = await Promise.all([
                 getCommunities(),
                 getActivePeers(),
             ]);
-
             const peerCommunityArrays = await Promise.all(
                 peers.map(p => getTopCommunitiesFromPeer(p.domain, 50))
             );
             const peerCommunities = peerCommunityArrays.flat();
-
-            // Merge: avoid duplicates (same name already in main list)
             const mainNames = new Set(mainData.map((c: any) => c.name));
             const uniquePeer = peerCommunities.filter(c => !mainNames.has(c.name));
             const allCommunities = [...mainData, ...uniquePeer];
-
             setCommunities(allCommunities);
 
-            // Pre-select community from ?community= query param if present,
-            // otherwise fall back to the first community in the list.
             const preselect = searchParams.get('community');
             if (preselect && allCommunities.some((c: any) => c.name === preselect)) {
                 setSubreddit(preselect);
@@ -81,35 +81,35 @@ export default function CreatePostPage() {
             setError('Please add a title and select a community');
             return;
         }
-
         setLoading(true);
         setError('');
-
         try {
             let postContent = content;
             if (postType === 'link' && linkUrl) {
                 postContent = `${content}\n\nLink: ${linkUrl}`;
             }
-
             await createPost(title, postContent, subreddit, mediaFile);
-            navigate('/'); // Navigate back to home feed
+            navigate('/');
         } catch (err: any) {
-            setError(err.message || 'Failed to create post');
+            // Extract backend error message from axios response if available
+            const backendMsg = err?.response?.data?.error;
+            setError(backendMsg || err.message || 'Failed to create post');
         } finally {
             setLoading(false);
         }
     };
 
-    const communityColors: Record<string, string> = {
-        tech: 'bg-green-400',
-        design: 'bg-pink-400',
-        music: 'bg-yellow-300',
-        gaming: 'bg-cyan-400',
-        art: 'bg-red-400',
-    };
-
     const selectedCommunity = communities.find(c => c.name === subreddit);
-    const bgColor = selectedCommunity ? (communityColors[selectedCommunity.name] || 'bg-purple-400') : 'bg-purple-400';
+    const filteredCommunities = communities.filter(c =>
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        (c.description || '').toLowerCase().includes(search.toLowerCase())
+    );
+
+    // Color based on first letter
+    const communityColor = (name: string) => {
+        const colors = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-400', 'bg-blue-400', 'bg-purple-400', 'bg-pink-400', 'bg-cyan-400'];
+        return colors[name.charCodeAt(0) % colors.length];
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black p-4 transition-colors duration-200">
@@ -127,27 +127,98 @@ export default function CreatePostPage() {
 
                 {/* Main Content */}
                 <div className="bg-white dark:bg-gray-800 border-4 border-black dark:border-gray-600 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)]">
-                    {/* Community Selector */}
-                    <div className="border-b-4 border-black dark:border-gray-600 p-4">
-                        <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 ${bgColor} border-3 border-black flex items-center justify-center font-black`}>
-                                g/
+
+                    {/* Community Picker */}
+                    <div className="border-b-4 border-black dark:border-gray-600 p-4" ref={pickerRef}>
+                        <p className="font-black text-sm text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Post to</p>
+
+                        {/* Trigger button */}
+                        <button
+                            type="button"
+                            onClick={() => setPickerOpen(o => !o)}
+                            className="w-full flex items-center gap-3 px-4 py-3 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
+                        >
+                            {selectedCommunity ? (
+                                <>
+                                    <div className={`w-9 h-9 ${communityColor(selectedCommunity.name)} border-2 border-black flex items-center justify-center font-black text-sm shrink-0`}>
+                                        {selectedCommunity.name[0].toUpperCase()}
+                                    </div>
+                                    <div className="flex-1 text-left">
+                                        <span className="font-black text-black dark:text-white text-lg">g/{selectedCommunity.name}</span>
+                                        {selectedCommunity.is_federated && (
+                                            <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 font-bold border border-blue-300 dark:border-blue-700">
+                                                🌐 {selectedCommunity.peer_domain || selectedCommunity.home_instance_domain}
+                                            </span>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <span className="font-bold text-gray-400 flex-1 text-left">Choose a community...</span>
+                            )}
+                            <ChevronDown className={`w-5 h-5 text-black dark:text-white transition-transform ${pickerOpen ? 'rotate-180' : ''}`} strokeWidth={3} />
+                        </button>
+
+                        {/* Dropdown panel */}
+                        {pickerOpen && (
+                            <div className="mt-2 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-800 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] max-h-72 overflow-y-auto z-50">
+                                {/* Search */}
+                                <div className="sticky top-0 border-b-4 border-black dark:border-gray-600 p-2 bg-white dark:bg-gray-800 flex items-center gap-2">
+                                    <Search className="w-4 h-4 text-gray-500 shrink-0" strokeWidth={3} />
+                                    <input
+                                        autoFocus
+                                        value={search}
+                                        onChange={e => setSearch(e.target.value)}
+                                        placeholder="Search communities..."
+                                        className="flex-1 font-bold bg-transparent outline-none text-black dark:text-white placeholder-gray-400"
+                                    />
+                                    {search && (
+                                        <button onClick={() => setSearch('')}>
+                                            <X className="w-4 h-4 text-gray-400" strokeWidth={3} />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Community list */}
+                                {filteredCommunities.length === 0 ? (
+                                    <p className="p-4 font-bold text-gray-400 text-center">No communities found</p>
+                                ) : (
+                                    filteredCommunities.map(c => (
+                                        <button
+                                            key={`${c.peer_domain ?? 'local'}-${c.name}`}
+                                            type="button"
+                                            onClick={() => { setSubreddit(c.name); setPickerOpen(false); setSearch(''); }}
+                                            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0
+                                                ${subreddit === c.name ? 'bg-yellow-50 dark:bg-gray-700 border-l-4 border-l-yellow-400' : ''}`}
+                                        >
+                                            <div className={`w-9 h-9 ${communityColor(c.name)} border-2 border-black flex items-center justify-center font-black text-sm shrink-0`}>
+                                                {c.name[0].toUpperCase()}
+                                            </div>
+                                            <div className="flex-1 text-left min-w-0">
+                                                <p className="font-black text-black dark:text-white truncate">g/{c.name}</p>
+                                                {c.is_federated && (
+                                                    <p className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                                                        <Globe className="w-3 h-3" strokeWidth={3} />
+                                                        {c.peer_domain || c.home_instance_domain}
+                                                    </p>
+                                                )}
+                                                {c.description && (
+                                                    <p className="text-xs text-gray-400 truncate">{c.description}</p>
+                                                )}
+                                            </div>
+                                            {subreddit === c.name && (
+                                                <div className="w-3 h-3 bg-yellow-400 border-2 border-black rounded-full shrink-0" />
+                                            )}
+                                        </button>
+                                    ))
+                                )}
                             </div>
-                            <select
-                                value={subreddit}
-                                onChange={(e) => setSubreddit(e.target.value)}
-                                className="flex-1 px-4 py-2 border-4 border-black dark:border-gray-500 bg-white dark:bg-gray-700 text-black dark:text-white font-bold text-lg focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
-                            >
-                                {communities.map((community) => (
-                                    <option key={community.name} value={community.name}>
-                                        g/{community.name}{community.is_federated ? ' 🌐' : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        {selectedCommunity?.is_federated && selectedCommunity?.home_instance_domain && (
-                            <div className="px-4 py-2 bg-blue-100 dark:bg-blue-900 border-b-4 border-black dark:border-gray-600 text-sm font-bold text-blue-800 dark:text-blue-200">
-                                🌐 Federated community — post will be hosted on <span className="font-black">{selectedCommunity.home_instance_domain}</span>
+                        )}
+
+                        {/* Federated notice */}
+                        {selectedCommunity?.is_federated && (
+                            <div className="mt-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-300 dark:border-blue-700 text-sm font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                                <Globe className="w-4 h-4 shrink-0" strokeWidth={3} />
+                                Post will be hosted on <span className="font-black">{selectedCommunity.peer_domain || selectedCommunity.home_instance_domain}</span>
                             </div>
                         )}
                     </div>

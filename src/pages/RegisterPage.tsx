@@ -35,6 +35,23 @@ export default function RegisterPage() {
     const [salt, setSalt] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [revealedWords, setRevealedWords] = useState<Set<number>>(new Set());
+
+    const toggleWord = (idx: number) => {
+        setRevealedWords(prev => {
+            const next = new Set(prev);
+            if (next.has(idx)) next.delete(idx);
+            else next.add(idx);
+            return next;
+        });
+    };
+
+    const revealAll = () => {
+        const all = new Set(Array.from({ length: 12 }, (_, i) => i));
+        setRevealedWords(all);
+    };
+
+    const hideAll = () => setRevealedWords(new Set());
 
     const handleGenerateIdentity = () => {
         if (!username.trim()) {
@@ -218,13 +235,54 @@ export default function RegisterPage() {
                             <p className="font-bold text-black dark:text-white">Save this sequence now. It is lost forever if you proceed without it.</p>
                         </div>
 
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-black uppercase text-gray-500 dark:text-gray-400 tracking-widest">
+                                Click a word to reveal it
+                            </span>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={revealAll}
+                                    className="text-[10px] font-black uppercase px-2 py-1 border-2 border-black dark:border-gray-500 bg-yellow-300 dark:bg-yellow-600 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-px hover:translate-y-px hover:shadow-none transition-all text-black"
+                                >
+                                    Reveal All
+                                </button>
+                                <button
+                                    onClick={hideAll}
+                                    className="text-[10px] font-black uppercase px-2 py-1 border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-px hover:translate-y-px hover:shadow-none transition-all text-black dark:text-white"
+                                >
+                                    Hide All
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-3 gap-2 mb-4">
-                            {identity.mnemonic.split(' ').map((word: string, idx: number) => (
-                                <div key={idx} className="bg-yellow-300 dark:bg-yellow-600 border-3 border-black dark:border-gray-500 p-2 font-black text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white">
-                                    <span className="opacity-50 mr-1 text-[10px] font-normal">{idx + 1}.</span>
-                                    {word}
-                                </div>
-                            ))}
+                            {identity.mnemonic.split(' ').map((word: string, idx: number) => {
+                                const revealed = revealedWords.has(idx);
+                                return (
+                                    <button
+                                        key={idx}
+                                        onClick={() => toggleWord(idx)}
+                                        title={revealed ? 'Click to hide' : 'Click to reveal'}
+                                        className="relative bg-yellow-300 dark:bg-yellow-600 border-2 border-black dark:border-gray-500 p-2 font-black text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-black dark:text-white cursor-pointer hover:translate-x-px hover:translate-y-px hover:shadow-none transition-all select-none overflow-hidden"
+                                    >
+                                        <span className="opacity-50 mr-1 text-[10px] font-normal">{idx + 1}.</span>
+                                        <span
+                                            className="transition-all duration-200"
+                                            style={{ filter: revealed ? 'none' : 'blur(6px)', userSelect: revealed ? 'text' : 'none' }}
+                                        >
+                                            {word}
+                                        </span>
+                                        {!revealed && (
+                                            <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                <svg className="w-4 h-4 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
 
                         <div className="mt-6 bg-white dark:bg-gray-700 border-2 border-black dark:border-gray-500 p-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] mb-6">

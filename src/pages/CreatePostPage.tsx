@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Image, Link as LinkIcon, BarChart3, MessageCircle, Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote, ChevronDown, Search, Globe } from 'lucide-react';
-import { createPost, getCommunities, getActivePeers, getTopCommunitiesFromPeer } from '../services/api';
+import { createPost, createPostOnPeer, getCommunities, getActivePeers, getTopCommunitiesFromPeer } from '../services/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 type PostType = 'text' | 'image' | 'link' | 'poll';
@@ -88,7 +88,16 @@ export default function CreatePostPage() {
             if (postType === 'link' && linkUrl) {
                 postContent = `${content}\n\nLink: ${linkUrl}`;
             }
-            await createPost(title, postContent, subreddit, mediaFile);
+
+            const peerDomain = selectedCommunity?.peer_domain || selectedCommunity?.home_instance_domain || null;
+
+            if (peerDomain) {
+                // Peer community — post directly to that peer's backend
+                await createPostOnPeer(peerDomain, title, postContent, subreddit, mediaFile);
+            } else {
+                // Local community — post to our main backend
+                await createPost(title, postContent, subreddit, mediaFile);
+            }
             navigate('/');
         } catch (err: any) {
             // Extract backend error message from axios response if available

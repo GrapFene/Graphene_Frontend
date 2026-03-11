@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import { getPostDetails, createComment, voteComment, Post as ApiPost, Comment } from '../services/api';
+import { getPostDetails, getPostDetailsFromPeer, createComment, createCommentOnPeer, voteComment, voteCommentOnPeer, Post as ApiPost, Comment } from '../services/api';
 import { ArrowUp, ArrowDown, MessageSquare, Share2, Reply } from 'lucide-react';
 import { useVote } from '../hooks/useVote';
 
@@ -24,6 +24,10 @@ export default function PostDetailsPage() {
     const [replyText, setReplyText] = useState('');
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
+    // Peer domain comes from navigation state (set by PostCard / CommunityPage).
+    // Once the post is loaded we also trust post.peer_domain as the source of truth.
+    const locationPeerDomain: string | null = location.state?.peer_domain ?? null;
+
     useEffect(() => {
         if (postId) {
             fetchPost();
@@ -39,24 +43,47 @@ export default function PostDetailsPage() {
         }
     }, [location.state, initialLoading]);
 
-    const fetchPost = async (showLoading = true) => {
+    const fetchPost = async () => {
         try {
-            const data = await getPostDetails(postId!);
+            // Prefer peer_domain from navigation state (set by PostCard)
+            const peerDomain = locationPeerDomain;
+            let data: ApiPost;
+            if (peerDomain) {
+                data = await getPostDetailsFromPeer(peerDomain, postId!);
+            } else {
+                data = await getPostDetails(postId!);
+            }
             setPost(data);
         } catch (err) {
             console.error("Failed to fetch post", err);
         } finally {
-            if (showLoading) {
-                setInitialLoading(false);
-            }
+            setInitialLoading(false);
         }
     };
 
     const handleCommentVote = async (commentId: string, type: 1 | -1) => {
         try {
-            await voteComment(commentId, type, post?.peer_domain);
-            // Refresh without showing loading screen
-            fetchPost(false);
+            const peerDomain = post?.peer_domain;
+            let result: any;
+            if (peerDomain) {
+                result = await voteCommentOnPeer(peerDomain, commentId, type);
+            } else {
+                result = await voteComment(commentId, type);
+            }
+            // Update comment score locally — no backend refetch needed
+            const newScore: number | undefined = result?.score ?? result?.vote_score;
+            if (newScore !== undefined) {
+                setPost(prev => {
+                    if (!prev) return prev;
+                    const patchComments = (comments: Comment[]): Comment[] =>
+                        comments.map(c => {
+                            if (c.id === commentId) return { ...c, vote_score: newScore };
+                            if (c.replies?.length) return { ...c, replies: patchComments(c.replies) };
+                            return c;
+                        });
+                    return { ...prev, comments: patchComments(prev.comments ?? []) };
+                });
+            }
         } catch (error) {
             console.error('Vote failed', error);
         }
@@ -67,15 +94,37 @@ export default function PostDetailsPage() {
         if (!text.trim()) return;
 
         try {
-            await createComment(postId!, text, parentId, post?.peer_domain);
+            const peerDomain = post?.peer_domain;
+            let newComment: Comment;
+            if (peerDomain) {
+                newComment = await createCommentOnPeer(peerDomain, postId!, text, parentId);
+            } else {
+                newComment = await createComment(postId!, text, parentId);
+            }
             if (parentId) {
                 setReplyText('');
                 setReplyingTo(null);
+                // Append reply locally under the parent comment
+                setPost(prev => {
+                    if (!prev) return prev;
+                    const patchComments = (comments: Comment[]): Comment[] =>
+                        comments.map(c => {
+                            if (c.id === parentId) {
+                                return { ...c, replies: [...(c.replies ?? []), newComment] };
+                            }
+                            if (c.replies?.length) return { ...c, replies: patchComments(c.replies) };
+                            return c;
+                        });
+                    return { ...prev, comments: patchComments(prev.comments ?? []) };
+                });
             } else {
                 setCommentText('');
+                // Append top-level comment locally
+                setPost(prev => {
+                    if (!prev) return prev;
+                    return { ...prev, comments: [...(prev.comments ?? []), newComment] };
+                });
             }
-            // Refresh without showing loading screen
-            fetchPost(false);
         } catch (error) {
             console.error('Comment failed', error);
         }

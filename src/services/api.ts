@@ -404,6 +404,186 @@ export const createPost = async (title: string, content: string, subreddit: stri
     return response.data;
 };
 
+/**
+ * Creates a new post directly on a peer server.
+ * Used when the selected community lives on a peer instance.
+ * All traffic goes to the peer — the main backend is NOT involved.
+ */
+export const createPostOnPeer = async (
+    peerDomain: string,
+    title: string,
+    content: string,
+    subreddit: string,
+    mediaFile?: File | null
+) => {
+    const token = localStorage.getItem('graphene_token');
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+    const user = JSON.parse(userStr);
+
+    let mediaOb: Record<string, string> = {};
+
+    if (mediaFile) {
+        // Upload media directly to the peer server
+        const formData = new FormData();
+        formData.append('file', mediaFile);
+
+        const uploadRes = await fetch(`https://${peerDomain}/api/upload`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true',
+            },
+            body: formData,
+        });
+        if (!uploadRes.ok) throw new Error('Media upload to peer failed');
+        const uploadData = await uploadRes.json();
+        if (uploadData?.url) {
+            mediaOb = {
+                media_url: uploadData.url,
+                media_type: mediaFile.type.startsWith('image/') ? 'image' : 'video',
+            };
+        }
+    }
+
+    const res = await fetch(`https://${peerDomain}/api/posts`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true',
+        },
+        body: JSON.stringify({
+            did: user.did,
+            title,
+            content,
+            subreddit,
+            ...mediaOb,
+        }),
+    });
+
+    if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error || `Peer server error: ${res.status}`);
+    }
+
+    return await res.json();
+};
+
+/**
+ * Fetches full post details (including comments) directly from a peer server.
+ * Used when a peer post is opened — the main backend is NOT contacted.
+ */
+export const getPostDetailsFromPeer = async (peerDomain: string, postId: string): Promise<Post> => {
+    const userStr = localStorage.getItem('graphene_user');
+    let viewerDid = '';
+    if (userStr) {
+        try { viewerDid = JSON.parse(userStr).did; } catch { }
+    }
+
+    const url = `https://${peerDomain}/api/posts/${postId}?viewerDid=${encodeURIComponent(viewerDid)}`;
+    const res = await fetch(url, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('graphene_token') || ''}`,
+            'ngrok-skip-browser-warning': 'true',
+        },
+    });
+    if (!res.ok) throw new Error(`Peer server returned ${res.status}`);
+    const post = await res.json();
+    return {
+        ...post,
+        votes: post.score || 0,
+        user_vote: post.user_vote ?? null,
+        imageUrl: post.media_url,
+        mediaType: post.media_type,
+        peer_domain: peerDomain,
+        is_federated_post: true,
+    } as Post;
+};
+
+/**
+ * Creates a comment directly on a peer server.
+ */
+export const createCommentOnPeer = async (
+    peerDomain: string,
+    postId: string,
+    content: string,
+    parentId?: string
+) => {
+    const token = localStorage.getItem('graphene_token');
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+    const user = JSON.parse(userStr);
+
+    const res = await fetch(`https://${peerDomain}/api/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true',
+        },
+        body: JSON.stringify({ did: user.did, postId, content, parentId }),
+    });
+    if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error || `Peer comment error: ${res.status}`);
+    }
+    return await res.json();
+};
+
+/**
+ * Votes on a post directly on a peer server.
+ */
+export const votePostOnPeer = async (
+    peerDomain: string,
+    postId: string,
+    voteType: 1 | -1 | 0
+) => {
+    const token = localStorage.getItem('graphene_token');
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+    const user = JSON.parse(userStr);
+
+    const res = await fetch(`https://${peerDomain}/api/votes`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true',
+        },
+        body: JSON.stringify({ did: user.did, postId, voteType }),
+    });
+    if (!res.ok) throw new Error(`Peer vote error: ${res.status}`);
+    return await res.json();
+};
+
+/**
+ * Votes on a comment directly on a peer server.
+ */
+export const voteCommentOnPeer = async (
+    peerDomain: string,
+    commentId: string,
+    voteType: 1 | -1
+) => {
+    const token = localStorage.getItem('graphene_token');
+    const userStr = localStorage.getItem('graphene_user');
+    if (!userStr) throw new Error('User not logged in');
+    const user = JSON.parse(userStr);
+
+    const res = await fetch(`https://${peerDomain}/api/comments/${commentId}/vote`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true',
+        },
+        body: JSON.stringify({ did: user.did, voteType }),
+    });
+    if (!res.ok) throw new Error(`Peer comment vote error: ${res.status}`);
+    return await res.json();
+};
+
 // Communities
 /**
  * Gets communities

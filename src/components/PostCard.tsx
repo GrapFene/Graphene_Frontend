@@ -26,7 +26,7 @@ export default function PostCard({ post }: PostCardProps) {
 
   const handleCommentsClick = () => {
     const postUrl = `/r/${post.community}/${post.id}/${post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-    navigate(postUrl, { state: { scrollToComments: true } });
+    navigate(postUrl, { state: { scrollToComments: true, peer_domain: post.peer_domain ?? null } });
   };
 
   const communityColors: Record<string, string> = {
@@ -115,7 +115,7 @@ export default function PostCard({ post }: PostCardProps) {
 
           <h2
             className="text-2xl font-black mb-3 leading-tight hover:underline cursor-pointer text-black dark:text-white"
-            onClick={() => window.location.href = `/r/${post.community}/${post.id}/${post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+            onClick={() => navigate(`/r/${post.community}/${post.id}/${post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, { state: { peer_domain: post.peer_domain ?? null } })}
           >
             {post.title}
           </h2>

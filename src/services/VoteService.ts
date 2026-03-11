@@ -27,17 +27,23 @@ export const VoteService = {
         const voteType = direction === 'up' ? 1 : -1;
 
         const token = localStorage.getItem('graphene_token');
-        const response = await fetch(`${API_URL}/votes`, {
+
+        // If a peer domain is provided, hit that peer's backend directly
+        const voteUrl = peerDomain
+            ? `https://${peerDomain}/api/votes`
+            : `${API_URL}/votes`;
+
+        const response = await fetch(voteUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                ...(peerDomain ? { 'ngrok-skip-browser-warning': 'true' } : {}),
             },
             body: JSON.stringify({
                 did: user.did,
                 postId,
                 voteType,
-                ...(peerDomain ? { peer_domain: peerDomain } : {})
             })
         });
 
@@ -65,17 +71,22 @@ export const VoteService = {
         const user = JSON.parse(userStr);
         const token = localStorage.getItem('graphene_token');
 
-        const response = await fetch(`${API_URL}/votes`, {
+        // If a peer domain is provided, hit that peer's backend directly
+        const voteUrl = peerDomain
+            ? `https://${peerDomain}/api/votes`
+            : `${API_URL}/votes`;
+
+        const response = await fetch(voteUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                ...(peerDomain ? { 'ngrok-skip-browser-warning': 'true' } : {}),
             },
             body: JSON.stringify({
                 did: user.did,
                 postId,
                 voteType: 0,
-                ...(peerDomain ? { peer_domain: peerDomain } : {})
             })
         });
 

@@ -118,11 +118,16 @@ export default function CreatePostPage() {
                             >
                                 {communities.map((community) => (
                                     <option key={community.name} value={community.name}>
-                                        g/{community.name}
+                                        g/{community.name}{community.is_federated ? ' 🌐' : ''}
                                     </option>
                                 ))}
                             </select>
                         </div>
+                        {selectedCommunity?.is_federated && selectedCommunity?.home_instance_domain && (
+                            <div className="px-4 py-2 bg-blue-100 dark:bg-blue-900 border-b-4 border-black dark:border-gray-600 text-sm font-bold text-blue-800 dark:text-blue-200">
+                                🌐 Federated community — post will be hosted on <span className="font-black">{selectedCommunity.home_instance_domain}</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Post Type Tabs */}

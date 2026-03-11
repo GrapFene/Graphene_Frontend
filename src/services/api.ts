@@ -90,6 +90,10 @@ export interface Community {
     members: number; // mapped from subscriber_count or manually set
     subscriber_count?: number;
     created_at: string;
+    is_federated?: boolean;
+    home_instance_domain?: string | null;
+    /** Set when this community was fetched from a peer server */
+    peer_domain?: string | null;
 }
 
 // Auth (Existing)
@@ -423,6 +427,45 @@ export const getCommunities = async (search: string = '') => {
 export const getTopCommunities = async (limit: number = 5) => {
     const response = await api.get(`/communities/top?limit=${limit}`);
     return response.data;
+};
+
+/**
+ * Fetches top communities from a peer server directly.
+ */
+export const getTopCommunitiesFromPeer = async (peerDomain: string, limit: number = 10): Promise<Community[]> => {
+    try {
+        const url = `https://${peerDomain}/api/communities/top?limit=${limit}`;
+        const res = await fetch(url, {
+            headers: { 'ngrok-skip-browser-warning': 'true', 'Accept': 'application/json' },
+            signal: AbortSignal.timeout(5_000),
+        });
+        if (!res.ok) return [];
+        const data = await res.json() as any[];
+        return data.map(c => ({
+            name: c.name,
+            description: c.description || '',
+            members: c.subscriber_count || 0,
+            subscriber_count: c.subscriber_count || 0,
+            created_at: c.created_at,
+            is_federated: true,
+            home_instance_domain: peerDomain,
+            peer_domain: peerDomain,
+        }));
+    } catch {
+        return [];
+    }
+};
+
+/**
+ * Fetches the list of active federated peer servers known to this instance.
+ */
+export const getActivePeers = async (): Promise<{ domain: string }[]> => {
+    try {
+        const response = await api.get('/federation/peers');
+        return (response.data?.peers ?? []) as { domain: string }[];
+    } catch {
+        return [];
+    }
 };
 
 /**

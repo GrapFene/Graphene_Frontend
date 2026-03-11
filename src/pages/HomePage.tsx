@@ -1,22 +1,67 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Header from '../components/Header';
 import PostCard from '../components/PostCard';
 import Sidebar from '../components/Sidebar';
-import FilterBar from '../components/FilterBar';
+import FilterBar, { FeedFilter } from '../components/FilterBar';
 import { useNavigate } from 'react-router-dom';
 import { getFeed, Post as ApiPost } from '../services/api';
 
+// ---------------------------------------------------------------------------
+// Sorting helpers
+// ---------------------------------------------------------------------------
+
+/** Age of post in hours */
+const ageHours = (createdAt: string) =>
+    (Date.now() - new Date(createdAt).getTime()) / 3_600_000;
+
+/**
+ * Hot score — Reddit-style: sign(score) × log10(max(|score|,1)) + age decay.
+ * Recent posts with moderate votes beat old posts with high votes.
+ */
+const hotScore = (votes: number, createdAt: string) => {
+    const order = Math.log10(Math.max(Math.abs(votes), 1));
+    const sign = votes > 0 ? 1 : votes < 0 ? -1 : 0;
+    const seconds = (new Date(createdAt).getTime() - new Date('2024-01-01').getTime()) / 1000;
+    return sign * order + seconds / 45000;
+};
+
+/**
+ * Trending score — votes per hour since posted (velocity).
+ * Posts gaining votes fast rank highest regardless of total age.
+ */
+const trendingScore = (votes: number, createdAt: string) => {
+    const hours = Math.max(ageHours(createdAt), 0.1);
+    return votes / hours;
+};
+
+const sortPosts = (posts: any[], filter: FeedFilter): any[] => {
+    const sorted = [...posts];
+    switch (filter) {
+        case 'hot':
+            return sorted.sort((a, b) => hotScore(b.votes, b.timestamp) - hotScore(a.votes, a.timestamp));
+        case 'trending':
+            return sorted.sort((a, b) => trendingScore(b.votes, b.created_at ?? b.timestamp) - trendingScore(a.votes, a.created_at ?? a.timestamp));
+        case 'new':
+            return sorted.sort((a, b) =>
+                new Date(b.created_at ?? b.timestamp).getTime() - new Date(a.created_at ?? a.timestamp).getTime()
+            );
+        case 'top':
+            return sorted.sort((a, b) => (b.votes ?? 0) - (a.votes ?? 0));
+        default:
+            return sorted;
+    }
+};
+
 /**
  * Home Page Component
- * 
- * Functionality: Main landing page displaying the feed, sidebar, and filter bar.
- * Input: None
- * Response: JSX.Element - The rendered home page.
+ *
+ * Displays the federated feed (main + peer posts) with Hot/Trending/New/Top filtering.
  */
 export default function HomePage() {
     const navigate = useNavigate();
-    const [posts, setPosts] = useState<any[]>([]);
+    const [allPosts, setAllPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [activeFilter, setActiveFilter] = useState<FeedFilter>('hot');
 
     useEffect(() => {
         fetchPosts();
@@ -25,15 +70,18 @@ export default function HomePage() {
     const fetchPosts = async () => {
         setLoading(true);
         try {
+            // Backend already merges local + peer posts in GET /posts
             const data = await getFeed('recent');
             const mappedPosts = data.map((p: ApiPost) => ({
                 id: p.id,
                 community: p.subreddit || 'general',
                 author: p.author_did.substring(0, 15) + '...',
+                // Keep raw ISO string for sorting; format for display separately
+                created_at: p.created_at,
                 timestamp: new Date(p.created_at).toLocaleString(),
                 title: p.title || 'Untitled Post',
                 content: p.content,
-                votes: p.votes || 0,
+                votes: p.votes || p.score || 0,
                 user_vote: p.user_vote,
                 commentCount: p.comment_count || 0,
                 imageUrl: p.media_url || null,
@@ -43,7 +91,7 @@ export default function HomePage() {
                 peer_domain: p.peer_domain ?? null,
                 is_federated_post: p.is_federated_post ?? false,
             }));
-            setPosts(mappedPosts);
+            setAllPosts(mappedPosts);
         } catch (err) {
             console.error("Failed to fetch feed", err);
         } finally {
@@ -51,26 +99,24 @@ export default function HomePage() {
         }
     };
 
+    // Re-sort client-side whenever filter changes — no extra network request needed
+    const posts = useMemo(() => sortPosts(allPosts, activeFilter), [allPosts, activeFilter]);
+
     const handleLogout = () => {
         localStorage.removeItem('graphene_token');
         localStorage.removeItem('graphene_user');
-
-        // Trigger auth state update
         window.dispatchEvent(new Event('authChange'));
-
         navigate('/login');
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 dark:bg-black dark:from-black dark:via-black dark:to-black transition-colors duration-200">
-            <Header
-                onCreatePost={() => navigate('/submit')}
-            />
+            <Header onCreatePost={() => navigate('/submit')} />
 
             <main className="max-w-7xl mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
-                        <FilterBar />
+                        <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
                         {loading ? (
                             <div className="text-center font-bold text-black dark:text-white">Loading feed...</div>
                         ) : posts.length === 0 ? (
@@ -85,7 +131,7 @@ export default function HomePage() {
                             </div>
                         ) : (
                             posts.map((post) => (
-                                <PostCard key={post.id} post={post} />
+                                <PostCard key={`${post.peer_domain ?? 'local'}-${post.id}`} post={post} />
                             ))
                         )}
                     </div>
@@ -108,9 +154,9 @@ export default function HomePage() {
                             Built with ❤️ by the Graphene Team
                         </p>
                         <div className="flex justify-center items-center gap-6 font-bold flex-wrap">
-                            <a 
-                                href="https://github.com/GrapFene/Graphene_Backend" 
-                                target="_blank" 
+                            <a
+                                href="https://github.com/GrapFene/Graphene_Backend"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 bg-white text-black border-3 border-white px-4 py-2 hover:bg-yellow-300 hover:border-yellow-300 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] hover:shadow-[6px_6px_0px_0px_rgba(255,215,0,0.5)] hover:-translate-y-1 font-black"
                             >
@@ -128,9 +174,9 @@ export default function HomePage() {
                                 </svg>
                                 About
                             </button>
-                            <a 
-                                href="https://github.com/GrapFene/Graphene_Backend/blob/main/LICENSE" 
-                                target="_blank" 
+                            <a
+                                href="https://github.com/GrapFene/Graphene_Backend/blob/main/LICENSE"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="hover:text-yellow-300 dark:hover:text-cyan-400 transition-colors"
                             >

@@ -847,6 +847,15 @@ export interface KnownPeer {
 }
 
 /**
+ * Sends a federation Announce handshake from this main server to a peer domain.
+ * This registers the peer and initiates the federation connection.
+ */
+export const sendFederationAnnounce = async (targetDomain: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.post('/federation/announce', { target_domain: targetDomain });
+    return response.data;
+};
+
+/**
  * Get the list of known peer instances that have federated with us.
  */
 export const getFederatedPeers = async (): Promise<KnownPeer[]> => {

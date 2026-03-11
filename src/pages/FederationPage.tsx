@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Globe, Link2, RefreshCw, CheckCircle, Clock, AlertTriangle, Server, Copy } from 'lucide-react';import Header from '../components/Header';
+import { Globe, Link2, RefreshCw, CheckCircle, Clock, AlertTriangle, Server, Copy, Send } from 'lucide-react';import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
-import { getFederatedPeers, getInstanceActor, KnownPeer } from '../services/api';
+import { getFederatedPeers, getInstanceActor, sendFederationAnnounce, KnownPeer } from '../services/api';
 
 /**
  * Federation Page
@@ -18,6 +18,11 @@ export default function FederationPage() {
     const [actor, setActor] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [copied, setCopied] = useState('');
+
+    // Connect to peer state
+    const [connectDomain, setConnectDomain] = useState('');
+    const [connectStatus, setConnectStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [connectMessage, setConnectMessage] = useState('');
 
     useEffect(() => {
         load();
@@ -60,6 +65,23 @@ export default function FederationPage() {
         ta.select();
         document.execCommand('copy');
         document.body.removeChild(ta);
+    };
+
+    const handleConnect = async () => {
+        const domain = connectDomain.trim().replace(/^https?:\/\//, '');
+        if (!domain) return;
+        setConnectStatus('loading');
+        setConnectMessage('');
+        try {
+            const result = await sendFederationAnnounce(domain);
+            setConnectStatus('success');
+            setConnectMessage(result.message || `Successfully connected to ${domain}`);
+            // Refresh peer list to show the new peer
+            load();
+        } catch (err: any) {
+            setConnectStatus('error');
+            setConnectMessage(err?.response?.data?.error || err.message || 'Connection failed');
+        }
     };
 
     const formatDate = (iso: string) =>
@@ -158,6 +180,55 @@ export default function FederationPage() {
                                 </div>
                             </section>
                         )}
+
+                        {/* ── Connect to a Peer ──────────────────────────────────── */}
+                        <section>
+                            <h2 className="font-black text-2xl mb-4 text-black dark:text-white flex items-center gap-2">
+                                <Send className="w-6 h-6" strokeWidth={3} />
+                                Connect to a Peer Server
+                            </h2>
+                            <div className="bg-white dark:bg-black border-4 border-black dark:border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(50,50,50,1)] p-6 space-y-4">
+                                <p className="font-bold text-gray-700 dark:text-gray-300">
+                                    Enter a peer server's domain or IP to send a federation handshake from this main server.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <input
+                                        type="text"
+                                        value={connectDomain}
+                                        onChange={e => { setConnectDomain(e.target.value); setConnectStatus('idle'); setConnectMessage(''); }}
+                                        onKeyDown={e => e.key === 'Enter' && handleConnect()}
+                                        placeholder="e.g. peer.example.com or 12.34.56.78"
+                                        className="flex-1 px-4 py-3 border-4 border-black dark:border-gray-700 bg-white dark:bg-gray-900 text-black dark:text-white font-bold placeholder:text-gray-400 dark:placeholder-gray-500 focus:outline-none focus:translate-x-1 focus:translate-y-1 focus:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)]"
+                                    />
+                                    <button
+                                        onClick={handleConnect}
+                                        disabled={connectStatus === 'loading' || !connectDomain.trim()}
+                                        className="flex items-center gap-2 bg-green-400 dark:bg-green-700 border-4 border-black dark:border-gray-700 px-6 py-3 font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(50,50,50,1)] text-black dark:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                    >
+                                        {connectStatus === 'loading' ? (
+                                            <RefreshCw className="w-5 h-5 animate-spin" strokeWidth={3} />
+                                        ) : (
+                                            <Send className="w-5 h-5" strokeWidth={3} />
+                                        )}
+                                        {connectStatus === 'loading' ? 'Connecting...' : 'Send Handshake'}
+                                    </button>
+                                </div>
+
+                                {/* Status feedback */}
+                                {connectStatus === 'success' && (
+                                    <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950 border-4 border-green-500 px-4 py-3">
+                                        <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" />
+                                        <span className="font-bold text-green-700 dark:text-green-300">{connectMessage}</span>
+                                    </div>
+                                )}
+                                {connectStatus === 'error' && (
+                                    <div className="flex items-center gap-2 bg-red-50 dark:bg-red-950 border-4 border-red-500 px-4 py-3">
+                                        <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />
+                                        <span className="font-bold text-red-700 dark:text-red-300">{connectMessage}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
 
                         {/* ── Connected Peers ─────────────────────────────────────── */}
                         <section>

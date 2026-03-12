@@ -1,9 +1,20 @@
 import axios from 'axios';
 
-// VITE_API_BASE_URL is baked into the JS bundle at Docker build time via
-// --build-arg VITE_API_BASE_URL=... in the CI/CD pipeline (deploy.yml).
-// Falls back to localhost:3000 for local `npm run dev` without a .env file.
-const API_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
+// Fallback logic for API URL:
+// 1. Use VITE_API_BASE_URL if provided (e.g., from .env or build arg)
+// 2. If running on a server that hosts the frontend (like our Peer/Main backends), use relative '/api'
+// 3. Fallback to localhost:3000/api for local development
+const getApiUrl = () => {
+    const envUrl = import.meta.env.VITE_API_BASE_URL;
+    if (envUrl) {
+        // Ensure it ends with /api but don't double it up
+        return envUrl.endsWith('/api') ? envUrl : `${envUrl.replace(/\/$/, '')}/api`;
+    }
+    // If we're on the same origin, just use relative /api
+    return '/api';
+};
+
+const API_URL = getApiUrl();
 
 const api = axios.create({
     baseURL: API_URL,
